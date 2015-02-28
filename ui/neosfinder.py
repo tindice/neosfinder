@@ -1,10 +1,11 @@
 #!/usr/bin/python
+# -*- coding: utf-8 -*-
 from gi.repository import Gtk
 from PrincipalHandler import Handler
 
 ARCHIVO_UI = "interfaz.glade"
 ID_VENTANA = "AppWinPrincipal"
-SEÑAL_CIERRA_VENTANA = "delete-event"
+SENIAL_CIERRA_VENTANA = "delete-event"
 
 # Crea una instancia de Builder en builder
 builder = Gtk.Builder()
@@ -19,7 +20,7 @@ builder.connect_signals(Handler())
 window = builder.get_object(ID_VENTANA)
 
 # Conecta la señal "delete_event" al metodo Gtk.main_quit que cierra el loop Gtk principal
-window.connect(SEÑAL_CIERRA_VENTANA, Gtk.main_quit)
+window.connect(SENIAL_CIERRA_VENTANA, Gtk.main_quit)
 
 # Hace visibles todos los objetos mostrables hijos de window incluido si mismo
 window.show_all()
