@@ -3,6 +3,8 @@
 '''  Busco Refs en fits.
 	Alinear xor los png equalizados
 '''
+print "processing ..."
+
 import numpy as np
 from PIL import Image, ImageOps
 import os
@@ -109,7 +111,7 @@ for filename in sorted(filelist):
 	#~ prevrefs = FindRefs(pngsum)
 	prevrefs = refs
 	update_progress(cant,totalfiles)
-	if cant == 110: break
+	#~ if cant == 110: break
 
 #~ e = Image.fromarray(np.flipud(png))
 e = Image.fromarray(pngsum)
