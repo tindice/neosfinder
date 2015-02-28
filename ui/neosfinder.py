@@ -1,8 +1,13 @@
 #!/usr/bin/python
 from gi.repository import Gtk
-from PrincipalWindow import PrincipalWindow
+from PrincipalHandler import Handler
 
-win = PrincipalWindow()
-win.connect("delete-event", Gtk.main_quit)
-win.show_all()
+builder = Gtk.Builder()
+builder.add_from_file("interfaz.glade")
+builder.connect_signals(Handler())
+
+window = builder.get_object("AppWinPrincipal")
+window.connect("delete-event", Gtk.main_quit)
+window.show_all()
+
 Gtk.main()

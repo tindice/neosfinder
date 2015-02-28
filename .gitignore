@@ -1,6 +1,9 @@
 # imágenes de salida
 *.png
 
+# glade baks
+*.glade~
+
 # gedit baks
 *.py~
 *.md~
