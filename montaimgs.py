@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#! /usr/bin/env python
 # -*- coding: utf-8 -*-
 '''  Busco Refs en fits.
 	Alinear xor los png equalizados
@@ -14,7 +14,10 @@ pngfolder = "./equalized/"
 cant = 0
 #~ Ref = None
 # Recorrer imagenes FIT -------------------------------
-for filename in sorted(os.listdir(fitfolder[:-1])):
+filelist = os.listdir(fitfolder[:-1])
+totalfiles = len(filelist)
+for filename in sorted(filelist):
+	if filename[-4:] != ".fit": continue
 	cant += 1
 	f = fitfolder+filename
 	boxes = 8
@@ -33,8 +36,6 @@ for filename in sorted(os.listdir(fitfolder[:-1])):
 	# Uso primera imagen como base para alinear -----------
 	if cant == 1: 
 		data = Getdata(f)
-		print np.amin(data), np.amax(data)
-		Pause()
 		pngsum = Fit2png(data).astype(np.uint8)
 		continue		# ---------------------------------
 	
@@ -43,8 +44,9 @@ for filename in sorted(os.listdir(fitfolder[:-1])):
 	for p in range(0,len(refs)):
 		dx.append(refs[p][0]-prevrefs[p][0])
 		dy.append(refs[p][1]-prevrefs[p][1])
-	bins = [-1.5,-0.5,0.5,1.5,2.5,3.5,4.5,5.5,6.5,7.5,8.5]
-	hx = np.histogram(dx,bins=bins,range=(-4.0,4.0))[0]
+	#^bins = [-1.5,-0.5,0.5,1.5,2.5,3.5,4.5,5.5,6.5,7.5,8.5]
+	bins = np.arange(-10,15,0.5)
+	hx = np.histogram(dx,bins=bins)[0]
 	#~ print hx
 		# Elegir el mejor dx ---------------------
 	xd = []
@@ -106,13 +108,13 @@ for filename in sorted(os.listdir(fitfolder[:-1])):
 	#~ Pause()
 	#~ prevrefs = FindRefs(pngsum)
 	prevrefs = refs
-	update_progress(cant,len(os.listdir(fitfolder[:-1])))
+	update_progress(cant,totalfiles)
 	if cant == 110: break
 
 #~ e = Image.fromarray(np.flipud(png))
 e = Image.fromarray(pngsum)
 #~ e = ImageOps.equalize(e)	
-e.save("out_0 a 110.png" )
+e.save("out_0 a %i.png" %(cant) )
 	
 	
 	
