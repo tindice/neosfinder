@@ -5,39 +5,22 @@ import  pyfits as pyf, numpy as np
 from PIL import Image, ImageOps
 import os, math
 
-#~ def Choosebest(f,bins,histox=[0,0,0,0,0,0,0,0,0,0],histoy=[0,0,0,0,0,0,0,0,0,0]):
-	#~ import numpy as np
-	#~ d = []
-	#~ h = histox+histoy
-	#~ leng = len(h)
-	#~ for n in range(0,leng):
-		#~ if h[n] != 0:
-			#~ d.append(int(0.5+bins[n]))
-	#~ print "d =", d
-	#~ for dx in range(0,len(d)):
-		#~ Shift(data,dx=dx) y pruebo.
-	#~ return
 
 def Putcross(array,refs,t=10):
-	''' Put crosses on the image array.
+	''' Put crosses on the image array. ( Cross size= 2*t+1 )
 		Uses the list refs=[(x0,y0),...,(xn,yn)] to center each cross.
 		Returns the modified array '''
 	a = array.astype(np.uint8)
 	# Cross array definition
 	lum = np.max(array)
-	#~ lum = 255
-	#~ t = 20	# cross size= 2*t+1
 	cros = np.zeros((2*t+1,2*t+1),dtype=np.uint8)
 	cros[:t-3,t] = cros[t+4:,t] = lum
 	cros[t,:t-3] = cros[t,t+4:] = lum
-	#~ print cros
 	for pt in range(0,len(refs)):
 		ptx = refs[pt][0]
 		pty = refs[pt][1]
-		#~ if array[pty-9:pty+10,ptx-9:ptx+10].shape == (19,19):
 		if (ptx>=t and ptx<a.shape[1]-t) and (pty>=t and pty<a.shape[0]-t):
-			if a[pty,ptx] > 150:
-				#~ a[pty-t:pty+t+1,ptx-t:ptx+t+1] ^= cros
+			if a[pty,ptx] > 150:	# luminosidad digna
 				a[pty-t:pty+t+1,ptx-t:ptx+t+1] = np.maximum(a[pty-t:pty+t+1,ptx-t:ptx+t+1],cros)
 	return a
 	
@@ -47,25 +30,31 @@ def update_progress(progress, total):
 def Pause(msg="Enter to cont, Ctrl-C to exit: "):
 	raw_input(msg)
 
-def Checkfits(filelist):
-	print "\r Checking ..."
+def Checkfits(path, filelist, mean_criteria=(0.5,10), uprogress=True):
+	print "\r Checking Fitfiles integrity ..."
 	cant = 0
 	exclude = []
+	spc = " " * (len(filelist[0]) - 4)
+
+	checklog = open("./check.log", "w")
+	checklog.write("File%s\tmean\tstd\tvar\n" %(spc))
 	for f in filelist:
 		cant += 1
-		update_progress(cant,len(filelist))
-		data = Getdata(f)
+		if uprogress: update_progress(cant,len(filelist))
+		data = Getdata(path+f)
 		mean = int(np.mean(data))
 		std = int(np.std(data))
 		var = int(np.var(data))
+		checklog.write("%s\t%i\t%i\t%i\n" %(f,mean,std,var))
 		if cant == 1:
 			mean1 = mean
 			std1 = std
 			var1 = var
-		if mean<mean1/2 or mean>mean1 *10:
+		if mean<mean1*mean_criteria[0] or mean>mean1 *mean_criteria[1]:
 			exclude.append(f)
 			print "\nWarning: image %s" %(f)
-	print "\n"
+	checklog.close()
+	if uprogress: print "\n"
 	return exclude
 
 def Shift(array,dx=0,dy=0):
@@ -91,8 +80,6 @@ def Getdata(filefullname):
 		hduList.close()
 	else:
 		data = filefullname.copy()
-	#~ print filefullname+":"
-	#~ print data
 	return data
     
 def Fit2png(data,i0=10000, i1=16000, sharp=1.8):
@@ -140,9 +127,7 @@ def XYind(sfi,x0,y0,x1,y1):
 	""" Returns both indexes X,Y of an array,
 	#  from the SubarrayFlatenIndex of the box(x0,y0,x1,y1)
 	"""
-	#~ print sfi,x0,y0,x1,y1
 	col, row = np.unravel_index(sfi, (y1-y0, x1-x0))
-	#~ print "sfi =", sfi, " -->", row,col
 	return x0+row,y0+col
 
 def Distances(refs):
@@ -174,11 +159,9 @@ def FindRefs(filename, boxes=8):
 	plumx = []
 	plumy = []
 	lum = []
-	boxes = 8	# boxes^2 boxes
 	w = int(Width/boxes)
 	h = int(Height/boxes)
 	dd = 4	# pixels de separación entre boxes
-	#~ dmax = 20 # diam max de estrellas ref.
 	
 	for n in range(0,boxes):	# recorrer boxes
 		x0 = n*w+dd
@@ -189,13 +172,9 @@ def FindRefs(filename, boxes=8):
 			subflatind = a[y0:y1,x0:x1].argmax() # flatten indice del box!
 			X,Y = XYind(subflatind,x0,y0,x1,y1)	# indices de a
 			
-			#~ if a[Y,X] > 8000:
 			lum.append(a[Y,X])
 			plumx.append(X)
 			plumy.append(Y)
-			#~ print "en (%i , %i)"%(X,Y), a[Y,X]
-
-	#~ print len(plumx), "detectadas."
 	
 	refs = []
 	for pt in range(0,len(plumx)):
