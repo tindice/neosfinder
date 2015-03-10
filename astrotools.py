@@ -30,31 +30,25 @@ def update_progress(progress, total):
 def Pause(msg="Enter to cont, Ctrl-C to exit: "):
 	raw_input(msg)
 
-def Checkfits(path, filelist, mean_criteria=(0.5,10), uprogress=True):
+def Checkfits(path, filelist, mean_criteria=(0.5,10), uprogress=True, log=True):
 	print "\r Checking Fitfiles integrity ..."
-	cant = 0
-	exclude = []
-	spc = " " * (len(filelist[0]) - 4)
-
-	checklog = open("./check.log", "w")
-	checklog.write("File%s\tmean\tstd\tvar\n" %(spc))
-	for f in filelist:
-		cant += 1
-		if uprogress: update_progress(cant,len(filelist))
-		data = Getdata(path+f)
-		mean = int(np.mean(data))
-		std = int(np.std(data))
-		var = int(np.var(data))
-		checklog.write("%s\t%i\t%i\t%i\n" %(f,mean,std,var))
-		if cant == 1:
-			mean1 = mean
-			std1 = std
-			var1 = var
-		if mean<mean1*mean_criteria[0] or mean>mean1 *mean_criteria[1]:
-			exclude.append(f)
-			print "\nWarning: image %s" %(f)
-	checklog.close()
-	if uprogress: print "\n"
+	
+	means = {f:int(np.mean(Getdata(path+f))) for f in filelist}
+	mean = means[filelist[0]]
+	exclude = [f for f in filelist if means[f]<mean*mean_criteria[0] or means[f]>mean*mean_criteria[1]]
+	
+	if log:
+		checklog = open("./check.log", "w")
+		checklog.write("File%s\tmean\tstd\tvar\n" %(spc))
+		spc = " " * (len(filelist[0]) - 4)
+		cant = 0
+		for f in filelist:
+			cant += 1
+			if uprogress: update_progress(cant,len(filelist))
+			checklog.write("%s\t%i\t%i\t%i\n" %(f,int(np.mean(Getdata(path+f))),int(np.std(Getdata(path+f))),int(np.var(Getdata(path+f)))))
+		checklog.close()
+		if uprogress: print "\n"
+	
 	return exclude
 
 def Shift(array,dx=0,dy=0):
@@ -87,11 +81,9 @@ def Fit2png(data,i0=10000, i1=16000, sharp=1.8):
 	"""
 	import numpy as np
 	Height, Width = data.shape
-	#~ print data
 	# Convert .FIT to PNG (int16 to uint8) with enhaced contrast.
 	newarray = np.array(Image.new("L", (Width,Height), color=0)) 
 	t = -sharp *(data-(i0+i1)/2)/(i1-i0)
-	#~ print t
 	newarray = 255/(1+np.exp(t))
 	return newarray - np.amin(newarray)
     
@@ -127,8 +119,8 @@ def XYind(sfi,x0,y0,x1,y1):
 	""" Returns both indexes X,Y of an array,
 	#  from the SubarrayFlatenIndex of the box(x0,y0,x1,y1)
 	"""
-	col, row = np.unravel_index(sfi, (y1-y0, x1-x0))
-	return x0+row,y0+col
+	y, x = np.unravel_index(sfi, (y1-y0, x1-x0))
+	return x0+x,y0+y
 
 def Distances(refs):
 	""""
@@ -146,10 +138,10 @@ def Distances(refs):
 			L.append(d)
 	return L
 	
-def FindRefs(filename, boxes=8):
+def FindRefs2(filename, boxes=8):
 	""""
 	Search references, the lightest	point on each box (there are boxes^2 boxes)
-	Returns the list [(x0,y0),...,(xn,yn)] with the coords
+	Returns the list [(x0,y0,l0),...,(xn,yn,ln)] with the coords and lum
 	of the found references.
 	Also accepts an np.array instead of "filename".
 	"""
@@ -161,25 +153,39 @@ def FindRefs(filename, boxes=8):
 	lum = []
 	w = int(Width/boxes)
 	h = int(Height/boxes)
-	dd = 4	# pixels de separación entre boxes
 	
-	for n in range(0,boxes):	# recorrer boxes
-		x0 = n*w+dd
-		x1 = (n+1)*w-dd
-		for m in range(0,boxes):
-			y0 = m*h+dd
-			y1 = (m+1)*h-dd
-			subflatind = a[y0:y1,x0:x1].argmax() # flatten indice del box!
-			X,Y = XYind(subflatind,x0,y0,x1,y1)	# indices de a
-			
-			lum.append(a[Y,X])
-			plumx.append(X)
-			plumy.append(Y)
-	
-	refs = []
-	for pt in range(0,len(plumx)):
-		ptx = plumx[pt]
-		pty = plumy[pt]
-		refs.append((ptx,pty,lum[pt]))
+	box = [(n*w,m*h) for n in range(0,boxes) for m in range(0,boxes)]
+	flatinds = [a[b[1]:h+b[1],b[0]:w+b[0]].argmax() for b in box]
+	unravels = np.unravel_index(flatinds, (h, w))
+	ur = [(unravels[1][n],unravels[0][n]) for n in range(0,len(box))]
+	#~ print "box",box
+	#~ print "ur",ur
+	absinds = [map(sum,zip(box[n],ur[n])) for n in range(0,len(box))]
+	refs = [(absinds[n][0],absinds[n][1],a[absinds[n][1],absinds[n][0]]) for n in range(0,len(box))] 
+	#~ print "refs",refs
+	#~ Pause()
 	return refs
+	
+def FindRefs(a):
+    from numpy.lib.stride_tricks import as_strided as ast
+    box = tuple(x/6 for x in a.shape)
+    z=ast(a, \
+          shape=(6,6)+box, \
+          strides=(a.strides[0]*box[0],a.strides[1]*box[1])+a.strides)
+    v3 = np.max(z,axis=-1)
+    i3r = np.argmax(z,axis=-1)
+    #~ v2 = np.max(v3,axis=-1)
+    i2 = np.argmax(v3,axis=-1)
+    i2x = np.indices(i2.shape)
+    i3 = i3r[np.ix_(*[np.arange(x) for x in i2.shape])+(i2,)]
+    i3x = np.indices(i3.shape)
+    ix0 = i2x[0]*box[0]+i2
+    ix1 = i3x[1]*box[1]+i3
+    #~ print np.ravel(ix0)
+    #~ res = zip(np.ravel(ix0),np.ravel(ix1),np.ravel(v2))
+    #~ res = zip(np.ravel(ix0),np.ravel(ix1))
+    #~ print res
+    #~ Pause()
+    return np.ravel(ix0), np.ravel(ix1)
+
 	###############################################################
