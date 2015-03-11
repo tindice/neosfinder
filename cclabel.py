@@ -124,31 +124,31 @@ def run(img):
         labels[(x, y)] = component
  
         # Associate a random color with this component 
-        #~ if component not in colors: 
-            #~ colors[component] = (random.randint(0,255), random.randint(0,255),random.randint(0,255))
-        if component == 12:
-            colors[component] = (255, 100,100)  # RGB
-        else:
-            colors[component] = (255, 255,255)  # RGB
+        if component not in colors: 
+            colors[component] = (random.randint(0,255), random.randint(0,255),random.randint(0,255))
+        #~ if component == 12:
+            #~ colors[component] = (255, 100,100)  # RGB
+        #~ else:
+            #~ colors[component] = (255, 255,255)  # RGB
 
         # Colorize the image
         outdata[x, y] = colors[component]
     
     
-    C12 = findcomponent(labels,12)  # lista de pixels etiquetados 12
-    xx, yy = [], []
-    for (x,y) in C12:
-        xx.append(x)
-        yy.append(y)
-    x0 = min(xx)
-    x1 = max(xx)
-    y0 = min(yy)
-    y1 = max(yy)
-    print np.asarray(data)[y0:y1,x0:x1]
-    vals = labels.values()
-    histo = list([(x, vals.count(x)) for x in set(vals)])
-    print histo
-    raw_input("...")
+    #~ C12 = findcomponent(labels,12)  # lista de pixels etiquetados 12
+    #~ xx, yy = [], []
+    #~ for (x,y) in C12:
+        #~ xx.append(x)
+        #~ yy.append(y)
+    #~ x0 = min(xx)
+    #~ x1 = max(xx)
+    #~ y0 = min(yy)
+    #~ y1 = max(yy)
+    #~ print np.asarray(data)[y0:y1,x0:x1]
+    #~ vals = labels.values()
+    #~ histo = list([(x, vals.count(x)) for x in set(vals)])
+    #~ print histo
+    #~ raw_input("...")
 
     return (labels, output_img)
 
@@ -173,6 +173,7 @@ def main():
     # will want to use
     #
     # output_image is just a frivolous way to visualize the components.
+    #~ (labels, output_img) = run(img)
     (labels, output_img) = run(img)
     output_img.save("a41.png")
 
