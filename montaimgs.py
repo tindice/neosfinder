@@ -9,9 +9,9 @@ import numpy as np
 from PIL import Image, ImageOps
 import os, datetime as dt
 from astrotools import *
+import cclabel as ccl
 
 fitfolder = os.path.expanduser('~/Descargas/suleika/')
-#~ print fitfolder
 
 pngfolder = "./equalized/"
 cant = 0
@@ -29,7 +29,8 @@ print"Checkfits: ", dt.datetime.now()-t0
 t0 = dt.datetime.now()
 print "processing %s*.fit files..." %(fitfolder)
 for filename in filelist:
-	if filename[-7:-4]=="150": break
+	if filename[-7:-4]=="040": break	# <--- PRIMERAS 40
+	
 	update_progress(cant,totalfiles)
 	if filename[-4:] != ".fit" or filename in exclude:
 		shiftlog.write("%s\t --- Excluded ---\n" %(filename+spc))
@@ -83,10 +84,12 @@ for filename in filelist:
 	# Alineamos ----------------------------------
 	pngsum = np.maximum(Shift(png,-totalx,-totaly), pngsum)
 		
-	e = Image.fromarray(pngsum)
-	e.save("out_1 a %s.png" %(filename[-7:-4]) )
-print"Saving to 150: ", dt.datetime.now()-t0
+e = Image.fromarray(pngsum)
+e.save("out_1 a %s.png" %(filename[-7:-4]) )
+print"Saving sample: ", dt.datetime.now()-t0
 
+
+(labels, output_img) = ccl.run(ccl.bw(e))
 shiftlog.close()		
 			
 

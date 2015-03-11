@@ -9,10 +9,13 @@
 
 import Image, ImageDraw
 
-import sys
+import sys, numpy as np
 import math, random
 from itertools import product
 from ufarray import *
+
+def findcomponent(lbldict,lblval):
+    return [cords for cords,val in lbldict.iteritems() if val == lblval]
 
 def run(img):
     data = img.load()
@@ -107,7 +110,7 @@ def run(img):
     uf.flatten()
  
     colors = {}
-	
+    
     # Image to display the components in a nice, colorful way
     output_img = Image.new("RGB", (width, height))
     outdata = output_img.load()
@@ -121,19 +124,38 @@ def run(img):
         labels[(x, y)] = component
  
         # Associate a random color with this component 
-        if component not in colors: 
-            colors[component] = (random.randint(0,255), random.randint(0,255),random.randint(0,255))
+        #~ if component not in colors: 
+            #~ colors[component] = (random.randint(0,255), random.randint(0,255),random.randint(0,255))
+        if component == 12:
+            colors[component] = (255, 100,100)  # RGB
+        else:
+            colors[component] = (255, 255,255)  # RGB
 
         # Colorize the image
         outdata[x, y] = colors[component]
-        
+    
+    
+    C12 = findcomponent(labels,12)  # lista de pixels etiquetados 12
+    xx, yy = [], []
+    for (x,y) in C12:
+        xx.append(x)
+        yy.append(y)
+    x0 = min(xx)
+    x1 = max(xx)
+    y0 = min(yy)
+    y1 = max(yy)
+    print np.asarray(data)[y0:y1,x0:x1]
     vals = labels.values()
     histo = list([(x, vals.count(x)) for x in set(vals)])
     print histo
     raw_input("...")
 
     return (labels, output_img)
- 
+
+def bw(img):
+    img = img.point(lambda p: p > 200 and 255)
+    return img.convert('1')
+	
 def main():
     # Open the image
     #~ img = Image.open(sys.argv[1])
@@ -143,7 +165,7 @@ def main():
     # images only
     img = img.point(lambda p: p > 190 and 255)
     img = img.convert('1')
-
+    #~ img.show()
     # labels is a dictionary of the connected component data in the form:
     #     (x_coordinate, y_coordinate) : component_id
     #
@@ -152,7 +174,8 @@ def main():
     #
     # output_image is just a frivolous way to visualize the components.
     (labels, output_img) = run(img)
+    output_img.save("a41.png")
 
-    output_img.show()
+    #~ output_img.show()
 
 if __name__ == "__main__": main()
