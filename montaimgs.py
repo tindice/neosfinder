@@ -22,8 +22,8 @@ totalfiles = len(filelist)
 shiftlog = open("./shift.log", "w")
 
 t0 = dt.datetime.now()
-exclude = Checkfits(fitfolder, filelist, log=False)
-
+#~ exclude = Checkfits(fitfolder, filelist, log=False)
+exclude = []
 print"Checkfits: ", dt.datetime.now()-t0
 
 t0 = dt.datetime.now()
@@ -46,33 +46,60 @@ for filename in filelist:
         refsy, refsx = FindRefs(data)
         continue        # -- next file
         
+    data = Getdata(f)
     prevrefsy = refsy
     prevrefsx = refsx
     refsy, refsx = FindRefs(data)
-    
+    #~ print prevrefsx
+    #~ print refsx
     # Buscar desplazamientos relativos -----------------
     dx = refsx-prevrefsx
+    #~ print dx
     dy = refsy-prevrefsy
     # Quitando repetidos ------------
     dx = np.unique(dx)
+    print
+    print dx
     dy = np.unique(dy)
-    
-    # Elegir el mejor dx ensayando alineaciones------
+    print dy
+    # Elegir el mejor dy ensayando alineaciones------
     Height, Width = data.shape
     png = Fit2png(data,i0=100,sharp=2.2).astype(np.uint8)
-    for n in range(0,len(dy)):
-        ali = np.maximum(Shift(png,dy=-totaly-dy[n]), pngsum)
-        lumi = ali.mean()
-        if n==0 or lumi < lumin:
+    lumin = 4000000000
+    maskmin = min(set(dy))
+    maskmax = max(set(dy))
+    mpngsum = pngsum.copy()
+    mpngsum[:totaly+maskmax,:] =0 NO !!!!! Pensarlo mejor
+    for n in set(dy):
+		shpng = Shift(png,dy=-totaly-n)
+        ali = np.maximum(shpng, pngsum)
+        lumi = ali.sum(dtype=np.uint32)
+        if lumi < lumin:
             lumin = lumi
             besty = dy[n]
-        # ahora para dx -------------
-    for n in range(0,len(dx)):
+    print "besty = %i con lumi=%i" %(besty,lumin)
+	
+    # ahora para dx -------------
+    lumin = 4000000000
+    for n in set(dx):
         ali = np.maximum(Shift(png,dx=-totalx-dx[n],dy=-totaly-besty), pngsum)
-        lumi = ali.mean()
-        if n==0 or lumi < lumin:
+        lumi = ali.sum(dtype=np.uint32)
+        if lumi < lumin:
             lumin = lumi
             bestx = dx[n]
+    print "bestx = %i con lumi=%i" %(bestx,lumin)
+            
+    # y otra vez para dy -------------
+    lumin = 4000000000
+    for n in set(dy):
+        ali = np.maximum(Shift(png,dx=-totaly-bestx, dy=-totaly-dy[n]), pngsum)
+        lumi = ali.sum(dtype=np.uint32)
+        if lumi < lumin:
+            lumin = lumi
+            besty = dy[n]
+    print "besty = %i con lumi=%i" %(besty,lumin)
+    Pause("dx")
+    
     # Check Out of Field:       
     if abs(totalx+bestx) >Width/2 or abs(totaly+besty) >Height/2:
         shiftlog.write("%s\t %i\t %i\t %i\t %i Field Out.\n" %(filename,bestx,besty,totalx,totaly))
