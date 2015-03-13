@@ -37,25 +37,29 @@ for filename in filelist:
         continue        # -- next file
     cant += 1
     f = fitfolder+filename
+    data = Getdata(f)
     # Uso primera imagen como base para alinear -----------
     if cant == 1: 
         spc = " " * (len(filename) - 4)
         shiftlog.write("File%s\t dx\t dy\tadx\tady\n" %(spc))
         data = Getdata(f)
         pngsum = Fit2png(data,i0=100,sharp=2.2).astype(np.uint8)
-        refsy, refsx = FindRefs(data)
+        refs = FindRefs(data)
         continue        # -- next file
         
-    data = Getdata(f)
-    prevrefsy = refsy
-    prevrefsx = refsx
-    refsy, refsx = FindRefs(data)
+    prevrefs = refs
+    refs = FindRefs(data)
     #~ print prevrefsx
     #~ print refsx
-    # Buscar desplazamientos relativos -----------------
-    dx = refsx-prevrefsx
-    #~ print dx
-    dy = refsy-prevrefsy
+    
+    png = Fit2png(data,i0=100,sharp=2.2).astype(np.uint8)
+    ds = prevrefs - refs	# desplazamientos relativos: (n-1) - (n)
+    ts = tn + ds	# desplazamientos absolutos: (pngsum) - (n)
+	tn = ChooseBestAlign(pngsum,png,ts)
+    # Alineamos ----------------------------------
+    pngsum = np.maximum(Shift(png,tn[0],tn[1]), pngsum)
+    
+	RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR
     # Quitando repetidos ------------
     dx = np.unique(dx)
     print
@@ -64,15 +68,14 @@ for filename in filelist:
     print dy
     # Elegir el mejor dy ensayando alineaciones------
     Height, Width = data.shape
-    png = Fit2png(data,i0=100,sharp=2.2).astype(np.uint8)
     lumin = 4000000000
     maskmin = min(set(dy))
     maskmax = max(set(dy))
     mpngsum = pngsum.copy()
     mpngsum[:totaly+maskmax,:] =0 NO !!!!! Pensarlo mejor
     for n in set(dy):
-		shpng = Shift(png,dy=-totaly-n)
-        ali = np.maximum(shpng, pngsum)
+		shpng = 
+        ali = np.maximum(Shift(png,dy=-totaly-n), pngsum)
         lumi = ali.sum(dtype=np.uint32)
         if lumi < lumin:
             lumin = lumi
