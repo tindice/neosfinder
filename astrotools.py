@@ -138,33 +138,7 @@ def Distances(refs):
             L.append(d)
     return L
     
-def FindRefs2(filename, boxes=8):
-    """"
-    Search references, the lightest point on each box (there are boxes^2 boxes)
-    Returns the list [(x0,y0,l0),...,(xn,yn,ln)] with the coords and lum
-    of the found references.
-    Also accepts an np.array instead of "filename".
-    """
-    a = Getdata(filename)
-    Height, Width = a.shape
 
-    plumx = []
-    plumy = []
-    lum = []
-    w = int(Width/boxes)
-    h = int(Height/boxes)
-    
-    box = [(n*w,m*h) for n in range(0,boxes) for m in range(0,boxes)]
-    flatinds = [a[b[1]:h+b[1],b[0]:w+b[0]].argmax() for b in box]
-    unravels = np.unravel_index(flatinds, (h, w))
-    ur = [(unravels[1][n],unravels[0][n]) for n in range(0,len(box))]
-    #~ print "box",box
-    #~ print "ur",ur
-    absinds = [map(sum,zip(box[n],ur[n])) for n in range(0,len(box))]
-    refs = [(absinds[n][0],absinds[n][1],a[absinds[n][1],absinds[n][0]]) for n in range(0,len(box))] 
-    #~ print "refs",refs
-    #~ Pause()
-    return refs
     
 def FindRefs(a, n=6):
     ''' where "a" is a np.array (the image) and "n" is an integer.
@@ -186,36 +160,35 @@ def FindRefs(a, n=6):
     i3x = np.indices(i3.shape)
     ix0 = i2x[0]*box[0]+i2
     ix1 = i3x[1]*box[1]+i3
-    #~ print np.ravel(ix0)
-    #~ res = zip(np.ravel(ix0),np.ravel(ix1),np.ravel(v2))
-    #~ res = zip(np.ravel(ix0),np.ravel(ix1))
-    #~ print res
-    #~ Pause()
-    #~ return np.ravel(ix0), np.ravel(ix1)
+    #~ return np.ravel(ix0), np.ravel(ix1) ,np.ravel(v2)
     return np.vstack((np.ravel(ix0), np.ravel(ix1))).T
 
-#~ def ChooseBestAlign(arr1,arr2,shifts):
-def ChooseBestAlign(a):
+def ChooseBestAlign(arr1,arr2,shifts):
     ''' where "arr1" and "arr2" are the images and "shifts" is an
         np.array (n,2) with the n shifts to try.
         Overlaps the shifted "arr2" over "arr1" -using Max- and 
         returns the best one. Asumes that the minimum Sum gives the best.
     '''
-    # Quitar shifts repetidos
-    b = np.ascontiguousarray(a).view(np.dtype((np.void, a.dtype.itemsize * a.shape[1])))
+    # Descartar shifts grandes y Quitar shifts repetidos
+    #~ np.clip(shifts, -50, 50, out=shifts)
+    b = np.ascontiguousarray(shifts).view(np.dtype((np.void, shifts.dtype.itemsize * shifts.shape[1])))
     _, idx = np.unique(b, return_index=True)
-    unique_a = np.unique(b).view(a.dtype).reshape(-1, a.shape[1])
+    shifts = np.unique(b).view(shifts.dtype).reshape(-1, shifts.shape[1])
     
-    mask = np.amax(shifts, axis=0)
+    mask = np.amax(shifts, axis=0)  # Enmascarar bordes
     masky, maskx = mask[0], mask[1]
-	lumis = []
-    for n in range(0,len(shifts)):
-        ali = np.maximum(Shift(png,dy=shifts[n,0],dx=shifts[n,1]), pngsum)
+    
+    shrows = len(shifts)    # agregar columna
+    shifts = np.c_[shifts,np.zeros((shrows, 1),dtype=np.uint8)]
+    
+    for n in range(0,shrows):
+        ali = np.maximum(Shift(arr2,dy=shifts[n,0],dx=shifts[n,1]), arr1)
         ali = ali[masky:-masky, maskx:-maskx]
-		lumis.append(ali.sum(dtype=np.uint32))
-	TODO: asociar lumis con dxdy
-    Height, Width = arr1.shape
-    return 
+        shifts[n,2] = ali.sum(dtype=np.uint32)  # poner suma en 3a. columna.
+    # buscar min ali y retornar su [dy dx]
+    print shifts[np.argmin(shifts,axis=0)[2], :2]
+    Pause()
+    return shifts[np.argmin(shifts,axis=0)[2], :2]
     
     
     ###############################################################

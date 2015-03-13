@@ -6,6 +6,7 @@
 print "processing ..."
 
 import numpy as np
+from numpy.lib.stride_tricks import as_strided
 from PIL import Image, ImageOps
 import os, datetime as dt
 from astrotools import *
@@ -42,9 +43,9 @@ for filename in filelist:
     if cant == 1: 
         spc = " " * (len(filename) - 4)
         shiftlog.write("File%s\t dx\t dy\tadx\tady\n" %(spc))
-        data = Getdata(f)
         pngsum = Fit2png(data,i0=100,sharp=2.2).astype(np.uint8)
         refs = FindRefs(data)
+        tn = np.array([0,0])
         continue        # -- next file
         
     prevrefs = refs
@@ -54,68 +55,27 @@ for filename in filelist:
     
     png = Fit2png(data,i0=100,sharp=2.2).astype(np.uint8)
     ds = prevrefs - refs	# desplazamientos relativos: (n-1) - (n)
-    ts = tn + ds	# desplazamientos absolutos: (pngsum) - (n)
-	tn = ChooseBestAlign(pngsum,png,ts)
-    # Alineamos ----------------------------------
-    pngsum = np.maximum(Shift(png,tn[0],tn[1]), pngsum)
+    ts = as_strided(tn, strides=(0, 1), shape=ds.shape) + ds	# desplazamientos absolutos: (pngsum) - (n)
+    tn = ChooseBestAlign(pngsum,png,ts)
+    print ds
+    print tn
+    print ts
+    Pause("ds, tn, ts")
+    #~ if 50 in tn:
+        #~ Pause("Warning: "+ filename)
     
-	RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR
-    # Quitando repetidos ------------
-    dx = np.unique(dx)
-    print
-    print dx
-    dy = np.unique(dy)
-    print dy
-    # Elegir el mejor dy ensayando alineaciones------
-    Height, Width = data.shape
-    lumin = 4000000000
-    maskmin = min(set(dy))
-    maskmax = max(set(dy))
-    mpngsum = pngsum.copy()
-    mpngsum[:totaly+maskmax,:] =0 NO !!!!! Pensarlo mejor
-    for n in set(dy):
-		shpng = 
-        ali = np.maximum(Shift(png,dy=-totaly-n), pngsum)
-        lumi = ali.sum(dtype=np.uint32)
-        if lumi < lumin:
-            lumin = lumi
-            besty = dy[n]
-    print "besty = %i con lumi=%i" %(besty,lumin)
-	
-    # ahora para dx -------------
-    lumin = 4000000000
-    for n in set(dx):
-        ali = np.maximum(Shift(png,dx=-totalx-dx[n],dy=-totaly-besty), pngsum)
-        lumi = ali.sum(dtype=np.uint32)
-        if lumi < lumin:
-            lumin = lumi
-            bestx = dx[n]
-    print "bestx = %i con lumi=%i" %(bestx,lumin)
-            
-    # y otra vez para dy -------------
-    lumin = 4000000000
-    for n in set(dy):
-        ali = np.maximum(Shift(png,dx=-totaly-bestx, dy=-totaly-dy[n]), pngsum)
-        lumi = ali.sum(dtype=np.uint32)
-        if lumi < lumin:
-            lumin = lumi
-            besty = dy[n]
-    print "besty = %i con lumi=%i" %(besty,lumin)
-    Pause("dx")
     
-    # Check Out of Field:       
-    if abs(totalx+bestx) >Width/2 or abs(totaly+besty) >Height/2:
-        shiftlog.write("%s\t %i\t %i\t %i\t %i Field Out.\n" %(filename,bestx,besty,totalx,totaly))
-        continue        # -- next file
+    #~ # Check Out of Field:       
+    #~ if abs(totalx+bestx) >Width/2 or abs(totaly+besty) >Height/2:
+        #~ shiftlog.write("%s\t %i\t %i\t %i\t %i Field Out.\n" %(filename,bestx,besty,totalx,totaly))
+        #~ continue        # -- next file
             
-    totalx += bestx     # acumulo desplazamientos absolutos:
-    totaly += besty
-    shiftlog.write("%s\t %i\t %i\t %i\t %i\n" %(filename,bestx,besty,totalx,totaly))
+    shiftlog.write("%s\t  %i\t %i\n" %(filename,tn[1],tn[0]))
     # Alineamos ----------------------------------
-    pngsum = np.maximum(Shift(png,-totalx,-totaly), pngsum)
+    pngsum = np.maximum(Shift(png,dy=tn[0],dx=tn[1]), pngsum)
         
-e = Image.fromarray(pngsum)
-e.save("out_1 a %s.png" %(filename[-7:-4]) )
+    e = Image.fromarray(pngsum)
+    e.save("out_1 a %s.png" %(filename[-7:-4]) )
 print"Saving sample: ", dt.datetime.now()-t0
 
 e_bw = ccl.bw(e)
