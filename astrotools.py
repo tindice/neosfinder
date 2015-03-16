@@ -31,7 +31,7 @@ def Pause(msg="Enter to cont, Ctrl-C to exit: "):
     raw_input(msg)
 
 def Checkfits(path, filelist, mean_criteria=(0.5,10), uprogress=True, log=True):
-    print "\r Checking Fitfiles integrity ..."
+    print "\r Checking Fitfiles  ..."
     
     means = {f:int(np.mean(Getdata(path+f))) for f in filelist}
     mean = means[filelist[0]]
@@ -66,15 +66,19 @@ def Shift(array,dx=0,dy=0):
     return a
     
 def Getdata(filefullname):
-    """ Returns the Fit data array.
+    """ Returns the Fit data array and the tuple (obsTime,obsDur)
     """
     if type(filefullname) == type('str'):
         hduList = pyf.open(filefullname)
+        prihdr = hduList[0].header
+        #~ print 
+        #~ print 
+        #~ Pause()
         data = hduList[0].data
         hduList.close()
     else:
         data = filefullname.copy()
-    return data
+    return (prihdr["DATE-OBS"],prihdr["EXPOSURE"]), data
     
 def Fit2png(data,i0=10000, i1=16000, sharp=1.8):
     """ Returns the contrast enhaced array 
@@ -175,19 +179,22 @@ def ChooseBestAlign(arr1,arr2,shifts):
     _, idx = np.unique(b, return_index=True)
     shifts = np.unique(b).view(shifts.dtype).reshape(-1, shifts.shape[1])
     
-    mask = np.amax(shifts, axis=0)  # Enmascarar bordes
-    masky, maskx = mask[0], mask[1]
+    #~ mask = np.amax(shifts, axis=0)  # Enmascarar bordes
+    #~ masky, maskx = mask[0], mask[1]
     
     shrows = len(shifts)    # agregar columna
     shifts = np.c_[shifts,np.zeros((shrows, 1),dtype=np.uint8)]
     
     for n in range(0,shrows):
-        ali = np.maximum(Shift(arr2,dy=shifts[n,0],dx=shifts[n,1]), arr1)
-        ali = ali[masky:-masky, maskx:-maskx]
+        arr2 = np.roll(arr2,shifts[n,1],axis=1)
+        arr2 = np.roll(arr2,shifts[n,0],axis=0)
+        ali = np.maximum(arr2, arr1)
+        #~ ali = np.maximum(Shift(arr2,dy=shifts[n,0],dx=shifts[n,1]), arr1)
+        #~ ali = ali[masky:-masky, maskx:-maskx]
         shifts[n,2] = ali.sum(dtype=np.uint32)  # poner suma en 3a. columna.
     # buscar min ali y retornar su [dy dx]
-    print shifts[np.argmin(shifts,axis=0)[2], :2]
-    Pause()
+    #~ print shifts[np.argmin(shifts,axis=0)[2], :2]
+    #~ Pause()
     return shifts[np.argmin(shifts,axis=0)[2], :2]
     
     

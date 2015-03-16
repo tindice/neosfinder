@@ -134,26 +134,10 @@ def run(img):
         # Colorize the image
         outdata[x, y] = colors[component]
     
-    
-    #~ C12 = findcomponent(labels,12)  # lista de pixels etiquetados 12
-    #~ xx, yy = [], []
-    #~ for (x,y) in C12:
-        #~ xx.append(x)
-        #~ yy.append(y)
-    #~ x0 = min(xx)
-    #~ x1 = max(xx)
-    #~ y0 = min(yy)
-    #~ y1 = max(yy)
-    #~ print np.asarray(data)[y0:y1,x0:x1]
-    #~ vals = labels.values()
-    #~ histo = list([(x, vals.count(x)) for x in set(vals)])
-    #~ print histo
-    #~ raw_input("...")
-
     return (labels, output_img)
 
 def bw(img):
-    img = img.point(lambda p: p > 200 and 255)
+    img = img.point(lambda p: p > 80 and 255)
     return img.convert('1')
 	
 def main():

@@ -6,11 +6,13 @@ import os
 from astrotools import *
 import datetime as dt
 t0 = dt.datetime.now()
-fitfolder = '../Descargas/suleika/'
+fitfolder = '../Descargas/suleika_3/'
 pngfolder = "./equalized"
 
 e = Image.open("/home/rodolfo/neosfinder/1 a 041.png")
-a = Getdata(fitfolder+"suleika_3_b1x_-041.fit")
+meta, a = Getdata(fitfolder+"suleika_3_b1x_-041.fit")
+print meta
+Pause()
 FindRefs(a)
 
 #~ e = Image.open("/home/rodolfo/neosfinder/1 a 041.png")
