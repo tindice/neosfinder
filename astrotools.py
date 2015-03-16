@@ -89,7 +89,7 @@ def Fit2png(data,i0=10000, i1=16000, sharp=1.8):
     newarray = np.array(Image.new("L", (Width,Height), color=0)) 
     t = -sharp *(data-(i0+i1)/2)/(i1-i0)
     newarray = 255/(1+np.exp(t))
-    return newarray - np.amin(newarray)
+    return (newarray - np.amin(newarray)).astype(np.uint8)
     
 def Savepng(name,data,i0=10000, i1=16000, sharp=1.8):
     ''' 
@@ -97,7 +97,7 @@ def Savepng(name,data,i0=10000, i1=16000, sharp=1.8):
     '''
     png = Fit2png(data,i0,i1,sharp).astype(np.uint8)
     e = Image.fromarray(png)
-    pngfolder = "./equalized/"
+    pngfolder = "./tmp/"
     e.save(pngfolder+name+".png")
 
 def Equalize(filefullname, dataonly=False, cutoff=50):

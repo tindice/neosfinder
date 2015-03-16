@@ -6,14 +6,33 @@ import os
 from astrotools import *
 import datetime as dt
 t0 = dt.datetime.now()
-fitfolder = '../Descargas/suleika_3/'
+fitfolder = '../Descargas/suleika_2/'
 pngfolder = "./equalized"
 
-e = Image.open("/home/rodolfo/neosfinder/1 a 041.png")
-meta, a = Getdata(fitfolder+"suleika_3_b1x_-041.fit")
-print meta
-Pause()
-FindRefs(a)
+#~ e = Image.open("/home/rodolfo/neosfinder/1 a 041.png")
+#~ meta, a = Getdata(fitfolder+"suleika_3_b1x_-041.fit")
+#~ print meta
+#~ Pause()
+#~ FindRefs(a)
+
+# Probando intrapolaciones:
+#~ meta, a = Getdata(fitfolder+"suleika_2_b1x_-002.fit")
+#~ size = (1530/2, 1020/2)
+#~ png = Fit2png(a) 
+#~ im = Image.fromarray(png)
+#~ img1 = im.copy()
+#~ img1.thumbnail(size, Image.ANTIALIAS)
+#~ img1.save("./tmp/antialias.png")
+#~ img1 = im.copy()
+#~ img1.thumbnail(size, Image.NEAREST)
+#~ img1.save("./tmp/nearest.png")
+#~ img1 = im.copy()
+#~ img1.thumbnail(size, Image.BILINEAR)
+#~ img1.save("./tmp/BILINEAR.png")
+#~ img1 = im.copy()
+#~ img1.thumbnail(size, Image.BICUBIC)
+#~ img1.save("./tmp/BICUBIC.png")  #  <----- LA MEJOR
+#~ print "OK"
 
 #~ e = Image.open("/home/rodolfo/neosfinder/1 a 041.png")
 #~ a = np.asarray(e)[462-10:460+20,805-20:805+15]

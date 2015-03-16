@@ -13,7 +13,7 @@ from astrotools import *
 import cclabel as ccl
 from recognize import recognize, stamptext
 
-fitfolder = os.path.expanduser('~/Descargas/suleika_3/')
+fitfolder = os.path.expanduser('~/Descargas/suleika_2/')
 
 tmpfolder = "./tmp/"
 cant = 0
@@ -42,7 +42,7 @@ for filename in filelist:
     meta, data = Getdata(f)
     # Uso primera imagen como base para alinear -----------
     if cant == 1: 
-        pngsum = Fit2png(data,i0=100,sharp=2.2).astype(np.uint8)
+        pngsum = Fit2png(data,i0=100,sharp=2.2)
         png1 = pngsum.copy()
         refs1 = FindRefs(data)
         if len(os.listdir(tmpfolder[:-1])) > 0: # si aun tengo las png
@@ -59,7 +59,7 @@ for filename in filelist:
     metadict[filename] = meta
     refs = FindRefs(data)
     
-    png = Fit2png(data,i0=100,sharp=2.2).astype(np.uint8)
+    png = Fit2png(data,i0=100,sharp=2.2)
     tn = ChooseBestAlign(pngsum,png,refs1-refs)
     
     #~ # Check Out of Field:       
