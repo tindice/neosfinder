@@ -5,15 +5,38 @@ import numpy as np, Image
 import os
 from astrotools import *
 import datetime as dt
+from recognize import recognize, stamptext
+
+
 t0 = dt.datetime.now()
 fitfolder = '../Descargas/suleika_2/'
-pngfolder = "./equalized"
+pngfolder = "./tmp"
 
 #~ e = Image.open("/home/rodolfo/neosfinder/1 a 041.png")
 #~ meta, a = Getdata(fitfolder+"suleika_3_b1x_-041.fit")
 #~ print meta
 #~ Pause()
 #~ FindRefs(a)
+
+# Probando equalizaciones:
+#~ meta, a = Getdata(fitfolder+"suleika_2_b1x_-002.fit")
+#~ size = (1530/2, 1020/2)
+#~ while True:
+	#~ print "min=%i, max=%i" %(np.amin(a), np.amax(a))
+	#~ i0 = int(raw_input("i0:"))
+	#~ i1 = int(raw_input("i1:"))
+	#~ png = Fit2png(a, i0=i0, i1=i1, sharp=1) 
+	#~ im = Image.fromarray(png)
+	#~ img1 = im.copy()
+	#~ img1.thumbnail(size, Image.BICUBIC)
+	#~ img1.show()
+
+# Probando recognize
+dim = 15
+while dim > 9:
+	c = recognize("./tmp/Suma.png", dim)
+	print dim, c
+	dim -= 1
 
 # Probando intrapolaciones:
 #~ meta, a = Getdata(fitfolder+"suleika_2_b1x_-002.fit")

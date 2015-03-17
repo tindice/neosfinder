@@ -31,7 +31,6 @@ print"Checkfits: ", dt.datetime.now()-t0
 t0 = dt.datetime.now()
 print "processing %s*.fit files..." %(fitfolder)
 for filename in filelist:
-    if filename[-7:-4]=="040": break    # <--- PRIMERAS 40
     
     update_progress(cant,len(filelist))
     if filename[-4:] != ".fit" or filename in exclude:
@@ -40,9 +39,12 @@ for filename in filelist:
     cant += 1
     f = fitfolder+filename
     meta, data = Getdata(f)
+    size = (data.shape[1]/2, data.shape[0]/2)
+    
     # Uso primera imagen como base para alinear -----------
     if cant == 1: 
-        pngsum = Fit2png(data,i0=100,sharp=2.2)
+        #~ pngsum = Fit2png(data,i0=100,sharp=2.2)
+        pngsum = Fit2png(data)
         png1 = pngsum.copy()
         refs1 = FindRefs(data)
         if len(os.listdir(tmpfolder[:-1])) > 0: # si aun tengo las png
@@ -59,7 +61,8 @@ for filename in filelist:
     metadict[filename] = meta
     refs = FindRefs(data)
     
-    png = Fit2png(data,i0=100,sharp=2.2)
+    #~ png = Fit2png(data,i0=100,sharp=2.2)
+    png = Fit2png(data)
     tn = ChooseBestAlign(pngsum,png,refs1-refs)
     
     #~ # Check Out of Field:       
@@ -73,34 +76,48 @@ for filename in filelist:
     #~ print type(pngsum)
     #~ Pause()
     e = Image.fromarray(png)
-    stamptext(e, (10, 10), metadict[filename][0][:10]+"  "+metadict[filename][0][11:], color=120)
-    e.save("%sframe_%s.png" %(tmpfolder, filename[-7:-4]) )
+    e0 = e.copy()
+    e0.thumbnail(size, Image.BICUBIC)
+    stamptext(e0, (10, 10), metadict[filename][0][:10]+"  "+
+        metadict[filename][0][11:], color=190)
+    e0.save("%sframe_%s.png" %(tmpfolder, filename[-7:-4]) )
+    if filename[-7:-4]=="040": break    # <--- PRIMERAS 40
 
 if type(pngsum) != type('str'): # si aun no existe Suma
     s = Image.fromarray(pngsum)
     #~ desde = 
     #~ hasta = metadict[filename][0]
-    #~ stamptext(e, (10, 20), "to   "+hasta )
     print"Saving sample: ", dt.datetime.now()-t0
-    s.save("%sSuma.png" %(tmpfolder) )
+    s0 = s.copy()
+    s0.thumbnail(size, Image.BICUBIC)
+    stamptext(s0, (10, 10), metadict[filename1][0][:10]+"  "+
+        metadict[filename1][0][11:], color=190)
+    stamptext(s0, (10, 30), metadict[filename][0][:10]+"  "+
+        metadict[filename][0][11:], color=190)
+    s0.save("%sSuma.png" %(tmpfolder) )
 
 shiftlog.close()        
 
 # Buscamos neos --------------------------------
-yx = recognize(pngsum)[0]
+comp = recognize(pngsum,11)
+#~ print pngsum
+#~ print comp
+#~ Pause()
 #   Lo marcamos:
-green = png1.copy()
-green[yx[0]-10:yx[1]+10, yx[2]-10] = 100
-green[yx[0]-10:yx[1]+10, yx[3]+10] = 100
-green[yx[0]-10, yx[2]-10:yx[3]+10] = 100
-green[yx[1]+10, yx[2]-10:yx[3]+10] = 100
-
+for (y0, y1, x0, x1) in comp:
+    green = png1.copy()
+    green[2*(y0-10):2*(y1+10), 2*(x0-10)] = 200
+    green[2*(y0-10):2*(y1+10), 2*(x1+10)] = 200
+    green[2*(y0-10), 2*(x0-10):2*(x1+10)] = 200
+    green[2*(y1+10), 2*(x0-10):2*(x1+10)] = 200
+    
 r = b = Image.fromarray(png1)
 g = Image.fromarray(green)
 im = Image.merge("RGB", (r,g,b))
-stamptext(im, (yx[2]-20, yx[0]-25), "Suleika")
+#~ stamptext(im, (c[2]-20, c[0]-25), "Suleika")
 #~ im.show()
 im.save(tmpfolder+"tmp.png")
 os.system("eog %stmp.png"%(tmpfolder)) 
             
+#~ os.system("apngasm out.png %sframe_002.png"%(tmpfolder))
 

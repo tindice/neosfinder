@@ -12,7 +12,7 @@ def stamptext(img, pos, txt, color=(0,100,0)):
     draw.text(pos,txt, fill=color)
     return
     
-def recognize(image):
+def recognize(image, mindim=15):
     ''' where "image" is an imagefile or a np.array.
         Finds the Conected Components on the image and
         returns a list with the box coords of the filiform ones.
@@ -42,7 +42,7 @@ def recognize(image):
         x0, x1, y0, y1 = mins[0], maxs[0], mins[1], maxs[1]
         
         # Descarto componentes pequeños:
-        if (x1-x0+y1-y0) < 15: continue
+        if (x1-x0+y1-y0) < mindim: continue
         # y descarto componentes no filiformes:
         if (png[y0:y0+2,x0:x0+2].sum(dtype=np.uint16)
           + png[y0:y0+2,x1-1:x1].sum(dtype=np.uint16) 
