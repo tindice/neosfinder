@@ -51,7 +51,7 @@ for filename in filelist:
             pngsum = "%sSuma.png" %(tmpfolder)
             break
         metadict = {filename : meta}
-        print metadict[filename]
+        #~ print metadict[filename]
         filename1 = filename
         spc = " " * (len(filename) - 4)
         shiftlog.write("File%s\t adx\tady\n" %(spc))
@@ -100,19 +100,31 @@ shiftlog.close()
 
 # Buscamos neos --------------------------------
 comp = recognize(pngsum,11)
+print
+print len(comp), "Componentes:"
 #~ print pngsum
 #~ print comp
 #~ Pause()
 #   Lo marcamos:
+green = png1.copy()
+n = 0
 for (y0, y1, x0, x1) in comp:
-    green = png1.copy()
-    green[2*(y0-10):2*(y1+10), 2*(x0-10)] = 200
-    green[2*(y0-10):2*(y1+10), 2*(x1+10)] = 200
-    green[2*(y0-10), 2*(x0-10):2*(x1+10)] = 200
-    green[2*(y1+10), 2*(x0-10):2*(x1+10)] = 200
+    n += 1
+    print n,(y0, y1, x0, x1)
+    y00 = max(2*(y0-5),0)
+    x00 = max(2*(x0-5),0)
+    y01 = min(2*(y1+5),1020)
+    x01 = min(2*(x1+5),1530)
+    green[y00:y01, x00] = 200
+    green[y00:y01, x01] = 200
+    green[y00, x00:x01] = 200
+    green[y01, x00:x01] = 200
     
 r = b = Image.fromarray(png1)
 g = Image.fromarray(green)
+#~ for n in range(0, len(comp)):
+    #~ stamptext(g, (2*x1, 2*y1), str(n+1), color=190)
+
 im = Image.merge("RGB", (r,g,b))
 #~ stamptext(im, (c[2]-20, c[0]-25), "Suleika")
 #~ im.show()
