@@ -90,12 +90,16 @@ def Fit2png(data,i0=0, i1=0, sharp=0):
     # auto equalization:
     amin, amax = np.amin(data), np.amax(data)
     delta = amax - amin
-    if i0+i1+sharp == 0:
+    if i0+i1+sharp == 0:    # autocontrast
         i0 = amin + 0.0185 * delta
         i1 = amin + 0.0323 * delta
         sharp = 1.0
-    elif i0*i1*sharp == 0:
+    elif i0*i1*sharp == 0:  # manual
         Pause("Error: must enter i0,i1,sharp or none for Auto. (Ctrl-C to exit)")
+    elif i0 == i1:          # draft equalization
+        i0 = amin
+        i1 = amin + 0.174 * delta
+        sharp = 1.0
         
     t = -sharp *(data-(i0+i1)/2)/(i1-i0)
     newarray = 255/(1+np.exp(t))
@@ -192,7 +196,7 @@ def ChooseBestAlign(arr1,arr2,shifts):
     #~ mask = np.amax(shifts, axis=0)  # Enmascarar bordes
     #~ masky, maskx = mask[0], mask[1]
     
-    shrows = len(shifts)    # agregar columna
+    shrows = len(shifts)    # agregar columna para poner suma
     shifts = np.c_[shifts,np.zeros((shrows, 1),dtype=np.uint8)]
     
     for n in range(0,shrows):
@@ -201,7 +205,12 @@ def ChooseBestAlign(arr1,arr2,shifts):
         ali = np.maximum(arr2, arr1)
         #~ ali = np.maximum(Shift(arr2,dy=shifts[n,0],dx=shifts[n,1]), arr1)
         #~ ali = ali[masky:-masky, maskx:-maskx]
+        
+        
         shifts[n,2] = ali.sum(dtype=np.uint32)  # poner suma en 3a. columna.
+        shifts[n,2] = ali.sum()  # poner suma en 3a. columna.
+        
+        
     # buscar min ali y retornar su [dy dx]
     #~ print shifts[np.argmin(shifts,axis=0)[2], :2]
     #~ Pause()

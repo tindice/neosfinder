@@ -25,7 +25,8 @@ pngfolder = "./tmp"
 	#~ print "min=%i, max=%i" %(np.amin(a), np.amax(a))
 	#~ i0 = int(raw_input("i0:"))
 	#~ i1 = int(raw_input("i1:"))
-	#~ png = Fit2png(a, i0=i0, i1=i1, sharp=1) 
+	#~ sharp = int(raw_input("sharp:"))
+	#~ png = Fit2png(a, i0=i0, i1=i1, sharp=sharp) 
 	#~ im = Image.fromarray(png)
 	#~ img1 = im.copy()
 	#~ img1.thumbnail(size, Image.BICUBIC)
@@ -33,10 +34,11 @@ pngfolder = "./tmp"
 
 # Probando recognize
 dim = 15
-while dim > 9:
+c = []
+while len(c) != 1:
 	c = recognize("./tmp/Suma.png", dim)
-	print dim, c
-	dim -= 1
+	print dim, len(c)
+	dim += 1
 
 # Probando intrapolaciones:
 #~ meta, a = Getdata(fitfolder+"suleika_2_b1x_-002.fit")

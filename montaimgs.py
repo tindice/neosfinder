@@ -43,7 +43,7 @@ for filename in filelist:
     
     # Uso primera imagen como base para alinear -----------
     if cant == 1: 
-        #~ pngsum = Fit2png(data,i0=100,sharp=2.2)
+        png1hi = Fit2png(data,i0=1,i1=1,sharp=1) # draft equalization
         pngsum = Fit2png(data)
         png1 = pngsum.copy()
         refs1 = FindRefs(data)
@@ -61,27 +61,33 @@ for filename in filelist:
     metadict[filename] = meta
     refs = FindRefs(data)
     
-    #~ png = Fit2png(data,i0=100,sharp=2.2)
-    png = Fit2png(data)
-    tn = ChooseBestAlign(pngsum,png,refs1-refs)
+    pnghi = Fit2png(data,i0=1,i1=1,sharp=1) # draft equalization
+    tn = ChooseBestAlign(png1hi,pnghi,refs1-refs)
     
     #~ # Check Out of Field:       
     #~ if abs(totalx+bestx) >Width/2 or abs(totaly+besty) >Height/2:
         #~ shiftlog.write("%s\t %i\t %i\t %i\t %i Field Out.\n" %(filename,bestx,besty,totalx,totaly))
         #~ continue        # -- next file
+        
     shiftlog.write("%s\t  %i\t %i\n" %(filename,tn[1],tn[0]))
+    png = Fit2png(data) # auto equalization
     png = Shift(png,dy=tn[0],dx=tn[1])
-    # Alineamos ----------------------------------
+    
+    # Alineamos Sumando ----------------------------------
     pngsum = np.maximum(png, pngsum)
     #~ print type(pngsum)
     #~ Pause()
+    
+    
     e = Image.fromarray(png)
     e0 = e.copy()
     e0.thumbnail(size, Image.BICUBIC)
     stamptext(e0, (10, 10), metadict[filename][0][:10]+"  "+
         metadict[filename][0][11:], color=190)
     e0.save("%sframe_%s.png" %(tmpfolder, filename[-7:-4]) )
-    if filename[-7:-4]=="040": break    # <--- PRIMERAS 40
+    
+    
+    #~ if filename[-7:-4]=="060": break    # <--- PRIMERAS 60
 
 if type(pngsum) != type('str'): # si aun no existe Suma
     s = Image.fromarray(pngsum)
@@ -90,16 +96,16 @@ if type(pngsum) != type('str'): # si aun no existe Suma
     print"Saving sample: ", dt.datetime.now()-t0
     s0 = s.copy()
     s0.thumbnail(size, Image.BICUBIC)
-    stamptext(s0, (10, 10), metadict[filename1][0][:10]+"  "+
+    stamptext(s0, (10, 10), "desde "+ metadict[filename1][0][:10]+"  "+
         metadict[filename1][0][11:], color=190)
-    stamptext(s0, (10, 30), metadict[filename][0][:10]+"  "+
+    stamptext(s0, (10, 25), "hasta "+ metadict[filename][0][:10]+"  "+
         metadict[filename][0][11:], color=190)
     s0.save("%sSuma.png" %(tmpfolder) )
 
 shiftlog.close()        
 
 # Buscamos neos --------------------------------
-comp = recognize(pngsum,11)
+comp = recognize(pngsum,15)
 print
 print len(comp), "Componentes:"
 #~ print pngsum
@@ -108,22 +114,28 @@ print len(comp), "Componentes:"
 #   Lo marcamos:
 green = png1.copy()
 n = 0
+gbox = []
 for (y0, y1, x0, x1) in comp:
     n += 1
     print n,(y0, y1, x0, x1)
-    y00 = max(2*(y0-5),0)
-    x00 = max(2*(x0-5),0)
-    y01 = min(2*(y1+5),1020)
-    x01 = min(2*(x1+5),1530)
+    #~ y00 = max(2*(y0-5),0)
+    #~ x00 = max(2*(x0-5),0)
+    #~ y01 = min(2*(y1+5),1020)
+    #~ x01 = min(2*(x1+5),1530)
+    y00 = max((y0-5),0)
+    x00 = max((x0-5),0)
+    y01 = min((y1+5),1020)
+    x01 = min((x1+5),1530)
     green[y00:y01, x00] = 200
     green[y00:y01, x01] = 200
     green[y00, x00:x01] = 200
     green[y01, x00:x01] = 200
+    gbox.append((x01,y01))
     
 r = b = Image.fromarray(png1)
 g = Image.fromarray(green)
-#~ for n in range(0, len(comp)):
-    #~ stamptext(g, (2*x1, 2*y1), str(n+1), color=190)
+for n in range(0, len(comp)):
+    stamptext(g, (gbox[n][0], gbox[n][1]), str(n+1), color=190)
 
 im = Image.merge("RGB", (r,g,b))
 #~ stamptext(im, (c[2]-20, c[0]-25), "Suleika")

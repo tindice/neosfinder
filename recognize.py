@@ -25,7 +25,7 @@ def recognize(image, mindim=15):
         e = Image.fromarray(image)
     else:
         e = Image.open(image)
-
+    if mindim < 8: return []
     img = ccl.bw(e)
     (labels, output_img) = ccl.run(img)
     png = np.array(img.getdata(),
