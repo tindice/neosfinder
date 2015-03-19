@@ -44,10 +44,16 @@ def recognize(image, mindim=15):
         # Descarto componentes pequeños:
         if (x1-x0+y1-y0) < mindim: continue
         # y descarto componentes no filiformes:
+        #~ print "ul ",png[y0:y0+2,x0:x0+2]
+        #~ print "ur ",png[y0:y0+2,x1-2:x1]
+        #~ print "ll ",png[y1-2:y1,x0:x0+2]
+        #~ print "lr ",png[y1-2:y1,x1-2:x1]
+        #~ print
+        
         if (png[y0:y0+2,x0:x0+2].sum(dtype=np.uint16)
-          + png[y0:y0+2,x1-1:x1].sum(dtype=np.uint16) 
-          + png[y1-1:y1,x0:x0+2].sum(dtype=np.uint16) 
-          + png[y1-1:y1,x1-1:x1].sum(dtype=np.uint16)<255*3): continue 
+          + png[y0:y0+2,x1-2:x1].sum(dtype=np.uint16) 
+          + png[y1-2:y1,x0:x0+2].sum(dtype=np.uint16) 
+          + png[y1-2:y1,x1-2:x1].sum(dtype=np.uint16)<255*4): continue 
         #~ print png[y0:y1+1,x0:x1+1]
         #~ Pause(str(lbl))
         suspicious.append((y0, y1, x0, x1))

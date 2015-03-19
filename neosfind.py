@@ -28,6 +28,7 @@
 
 def main():
     fitfolder = os.path.expanduser('~/Descargas/suleika_2/')
+    print "Procesing %s*.fit files..." %(fitfolder)
     tmpfolder = "./tmp/"
     t0 = dt.datetime.now()
     
@@ -38,11 +39,12 @@ def main():
     print"Checkfits: ", dt.datetime.now()-t0
 
     # 2) Calcular alineación de imagenes FIT :
-    print "aligning %s*.fit files..." %(fitfolder)
+    print "Aligning images..." 
     t0 = dt.datetime.now()
     cant = 0
     for filename in filelist:
         update_progress(cant,len(filelist))
+        print str(dt.datetime.now()-t0)[:-7],
         #~ if filename[-4:] != ".fit" or filename in exclude:
             #~ continue        # -- exclude file
     
@@ -70,21 +72,22 @@ def main():
         draftsum = np.maximum(Shift(draft,dy=tn[0],dx=tn[1]), draftsum)
     
     print
-    print"Aligning: ", dt.datetime.now()-t0
-    
+    t0 = dt.datetime.now()
+    print "Recognizing ... ",
+
     # 3) Reconocer componentes sospechosos :
     im = Image.fromarray(draftsum)
     im.save(tmpfolder+"draft.png")
     dim = 25
-    comp = [1,2]
-    while dim>8 and len(comp) < 3:
+    comp = []
+    while dim>8 and len(comp) < 1:
         comp = recognize(tmpfolder+"draft.png", dim)
-        print dim, len(comp)
+        #~ print dim, len(comp)
         dim -= 1
     #~ comp = recognize(draftsum,17)
-    print
-    print len(comp), "Componentes:"
+    #~ print len(comp), "Componentes:"
     if len(comp) == 0:
+        print
         print "Nothing found."
         exit
     #~ print comp
@@ -102,8 +105,11 @@ def main():
     g = s.copy()
     
     for (y0, y1, x0, x1) in comp:
-        xy = (x0-5,y0-5,x1+5,y1+5)
+        #~ print "comp w, h=", x1-x0, y1-y0
+        xy = (x0-10,y0-10,x1+10,y1+10)
         ImageDraw.Draw(g).ellipse(xy, fill=None, outline=200)
+        trace = im.crop((x0,y0, x1,y1)) # tomo traza del draft
+        g.paste(trace, (x0,y0, x1,y1))  # pego en verde
         
     ImageDraw.Draw(r).text((10, 10), "desde "+ meta1[0][:10]+"  "+
         meta1[0][11:], fill=190)
@@ -117,12 +123,14 @@ def main():
     b = r.copy()
     im = Image.merge("RGB", (r,g,b))
     im.save(tmpfolder+"tmp.png")
-    print
-    print"Showing: ", dt.datetime.now()-t0
+    print 40*" ", dt.datetime.now()-t0
+    print 
+    # Show image
     os.system("eog %stmp.png"%(tmpfolder)) 
-    #~ s0.save("%sSuma.png" %(tmpfolder) )
 
-
+    movie = raw_input("Make Animation ? [y/n] ")
+    if movie == "y" or movie == "Y":
+        #~ TODO:
     return 0
 
 if __name__ == '__main__':
