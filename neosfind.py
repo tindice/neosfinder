@@ -24,6 +24,21 @@
 '''     TODO: Breve descripción.
                 Modo de uso.
 '''
+def rgbcircle(array,box):
+    ''' where box=(y0, y1, x0, x1) is in np-style.
+        Returns a resized RGB image from array 
+        with an ellipse on box coords.
+    '''
+    r = Image.fromarray(array)
+    g = r.copy()
+    b = r.copy()
+    im = Image.merge("RGB", (r,g,b))
+    size = (array.shape[1]/2, array.shape[0]/2)
+    im.thumbnail(size, Image.BICUBIC)
+
+    (y0, y1, x0, x1) = box
+    xy = (x0/2-5,y0/2-5,x1/2+5,y1/2+5)
+    return ImageDraw.Draw(im).ellipse(xy, fill=None, outline=(0,200,0))
 
 
 def main():
@@ -59,7 +74,7 @@ def main():
             draft1 = Fit2png(data,i0=1,i1=1,sharp=1) # draft equalization
             draftsum = draft1.copy()
             meta1 = meta
-            pngsum = png
+            #~ pngsum = png
             png1 = png.copy()
             continue
             
@@ -68,7 +83,7 @@ def main():
         tn = ChooseBestAlign(draft1,draft,refs1-refs)
         Align.append(tn)
         #  Superponer imágenes :
-        pngsum = np.maximum(Shift(png,dy=tn[0],dx=tn[1]), pngsum)
+        #~ pngsum = np.maximum(Shift(png,dy=tn[0],dx=tn[1]), pngsum)
         draftsum = np.maximum(Shift(draft,dy=tn[0],dx=tn[1]), draftsum)
     
     print
@@ -128,8 +143,21 @@ def main():
     # Show image
     os.system("eog %stmp.png"%(tmpfolder)) 
 
-    movie = raw_input("Make Animation ? [y/n] ")
-    if movie == "y" or movie == "Y":
+    frames = raw_input("Save frames ? [y/n] ")
+    if frames == "y" or frames == "Y":
+        cada = raw_input("from %i fit images, save 1 in n.  n = " %(cant))
+        s.save(tmpfolder+"frame_001.png")
+        t0 = dt.datetime.now()
+        print "Saving png frames ... "
+
+        for f in range(1,len(filelist), cada):
+            update_progress(f,len(filelist)/cada)
+            print str(dt.datetime.now()-t0)[:-7],
+
+            meta, data = Getdata(fitfolder+filelist[f])
+            png = Fit2png(data) # auto equalization
+            im = Image.fromarray(png)
+    
         #~ TODO:
     return 0
 
