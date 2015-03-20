@@ -2,9 +2,28 @@
 # -*- coding: utf-8 -*-
 
 import  pyfits as pyf, numpy as np
-from PIL import Image, ImageOps
+from PIL import Image, ImageDraw
 import os, math
 
+def Array2rgb(array,circles=[],texts=[]):
+    ''' where circles=[(y0, y1, x0, x1),...] 
+            texts=[(xy,string,color),...]
+        Returns a resized RGB image from a 2D np.array 
+    '''
+    r = Image.fromarray(array)
+    g = r.copy()
+    b = r.copy()
+    im = Image.merge("RGB", (r,g,b))
+    size = (array.shape[1]/2, array.shape[0]/2)
+    im.thumbnail(size, Image.BICUBIC)
+
+    for (y0, y1, x0, x1) in circles:
+        xy = (x0/2-5,y0/2-5,x1/2+5,y1/2+5)
+        ImageDraw.Draw(im).ellipse(xy, fill=None, outline=(0,200,0))
+        
+    for (xy,string,color) in texts:
+        ImageDraw.Draw(im).text(xy, string, fill=color)
+    return im
 
 def Putcross(array,refs,t=10):
     ''' Put crosses on the image array. ( Cross size= 2*t+1 )

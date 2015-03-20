@@ -12,6 +12,10 @@ t0 = dt.datetime.now()
 fitfolder = '../Descargas/suleika_2/'
 pngfolder = "./tmp"
 
+# Probando Array2rgb(array,):
+#=====================================================================
+
+
 #~ e = Image.open("/home/rodolfo/neosfinder/1 a 041.png")
 #~ meta, a = Getdata(fitfolder+"suleika_3_b1x_-041.fit")
 #~ print meta
@@ -19,6 +23,7 @@ pngfolder = "./tmp"
 #~ FindRefs(a)
 
 # Probando equalizaciones:
+#=====================================================================
 #~ meta, a = Getdata(fitfolder+"suleika_2_b1x_-002.fit")
 #~ size = (1530/2, 1020/2)
 #~ while True:
@@ -33,14 +38,16 @@ pngfolder = "./tmp"
 	#~ img1.show()
 
 # Probando recognize
-dim = 15
-c = []
-while len(c) != 1:
-	c = recognize("./tmp/Suma.png", dim)
-	print dim, len(c)
-	dim += 1
+#=====================================================================
+#~ dim = 15
+#~ c = []
+#~ while len(c) != 1:
+	#~ c = recognize("./tmp/Suma.png", dim)
+	#~ print dim, len(c)
+	#~ dim += 1
 
 # Probando intrapolaciones:
+#=====================================================================
 #~ meta, a = Getdata(fitfolder+"suleika_2_b1x_-002.fit")
 #~ size = (1530/2, 1020/2)
 #~ png = Fit2png(a) 
@@ -70,6 +77,7 @@ while len(c) != 1:
 
 
 # Saving pngs from fits
+#=====================================================================
 #~ cant = 0
 #~ for filename in sorted(os.listdir(fitfolder[:-1])):
 	#~ cant += 1
@@ -81,6 +89,7 @@ while len(c) != 1:
 	#~ Savepng("debug/"+filename[:-4],data,i0=4000,i1=10000,sharp=2.3)
 
 # Saving pngs with crosses from fits
+#=====================================================================
 #~cant = 0
 #~for filename in sorted(os.listdir(fitfolder[:-1])):
 	#~cant += 1
@@ -97,6 +106,7 @@ while len(c) != 1:
 	#~e.save("./equalized/debug/"+filename[:-4]+".png")
 	
  # Checking fits
+#=====================================================================
 #~ fitlist = []
 #~ for filename in sorted(os.listdir(fitfolder[:-1])):
  #~ f = fitfolder+filename

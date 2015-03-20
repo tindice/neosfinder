@@ -24,21 +24,6 @@
 '''     TODO: Breve descripción.
                 Modo de uso.
 '''
-def rgbcircle(array,box):
-    ''' where box=(y0, y1, x0, x1) is in np-style.
-        Returns a resized RGB image from array 
-        with an ellipse on box coords.
-    '''
-    r = Image.fromarray(array)
-    g = r.copy()
-    b = r.copy()
-    im = Image.merge("RGB", (r,g,b))
-    size = (array.shape[1]/2, array.shape[0]/2)
-    im.thumbnail(size, Image.BICUBIC)
-
-    (y0, y1, x0, x1) = box
-    xy = (x0/2-5,y0/2-5,x1/2+5,y1/2+5)
-    return ImageDraw.Draw(im).ellipse(xy, fill=None, outline=(0,200,0))
 
 
 def main():
@@ -87,7 +72,7 @@ def main():
         draftsum = np.maximum(Shift(draft,dy=tn[0],dx=tn[1]), draftsum)
     
     print
-    t0 = dt.datetime.now()
+    t1 = dt.datetime.now()
     print "Recognizing ... ",
 
     # 3) Reconocer componentes sospechosos :
@@ -138,15 +123,22 @@ def main():
     b = r.copy()
     im = Image.merge("RGB", (r,g,b))
     im.save(tmpfolder+"tmp.png")
-    print 40*" ", dt.datetime.now()-t0
+    print 40*" ", dt.datetime.now()-t1
     print 
     # Show image
     os.system("eog %stmp.png"%(tmpfolder)) 
 
     frames = raw_input("Save frames ? [y/n] ")
     if frames == "y" or frames == "Y":
-        cada = raw_input("from %i fit images, save 1 in n.  n = " %(cant))
-        s.save(tmpfolder+"frame_001.png")
+        cada = raw_input("from %i fit images, save 1 in n:  n = " %(cant))
+        #~ s.save(tmpfolder+"frame_001.png")
+        txt = [((5,5),"desde "+ meta1[0][:10]+"  "+
+        meta1[0][11:],"YELLOW")]
+        txt.append(((5, 14), "hasta "+ meta[0][:10]+"  "+
+        meta[0][11:], "ORANGE"))
+        rgb = Array2rgb(png1,comp,txt )
+        rgb.show()
+        Pause()
         t0 = dt.datetime.now()
         print "Saving png frames ... "
 
