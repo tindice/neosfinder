@@ -12,10 +12,13 @@ t0 = dt.datetime.now()
 fitfolder = '../Descargas/suleika_2/'
 pngfolder = "./tmp"
 
-# Probando Array2rgb(array,):
+# Probando :
 #=====================================================================
-
-
+e = Image.open(pngfolder+"/frame_002.png")
+a = np.asarray(e)[300:400,320:400]
+print a
+i,j = np.unravel_index(a.argmax(), a.shape)
+print i,j,a[i,j]
 #~ e = Image.open("/home/rodolfo/neosfinder/1 a 041.png")
 #~ meta, a = Getdata(fitfolder+"suleika_3_b1x_-041.fit")
 #~ print meta

@@ -54,7 +54,7 @@ def main():
         png = Fit2png(data) # auto equalization
     # Uso primera imagen como base para alinear -----------
         if cant == 1:
-            Align = []
+            Align = {}  # Diccionario "filename : (dy,dx)"
             refs1 = FindRefs(data)
             draft1 = Fit2png(data,i0=1,i1=1,sharp=1) # draft equalization
             draftsum = draft1.copy()
@@ -66,13 +66,14 @@ def main():
         refs = FindRefs(data)
         draft = Fit2png(data,i0=1,i1=1,sharp=1) # draft equalization
         tn = ChooseBestAlign(draft1,draft,refs1-refs)
-        Align.append(tn)
+        Align[filename] = tn
+        
         #  Superponer imágenes :
         #~ pngsum = np.maximum(Shift(png,dy=tn[0],dx=tn[1]), pngsum)
         draftsum = np.maximum(Shift(draft,dy=tn[0],dx=tn[1]), draftsum)
     
     print
-    t1 = dt.datetime.now()
+    t0 = dt.datetime.now()
     print "Recognizing ... ",
 
     # 3) Reconocer componentes sospechosos :
@@ -84,28 +85,18 @@ def main():
         comp = recognize(tmpfolder+"draft.png", dim)
         #~ print dim, len(comp)
         dim -= 1
-    #~ comp = recognize(draftsum,17)
-    #~ print len(comp), "Componentes:"
+
     if len(comp) == 0:
         print
         print "Nothing found."
         exit
-    #~ print comp
-    #~ size = (draftsum.shape[1]/2, draftsum.shape[0]/2)
-    #~ s = Image.fromarray(pngsum)
-    #~ s.thumbnail(size, Image.BICUBIC)
-    #~ s.show()
     
-    # 4) Reducir tamaño, poner colores y mostrar :
-    #~ size = (png1.shape[1]/2, png1.shape[0]/2)
+    # 4) Poner colores y mostrar :
     s = Image.fromarray(png1)
-    #~ s.thumbnail(size, Image.BICUBIC)
-    
     r = s.copy()
     g = s.copy()
     
     for (y0, y1, x0, x1) in comp:
-        #~ print "comp w, h=", x1-x0, y1-y0
         xy = (x0-10,y0-10,x1+10,y1+10)
         ImageDraw.Draw(g).ellipse(xy, fill=None, outline=200)
         trace = im.crop((x0,y0, x1,y1)) # tomo traza del draft
@@ -115,52 +106,88 @@ def main():
         meta1[0][11:], fill=190)
     ImageDraw.Draw(r).text((10, 25), "hasta "+ meta[0][:10]+"  "+
         meta[0][11:], fill=190)
-        
-    #~ stamptext(s0, (10, 10), "desde "+ metadict[filename1][0][:10]+"  "+
-        #~ metadict[filename1][0][11:], color=190)
-    #~ stamptext(s0, (10, 25), "hasta "+ metadict[filename][0][:10]+"  "+
-        #~ metadict[filename][0][11:], color=190)
+
     b = r.copy()
     im = Image.merge("RGB", (r,g,b))
     im.save(tmpfolder+"tmp.png")
-    print 40*" ", dt.datetime.now()-t1
+    print 30*" "+str(dt.datetime.now()-t0)[:-7]
     print 
     # Show image
+    print "Found !"
+    print "Showing draft: (close your viewer to continue)"
+    print
     os.system("eog %stmp.png"%(tmpfolder)) 
 
+    # 5) Generar frames :
     frames = raw_input("Save frames ? [y/n] ")
     if frames == "y" or frames == "Y":
-        cada = raw_input("from %i fit images, save 1 in n:  n = " %(cant))
-        #~ s.save(tmpfolder+"frame_001.png")
-        txt = [((5,5),"desde "+ meta1[0][:10]+"  "+
-        meta1[0][11:],"YELLOW")]
-        txt.append(((5, 14), "hasta "+ meta[0][:10]+"  "+
-        meta[0][11:], "ORANGE"))
-        rgb = Array2rgb(png1,comp,txt )
-        rgb.show()
-        Pause()
+        cada = int(raw_input("  From %i fit images, save 1 in n:  n = " %(cant)))
+        txt0 = ((5,5),"obs.: "+ meta1[0][:10],"YELLOW")
+        # posicion inicial:
+        (y0, y1, x0, x1) = comp[0]
+        i,j = np.unravel_index(png1[y0:y1,x0:x1].argmax(), png1[y0:y1,x0:x1].shape)
+        # posicion final:
+        png = Shift(draft,dy=tn[0],dx=tn[1])
+        u,v = np.unravel_index(png[y0:y1,x0:x1].argmax(), png[y0:y1,x0:x1].shape)
+        # posiciones para textos:
+        if i>u:
+            inic = (x0+j, y1+15)
+            fin = (x0+v, y0-30)
+        else:
+            inic = (x0+j, y0-30)
+            fin = (x0+v, y1+15)
+            
+        txt1 = (inic, " from "+ meta1[0][11:], "ORANGE")
+        txt2 = (fin, " to "+ meta[0][11:], "ORANGE")
+        rgb = Array2rgb(png1,comp,[txt0,txt1] )
+        rgb.save(tmpfolder+"frame_001.png")
+        os.system("optipng -o2 -q %sframe_001.png"%(tmpfolder)) 
         t0 = dt.datetime.now()
         print "Saving png frames ... "
 
-        for f in range(1,len(filelist), cada):
-            update_progress(f,len(filelist)/cada)
+        z = "000"
+        n = 1
+        for f in range(cada,cant, cada):
+            update_progress(f,cant)
             print str(dt.datetime.now()-t0)[:-7],
 
             meta, data = Getdata(fitfolder+filelist[f])
             png = Fit2png(data) # auto equalization
-            im = Image.fromarray(png)
-    
-        #~ TODO:
+            # get shift
+            tn = Align[filelist[f]]
+            png = Shift(png,dy=tn[0],dx=tn[1])
+            # get number
+            #~ nr = filelist[f][-7:-4]
+            # choose text
+            if f < cant/2 :
+                rgb = Array2rgb(png,comp,[txt0,txt1] )
+            else:
+                rgb = Array2rgb(png,comp,[txt0,txt2] )
+            
+            n += 1
+            rgb.save(tmpfolder+"frame_%s.png" %((z+str(n))[-3:]))
+            os.system("optipng -o2 -q %sframe_%s.png"%(tmpfolder,(z+str(n))[-3:])) 
+        print
+    print "Done."
+
+    # 6) Generar animacion :
+    anim = raw_input("Make animation.apng ? [y/n] ")
+    if anim == "y" or anim == "Y":
+        print
+        print "Making animation ...",
+        t0 = dt.datetime.now()
+        os.system("apngasm anima.png ./tmp/frame_001.png 1 4")
+        print 26*" "+str(dt.datetime.now()-t0)[:-7]
+        print "Done. You can view anima.png with Firefox browser."
+        
     return 0
 
 if __name__ == '__main__':
     import numpy as np
-    #~ from numpy.lib.stride_tricks import as_strided
     from PIL import Image , ImageDraw
     import os, datetime as dt
     from astrotools import *
-    import cclabel as ccl
-    from recognize import recognize, stamptext
+    from recognize import recognize
 
     main()
 

@@ -3,7 +3,6 @@
 
 import  pyfits as pyf, numpy as np
 from PIL import Image, ImageDraw
-import os, math
 
 def Array2rgb(array,circles=[],texts=[]):
     ''' where circles=[(y0, y1, x0, x1),...] 
@@ -22,26 +21,27 @@ def Array2rgb(array,circles=[],texts=[]):
         ImageDraw.Draw(im).ellipse(xy, fill=None, outline=(0,200,0))
         
     for (xy,string,color) in texts:
+        xy = tuple(x/2 for x in xy)
         ImageDraw.Draw(im).text(xy, string, fill=color)
     return im
 
-def Putcross(array,refs,t=10):
-    ''' Put crosses on the image array. ( Cross size= 2*t+1 )
-        Uses the list refs=[(x0,y0),...,(xn,yn)] to center each cross.
-        Returns the modified array '''
-    a = array.astype(np.uint8)
-    # Cross array definition
-    lum = np.max(array)
-    cros = np.zeros((2*t+1,2*t+1),dtype=np.uint8)
-    cros[:t-3,t] = cros[t+4:,t] = lum
-    cros[t,:t-3] = cros[t,t+4:] = lum
-    for pt in range(0,len(refs)):
-        ptx = refs[pt][0]
-        pty = refs[pt][1]
-        if (ptx>=t and ptx<a.shape[1]-t) and (pty>=t and pty<a.shape[0]-t):
-            if a[pty,ptx] > 150:    # luminosidad digna
-                a[pty-t:pty+t+1,ptx-t:ptx+t+1] = np.maximum(a[pty-t:pty+t+1,ptx-t:ptx+t+1],cros)
-    return a
+#~ def Putcross(array,refs,t=10):
+    #~ ''' Put crosses on the image array. ( Cross size= 2*t+1 )
+        #~ Uses the list refs=[(x0,y0),...,(xn,yn)] to center each cross.
+        #~ Returns the modified array '''
+    #~ a = array.astype(np.uint8)
+    #~ # Cross array definition
+    #~ lum = np.max(array)
+    #~ cros = np.zeros((2*t+1,2*t+1),dtype=np.uint8)
+    #~ cros[:t-3,t] = cros[t+4:,t] = lum
+    #~ cros[t,:t-3] = cros[t,t+4:] = lum
+    #~ for pt in range(0,len(refs)):
+        #~ ptx = refs[pt][0]
+        #~ pty = refs[pt][1]
+        #~ if (ptx>=t and ptx<a.shape[1]-t) and (pty>=t and pty<a.shape[0]-t):
+            #~ if a[pty,ptx] > 150:    # luminosidad digna
+                #~ a[pty-t:pty+t+1,ptx-t:ptx+t+1] = np.maximum(a[pty-t:pty+t+1,ptx-t:ptx+t+1],cros)
+    #~ return a
     
 def update_progress(progress, total):
     print '\r[{0}] {1}%'.format('#'*(progress/5)+" "*(40-progress/5), progress*100/total),
@@ -124,14 +124,6 @@ def Fit2png(data,i0=0, i1=0, sharp=0):
     newarray = 255/(1+np.exp(t))
     return (newarray - np.amin(newarray)).astype(np.uint8)
     
-def Savepng(name,data,i0=10000, i1=16000, sharp=1.8):
-    ''' 
-    "name" without extension
-    '''
-    png = Fit2png(data,i0,i1,sharp).astype(np.uint8)
-    e = Image.fromarray(png)
-    pngfolder = "./tmp/"
-    e.save(pngfolder+name+".png")
 
 def Equalize(filefullname, dataonly=False, cutoff=50):
     """ If optional 'dataonly' is True, returns the Fit data array.
@@ -150,30 +142,6 @@ def Equalize(filefullname, dataonly=False, cutoff=50):
     newarray = np.array(Image.new("L", (Width,Height), color=0)) 
     newarray = (data+cutoff*100)/255
     return newarray
-    
-
-def XYind(sfi,x0,y0,x1,y1):
-    """ Returns both indexes X,Y of an array,
-    #  from the SubarrayFlatenIndex of the box(x0,y0,x1,y1)
-    """
-    y, x = np.unravel_index(sfi, (y1-y0, x1-x0))
-    return x0+x,y0+y
-
-def Distances(refs):
-    """"
-    The "refs" parameter is a list [(x0,y0),...,(xn-1,yn-1)] with n tuples.
-    Returns the list [d0,...,dm-1] with m elements, where m=(n-1)n/2
-    Each element d is the square of the distance between 2 tuples. 
-    """
-    #~ print "refs =",refs
-    n = len(refs)
-    L = []
-    for i in range(0,n):
-        for j in range(i+1,n-1):
-            print refs[i][0],refs[j][0],"   ",refs[i][1],refs[j][1]
-            d = (refs[i][0]-refs[j][0])^2 + (refs[i][1]-refs[j][1])^2
-            L.append(d)
-    return L
     
 
     
@@ -231,8 +199,6 @@ def ChooseBestAlign(arr1,arr2,shifts):
         
         
     # buscar min ali y retornar su [dy dx]
-    #~ print shifts[np.argmin(shifts,axis=0)[2], :2]
-    #~ Pause()
     return shifts[np.argmin(shifts,axis=0)[2], :2]
     
     
