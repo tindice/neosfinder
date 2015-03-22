@@ -26,8 +26,8 @@
 '''
 
 
-def main():
-    fitfolder = os.path.expanduser('~/Descargas/suleika_2/')
+def main(options, fitfolder):
+    fitfolder = os.path.expanduser(fitfolder)+"/"
     print "Procesing %s*.fit files..." %(fitfolder)
     tmpfolder = "./tmp/"
     t0 = dt.datetime.now()
@@ -41,6 +41,14 @@ def main():
     # 2) Calcular alineación de imagenes FIT :
     print "Aligning images..." 
     t0 = dt.datetime.now()
+    Align = {}  # Diccionario "filename : (dy,dx)"
+    if os.path.exists(fitfolder+"align.log"):
+        alog = raw_input("Have an 'align.log' yet. Should we use it? [y/n] ")
+        if alog.upper() == "Y":
+            log = open(fitfolder+"align.log", "r")
+            Align = eval(log.readline())
+            log.close()
+        
     cant = 0
     for filename in filelist:
         update_progress(cant,len(filelist))
@@ -54,7 +62,6 @@ def main():
         png = Fit2png(data) # auto equalization
     # Uso primera imagen como base para alinear -----------
         if cant == 1:
-            Align = {}  # Diccionario "filename : (dy,dx)"
             refs1 = FindRefs(data)
             draft1 = Fit2png(data,i0=1,i1=1,sharp=1) # draft equalization
             draftsum = draft1.copy()
@@ -62,16 +69,22 @@ def main():
             #~ pngsum = png
             png1 = png.copy()
             continue
-            
-        refs = FindRefs(data)
-        draft = Fit2png(data,i0=1,i1=1,sharp=1) # draft equalization
-        tn = ChooseBestAlign(draft1,draft,refs1-refs)
-        Align[filename] = tn
+        if filename in Align.keys():
+            tn = Align[filename]
+        else:
+            refs = FindRefs(data)
+            draft = Fit2png(data,i0=1,i1=1,sharp=1) # draft equalization
+            tn = ChooseBestAlign(draft1,draft,refs1-refs)
+            Align[filename] = tn
         
         #  Superponer imágenes :
-        #~ pngsum = np.maximum(Shift(png,dy=tn[0],dx=tn[1]), pngsum)
         draftsum = np.maximum(Shift(draft,dy=tn[0],dx=tn[1]), draftsum)
-    
+    # Guardo Align para el futuro
+    log = open("./align.log", "w")
+    log.write(str(Align)+"\n")
+    log.close()
+
+
     print
     t0 = dt.datetime.now()
     print "Recognizing ... ",
@@ -120,7 +133,7 @@ def main():
 
     # 5) Generar frames :
     frames = raw_input("Save frames ? [y/n] ")
-    if frames == "y" or frames == "Y":
+    if frames.upper() == "Y":
         cada = int(raw_input("  From %i fit images, save 1 in n:  n = " %(cant)))
         txt0 = ((5,5),"obs.: "+ meta1[0][:10],"YELLOW")
         # posicion inicial:
@@ -172,7 +185,7 @@ def main():
 
     # 6) Generar animacion :
     anim = raw_input("Make animation.apng ? [y/n] ")
-    if anim == "y" or anim == "Y":
+    if anim.upper() == "Y":
         print
         print "Making animation ...",
         t0 = dt.datetime.now()
@@ -188,6 +201,37 @@ if __name__ == '__main__':
     import os, datetime as dt
     from astrotools import *
     from recognize import recognize
+    from optparse import OptionParser
 
-    main()
+    """
+    Parses command line and edit the file
+    """
+    # create the options we want to parse
+    usage = " %prog [opciones] arch_entrada arch_salida"
+    optParser = OptionParser(usage=usage)
+    #~ optParser.add_option("-v", "--verbose", action="store_true", dest="verbose", default=False,
+                        #~ help="Use verbose output")
+    #~ optParser.add_option("-l", "--lineal", action="store_true", dest="lineal", default=False,
+                        #~ help="Lineal time Transfer")
+    #  optParser.add_option("-k", "--keep-front", type="int", dest="keepfront", metavar="NUM",
+    #                        help="Keeps only NUM of characters from the front of the filename")
+    #  optParser.add_option("-b", "--trim-back", type="int", dest="trimback", metavar="NUM",
+    #                        help="Trims NUM of characters from the back of the filename")
+    #~ optParser.add_option("-s", "--shift", type="float", dest="shift", metavar="SS",
+                        #~ help="Desplaza tiempos SS% segundos")
+    #~ optParser.add_option("-e", "--escalar", type="float", dest="escalar", metavar="NN",
+                        #~ help="Escala tiempos al NN%")
+    #~ optParser.add_option("-r", "--renum", action="store_true", dest="renum", default=False,
+                        #~ help="Renumera todo")
+    #~ optParser.add_option("-c", "--check", action="store_true", dest="check", default=False,
+                        #~ help="verifica todo")
+    (options, args) = optParser.parse_args()
+    
+      # check that they passed in atleast fitfolder
+    if len(args) > 0:
+        fitfolder = args[0]
+    else:
+        optParser.error("usage: $ neosfind [opciones] fitfolder")
+
+    main(options, fitfolder)
 
