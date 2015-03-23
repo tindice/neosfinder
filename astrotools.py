@@ -52,7 +52,7 @@ def Pause(msg="Enter to cont, Ctrl-C to exit: "):
 def Checkfits(path, filelist, mean_criteria=(0.5,10), uprogress=True, log=True):
     print "\r Checking Fitfiles  ..."
     
-    means = {f:int(np.mean(Getdata(path+f))) for f in filelist}
+    means = {f:int(np.mean(Getdata(path+f)[1])) for f in filelist}
     mean = means[filelist[0]]
     exclude = [f for f in filelist if means[f]<mean*mean_criteria[0] or means[f]>mean*mean_criteria[1]]
     
@@ -88,6 +88,7 @@ def Getdata(filefullname):
     """ Returns the Fit data array and the tuple (obsTime,obsDur)
     """
     if type(filefullname) == type('str'):
+        if filefullname[-4:] != ".fit": return (0,0), 0
         hduList = pyf.open(filefullname)
         prihdr = hduList[0].header
         #~ print 

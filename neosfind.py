@@ -34,7 +34,7 @@ def main(options, fitfolder):
     
     # 1) Verificar integridad de imagenes FIT :
     filelist = sorted(os.listdir(fitfolder[:-1]))
-    #~ exclude = Checkfits(fitfolder, filelist, log=False)
+    exclude = Checkfits(fitfolder, filelist, log=False)
     print
     print"Checkfits: ", dt.datetime.now()-t0
 
@@ -53,8 +53,8 @@ def main(options, fitfolder):
     for filename in filelist:
         update_progress(cant,len(filelist))
         print str(dt.datetime.now()-t0)[:-7],
-        #~ if filename[-4:] != ".fit" or filename in exclude:
-            #~ continue        # -- exclude file
+        if filename[-4:] != ".fit" or filename in exclude:
+            continue        # -- exclude file
     
         cant += 1
         f = fitfolder+filename
@@ -80,7 +80,7 @@ def main(options, fitfolder):
         #  Superponer imágenes :
         draftsum = np.maximum(Shift(draft,dy=tn[0],dx=tn[1]), draftsum)
     # Guardo Align para el futuro
-    log = open("./align.log", "w")
+    log = open(fitfolder+"align.log", "w")
     log.write(str(Align)+"\n")
     log.close()
 
