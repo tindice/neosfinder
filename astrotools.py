@@ -51,10 +51,10 @@ def Pause(msg="Enter to cont, Ctrl-C to exit: "):
 
 def Checkfits(path, filelist, mean_criteria=(0.5,10), uprogress=True, log=True):
     print "\r Checking Fitfiles  ..."
-    
-    means = {f:int(np.mean(Getdata(path+f)[1])) for f in filelist}
-    mean = means[filelist[0]]
-    exclude = [f for f in filelist if means[f]<mean*mean_criteria[0] or means[f]>mean*mean_criteria[1]]
+    fitlist = [f for f in filelist if f[-4:]==".fit"]
+    means = {f:int(np.mean(Getdata(path+f)[1])) for f in fitlist}
+    mean = means[fitlist[0]]
+    exclude = [f for f in fitlist if means[f]<mean*mean_criteria[0] or means[f]>mean*mean_criteria[1]]
     
     if log:
         checklog = open("./check.log", "w")
@@ -68,7 +68,7 @@ def Checkfits(path, filelist, mean_criteria=(0.5,10), uprogress=True, log=True):
         checklog.close()
         if uprogress: print "\n"
     
-    return exclude
+    return fitlist, exclude
 
 def Shift(array,dx=0,dy=0):
     a = array.copy()
@@ -88,7 +88,7 @@ def Getdata(filefullname):
     """ Returns the Fit data array and the tuple (obsTime,obsDur)
     """
     if type(filefullname) == type('str'):
-        if filefullname[-4:] != ".fit": return (0,0), 0
+        #~ if filefullname[-4:] != ".fit": return (0,0), 0
         hduList = pyf.open(filefullname)
         prihdr = hduList[0].header
         #~ print 
@@ -196,9 +196,9 @@ def ChooseBestAlign(arr1,arr2,shifts):
         
         
         shifts[n,2] = ali.sum(dtype=np.uint32)  # poner suma en 3a. columna.
-        shifts[n,2] = ali.sum()  # poner suma en 3a. columna.
+        #~ shifts[n,2] = ali.sum()  # poner suma en 3a. columna.
         
-        
+    print shifts[np.argmin(shifts,axis=0)[2], :2]    
     # buscar min ali y retornar su [dy dx]
     return shifts[np.argmin(shifts,axis=0)[2], :2]
     

@@ -23,6 +23,9 @@
 #  
 '''     TODO: Breve descripción.
                 Modo de uso.
+            usage:  $ ./neosfind.py [options] fitfolder_path
+            
+            example:
 '''
 
 
@@ -33,8 +36,7 @@ def main(options, fitfolder):
     t0 = dt.datetime.now()
     
     # 1) Verificar integridad de imagenes FIT :
-    filelist = sorted(os.listdir(fitfolder[:-1]))
-    exclude = Checkfits(fitfolder, filelist, log=False)
+    filelist, exclude = Checkfits(fitfolder,sorted(os.listdir(fitfolder[:-1])) , log=False)
     print
     print"Checkfits: ", dt.datetime.now()-t0
 
@@ -53,7 +55,7 @@ def main(options, fitfolder):
     for filename in filelist:
         update_progress(cant,len(filelist))
         print str(dt.datetime.now()-t0)[:-7],
-        if filename[-4:] != ".fit" or filename in exclude:
+        if filename in exclude:
             continue        # -- exclude file
     
         cant += 1
@@ -66,16 +68,16 @@ def main(options, fitfolder):
             draft1 = Fit2png(data,i0=1,i1=1,sharp=1) # draft equalization
             draftsum = draft1.copy()
             meta1 = meta
-            #~ pngsum = png
             png1 = png.copy()
             continue
+            
+        draft = Fit2png(data,i0=1,i1=1,sharp=1) # draft equalization
         if filename in Align.keys():
             tn = Align[filename]
         else:
             refs = FindRefs(data)
-            draft = Fit2png(data,i0=1,i1=1,sharp=1) # draft equalization
             tn = ChooseBestAlign(draft1,draft,refs1-refs)
-            Align[filename] = tn
+            Align[filename] = tuple(tn)
         
         #  Superponer imágenes :
         draftsum = np.maximum(Shift(draft,dy=tn[0],dx=tn[1]), draftsum)
@@ -96,7 +98,6 @@ def main(options, fitfolder):
     comp = []
     while dim>8 and len(comp) < 1:
         comp = recognize(tmpfolder+"draft.png", dim)
-        #~ print dim, len(comp)
         dim -= 1
 
     if len(comp) == 0:
@@ -105,7 +106,7 @@ def main(options, fitfolder):
         exit
     
     # 4) Poner colores y mostrar :
-    s = Image.fromarray(png1)
+    s = Image.fromarray(png)
     r = s.copy()
     g = s.copy()
     
@@ -169,8 +170,6 @@ def main(options, fitfolder):
             # get shift
             tn = Align[filelist[f]]
             png = Shift(png,dy=tn[0],dx=tn[1])
-            # get number
-            #~ nr = filelist[f][-7:-4]
             # choose text
             if f < cant/2 :
                 rgb = Array2rgb(png,comp,[txt0,txt1] )
