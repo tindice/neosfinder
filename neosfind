@@ -37,17 +37,20 @@ def main(options, fitfolder):
     
     # 1) Verificar integridad de imagenes FIT :
     filelist, exclude = Checkfits(fitfolder,sorted(os.listdir(fitfolder[:-1])) , log=False)
+    print dt.datetime.now()-t0
     print
-    print"Checkfits: ", dt.datetime.now()-t0
-
     # 2) Calcular alineación de imagenes FIT :
     print "Aligning images..." 
     t0 = dt.datetime.now()
     Align = {}  # Diccionario "filename : (dy,dx)"
     if os.path.exists(fitfolder+"align.log"):
-        if options.align == 2:
+        if options.verbose:
             alog = raw_input("Have an 'align.log' yet. Should we use it? [y/n] ").upper()
-        if options.align == 0 or alog == "Y":
+            if alog == "Y":
+                options.align = False
+            else:
+                options.align = True
+        if not options.align:
             log = open(fitfolder+"align.log", "r")
             Align = eval(log.readline())
             log.close()
@@ -209,18 +212,18 @@ if __name__ == '__main__':
     # create the options we want to parse
     usage = " %prog [opciones] arch_entrada arch_salida"
     optParser = OptionParser(usage=usage)
-    #~ optParser.add_option("-a", "--align", action="store_true", dest="align", default=False,
-                        #~ help="use existing align.log values.")
-    #~ optParser.add_option("-fa", "--forcealign", action="store_true", dest="falign", default=False,
-                        #~ help="force align calculation, even existing align.log values.")
+    optParser.add_option("-v", "--verbose", action="store_true", dest="verbose", default=False,
+                        help="Verbose for interactive options.")
+    optParser.add_option("-a", "--align", action="store_true", dest="align", default=False,
+                        help="Force align calculation, even existing align.log values.")
     #~ optParser.add_option("-l", "--lineal", action="store_true", dest="lineal", default=False,
                         #~ help="Lineal time Transfer")
     #  optParser.add_option("-k", "--keep-front", type="int", dest="keepfront", metavar="NUM",
     #                        help="Keeps only NUM of characters from the front of the filename")
     #  optParser.add_option("-b", "--trim-back", type="int", dest="trimback", metavar="NUM",
     #                        help="Trims NUM of characters from the back of the filename")
-    optParser.add_option("-a", "--align", type="int", dest="align", metavar="0/1", default=2,
-                        help="if 0: use existing align.log values.\nif 1: force align calculation.")
+    #~ optParser.add_option("-a", "--align", type="int", dest="align", metavar="0/1", default=2,
+                        #~ help="if 0: use existing align.log values.\nif 1: force align calculation.")
     #~ optParser.add_option("-e", "--escalar", type="float", dest="escalar", metavar="NN",
                         #~ help="Escala tiempos al NN%")
     #~ optParser.add_option("-r", "--renum", action="store_true", dest="renum", default=False,

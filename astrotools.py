@@ -49,24 +49,32 @@ def update_progress(progress, total):
 def Pause(msg="Enter to cont, Ctrl-C to exit: "):
     raw_input(msg)
 
-def Checkfits(path, filelist, mean_criteria=(0.5,10), uprogress=True, log=True):
-    print "\r Checking Fitfiles  ..."
+def Checkfits(path, filelist, mean_criteria=(0.5,10), uprogress=True, log=False):
+    ''' Purges form filelist all files not *.fit and
+            returns the exclude list following critera.
+    '''
+    print "\r Checking Fitfiles  ...",
     fitlist = [f for f in filelist if f[-4:]==".fit"]
     means = {f:int(np.mean(Getdata(path+f)[1])) for f in fitlist}
     mean = means[fitlist[0]]
     exclude = [f for f in fitlist if means[f]<mean*mean_criteria[0] or means[f]>mean*mean_criteria[1]]
     
-    if log:
-        checklog = open("./check.log", "w")
-        checklog.write("File%s\tmean\tstd\tvar\n" %(spc))
-        spc = " " * (len(filelist[0]) - 4)
-        cant = 0
-        for f in filelist:
-            cant += 1
-            if uprogress: update_progress(cant,len(filelist))
-            checklog.write("%s\t%i\t%i\t%i\n" %(f,int(np.mean(Getdata(path+f))),int(np.std(Getdata(path+f))),int(np.var(Getdata(path+f)))))
-        checklog.close()
-        if uprogress: print "\n"
+        # Guardo Exclude para el futuro
+    log = open(path+"exclude.log", "w")
+    log.write(str(exclude)+"\n")
+    log.close()
+
+    #~ if log:
+        #~ checklog = open("./check.log", "w")
+        #~ checklog.write("File%s\tmean\tstd\tvar\n" %(spc))
+        #~ spc = " " * (len(filelist[0]) - 4)
+        #~ cant = 0
+        #~ for f in filelist:
+            #~ cant += 1
+            #~ if uprogress: update_progress(cant,len(filelist))
+            #~ checklog.write("%s\t%i\t%i\t%i\n" %(f,int(np.mean(Getdata(path+f))),int(np.std(Getdata(path+f))),int(np.var(Getdata(path+f)))))
+        #~ checklog.close()
+        #~ if uprogress: print "\n"
     
     return fitlist, exclude
 
