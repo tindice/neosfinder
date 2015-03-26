@@ -14,11 +14,12 @@ pngfolder = "./tmp"
 
 # Probando :
 #=====================================================================
-e = Image.open(pngfolder+"/frame_002.png")
-a = np.asarray(e)[300:400,320:400]
-print a
-i,j = np.unravel_index(a.argmax(), a.shape)
-print i,j,a[i,j]
+#~ e = Image.open(pngfolder+"/frame_002.png")
+#~ a = np.asarray(e)[300:400,320:400]
+#~ print a
+#~ i,j = np.unravel_index(a.argmax(), a.shape)
+#~ print i,j,a[i,j]
+
 #~ e = Image.open("/home/rodolfo/neosfinder/1 a 041.png")
 #~ meta, a = Getdata(fitfolder+"suleika_3_b1x_-041.fit")
 #~ print meta
@@ -81,15 +82,15 @@ print i,j,a[i,j]
 
 # Saving pngs from fits
 #=====================================================================
-#~ cant = 0
-#~ for filename in sorted(os.listdir(fitfolder[:-1])):
-	#~ cant += 1
-	#~ f = fitfolder+filename
-	#~ update_progress(cant,len(os.listdir(fitfolder[:-1])))
-	#~ #if cant < 119 : continue
-	#~ if not(cant==2) : continue
-	#~ data = Getdata(f)
-	#~ Savepng("debug/"+filename[:-4],data,i0=4000,i1=10000,sharp=2.3)
+cant = 0
+for filename in sorted(os.listdir(fitfolder[:-1])):
+	cant += 1
+	f = fitfolder+filename
+	update_progress(cant,len(os.listdir(fitfolder[:-1])))
+	#if cant < 119 : continue
+	if not(filename[-4:]==".fit") : continue
+	meta,data = Getdata(f)
+	print meta
 
 # Saving pngs with crosses from fits
 #=====================================================================

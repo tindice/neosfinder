@@ -30,9 +30,24 @@
 
 
 def main(options, fitfolder):
+    tmpfolder = "./tmp/"
+    framelist = [f for f in os.listdir(tmpfolder[:-1]) if f[:5]=="frame"]
+    anim = ""
+    if options.verbose and len(framelist) > 1:
+        anim = raw_input("Have %i frames yet. Make animation or delete them? [M/d] " %(len(framelist))).upper()
+    if anim == "M" or (not options.verbose and len(framelist) > 1):
+            print "Making animation ...",
+            t0 = dt.datetime.now()
+            os.system("apngasm anima.png ./tmp/frame_001.png 1 4")
+            print 26*" "+str(dt.datetime.now()-t0)[:-7]
+            print "Done. You can view anima.png with Firefox browser."
+            exit
+    # else, delete tmp/frames:
+    for f in framelist:
+        os.remove(tmpfolder+f)
+
     fitfolder = os.path.expanduser(fitfolder)+"/"
     print "Procesing %s*.fit files..." %(fitfolder)
-    tmpfolder = "./tmp/"
     t0 = dt.datetime.now()
     
     # 1) Verificar integridad de imagenes FIT :
@@ -89,6 +104,8 @@ def main(options, fitfolder):
     log = open(fitfolder+"align.log", "w")
     log.write(str(Align)+"\n")
     log.close()
+    # y guardo ultima:
+    
 
 
     print
@@ -110,7 +127,7 @@ def main(options, fitfolder):
         exit
     
     # 4) Poner colores y mostrar :
-    s = Image.fromarray(png)
+    s = Image.fromarray(Shift(png,dy=tn[0],dx=tn[1]))
     r = s.copy()
     g = s.copy()
     
@@ -137,9 +154,14 @@ def main(options, fitfolder):
     os.system("eog %stmp.png"%(tmpfolder)) 
 
     # 5) Generar frames :
-    frames = raw_input("Save frames ? [y/n] ")
-    if frames.upper() == "Y":
-        cada = int(raw_input("  From %i fit images, save 1 in n:  n = " %(cant)))
+    if options.verbose:
+        frames = raw_input("Save frames ? [y/n] ").upper()
+        if frames == "Y":
+            cada = int(raw_input("  From %i fit images, save 1 in n:  n = " %(cant)))
+            options.frames = cada
+        else:
+            options.frames = 0
+    if options.frames > 0:
         txt0 = ((5,5),"obs.: "+ meta1[0][:10],"YELLOW")
         # posicion inicial:
         (y0, y1, x0, x1) = comp[0]
@@ -147,6 +169,9 @@ def main(options, fitfolder):
         # posicion final:
         png = Shift(draft,dy=tn[0],dx=tn[1])
         u,v = np.unravel_index(png[y0:y1,x0:x1].argmax(), png[y0:y1,x0:x1].shape)
+        # veloc. aparente = distancia recorrida / tiempo
+        delta = 1.93 * ((u-i)**2 + (v-j)**2)**.5 # en segundos de arco.
+        vel = round(3600*delta / (hhmmss2s(meta[0][-8:]) - hhmmss2s(meta1[0][-8:])),2)
         # posiciones para textos:
         if i>u:
             inic = (x0+j, y1+15)
@@ -157,18 +182,19 @@ def main(options, fitfolder):
             
         txt1 = (inic, " from "+ meta1[0][11:], "ORANGE")
         txt2 = (fin, " to "+ meta[0][11:], "ORANGE")
-        rgb = Array2rgb(png1,comp,[txt0,txt1] )
+        txt3 = ((50+x0+max(j,v),(y0+y1)/2-5), ' app.speed: %s arc"/h' %(vel), "BROWN")
+        
+        rgb = Array2rgb(png1,comp,[txt0,txt1,txt3] )
         rgb.save(tmpfolder+"frame_001.png")
         os.system("optipng -o2 -q %sframe_001.png"%(tmpfolder)) 
         t0 = dt.datetime.now()
         print "Saving png frames ... "
-
-        z = "000"
+    
         n = 1
         for f in range(cada,cant, cada):
             update_progress(f,cant)
             print str(dt.datetime.now()-t0)[:-7],
-
+    
             meta, data = Getdata(fitfolder+filelist[f])
             png = Fit2png(data) # auto equalization
             # get shift
@@ -176,19 +202,26 @@ def main(options, fitfolder):
             png = Shift(png,dy=tn[0],dx=tn[1])
             # choose text
             if f < cant/2 :
-                rgb = Array2rgb(png,comp,[txt0,txt1] )
+                rgb = Array2rgb(png,comp,[txt0,txt1,txt3] )
             else:
-                rgb = Array2rgb(png,comp,[txt0,txt2] )
+                rgb = Array2rgb(png,comp,[txt0,txt2,txt3] )
             
             n += 1
-            rgb.save(tmpfolder+"frame_%s.png" %((z+str(n))[-3:]))
-            os.system("optipng -o2 -q %sframe_%s.png"%(tmpfolder,(z+str(n))[-3:])) 
+            rgb.save(tmpfolder+"frame_%s.png" %(("00"+str(n))[-3:]))
+            os.system("optipng -o2 -q %sframe_%s.png"%(tmpfolder,("00"+str(n))[-3:])) 
         print
+        
     print "Done."
 
     # 6) Generar animacion :
-    anim = raw_input("Make animation.apng ? [y/n] ")
-    if anim.upper() == "Y":
+    if options.verbose:
+        anim = raw_input("Make animation.apng ? [y/n] ").upper()
+        if anim == "Y":
+            options.nomovie = False
+        else:
+            options.nomovie = True
+            
+    if not options.nomovie:
         print
         print "Making animation ...",
         t0 = dt.datetime.now()
@@ -214,16 +247,18 @@ if __name__ == '__main__':
     optParser = OptionParser(usage=usage)
     optParser.add_option("-v", "--verbose", action="store_true", dest="verbose", default=False,
                         help="Verbose for interactive options.")
+    optParser.add_option("-m", "--nomovie", action="store_true", dest="nomovie", default=False,
+                        help="Do no animation.")
     optParser.add_option("-a", "--align", action="store_true", dest="align", default=False,
                         help="Force align calculation, even existing align.log values.")
+    optParser.add_option("-f", "--frames", type="int", dest="frames", metavar="n", default=4,
+                        help="Saves one frame in n, skips (n-1).")
     #~ optParser.add_option("-l", "--lineal", action="store_true", dest="lineal", default=False,
                         #~ help="Lineal time Transfer")
     #  optParser.add_option("-k", "--keep-front", type="int", dest="keepfront", metavar="NUM",
     #                        help="Keeps only NUM of characters from the front of the filename")
     #  optParser.add_option("-b", "--trim-back", type="int", dest="trimback", metavar="NUM",
     #                        help="Trims NUM of characters from the back of the filename")
-    #~ optParser.add_option("-a", "--align", type="int", dest="align", metavar="0/1", default=2,
-                        #~ help="if 0: use existing align.log values.\nif 1: force align calculation.")
     #~ optParser.add_option("-e", "--escalar", type="float", dest="escalar", metavar="NN",
                         #~ help="Escala tiempos al NN%")
     #~ optParser.add_option("-r", "--renum", action="store_true", dest="renum", default=False,
@@ -236,7 +271,7 @@ if __name__ == '__main__':
     if len(args) > 0:
         fitfolder = args[0]
     else:
-        optParser.error("usage: $ neosfind [opciones] fitfolder")
+        optParser.error("usage: $ ./neosfind [options] fitfolder")
 
     main(options, fitfolder)
 

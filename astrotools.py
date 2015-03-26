@@ -206,9 +206,15 @@ def ChooseBestAlign(arr1,arr2,shifts):
         shifts[n,2] = ali.sum(dtype=np.uint32)  # poner suma en 3a. columna.
         #~ shifts[n,2] = ali.sum()  # poner suma en 3a. columna.
         
-    print shifts[np.argmin(shifts,axis=0)[2], :2]    
+    #~ print shifts[np.argmin(shifts,axis=0)[2], :2]    
     # buscar min ali y retornar su [dy dx]
     return shifts[np.argmin(shifts,axis=0)[2], :2]
     
+def hhmmss2s(s):
+    ''' where s is "hh:mm:ss"
+        Returns seconds as integer.
+    '''
+    ss = s.split(":")
+    return 3600*int(ss[0]) + 60*int(ss[1]) + int(ss[2])
     
     ###############################################################
