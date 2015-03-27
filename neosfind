@@ -88,6 +88,7 @@ def main(options, fitfolder):
             draft1 = Fit2png(data,i0=1,i1=1,sharp=1) # draft equalization
             draftsum = draft1.copy()
             meta1 = meta
+            obs = meta1[1]+"_"+meta1[0][:10]
             png1 = png.copy()
             continue
             
@@ -145,14 +146,14 @@ def main(options, fitfolder):
 
     b = r.copy()
     im = Image.merge("RGB", (r,g,b))
-    im.save(tmpfolder+"tmp.png")
+    im.save(tmpfolder+"%s.png"%(obs))
     print 30*" "+str(dt.datetime.now()-t0)[:-7]
     print 
     # Show image
     print "Found !"
-    print "Showing draft: (close your viewer to continue)"
+    print "Showing draft:"
     print
-    os.system("eog %stmp.png &"%(tmpfolder)) 
+    os.system("eog %s%s.png &"%(tmpfolder,obs)) 
 
     # 5) Generar frames :
     if options.verbose:
@@ -164,7 +165,8 @@ def main(options, fitfolder):
             options.frames = 0
             
     if options.frames > 0:
-        txt0 = ((5,5),"obs.: "+ meta1[0][:10],"YELLOW")
+        txt0 = ((5,5),"obs.: %s  %s" %(meta1[1],meta1[0][:10]),"YELLOW")
+        txt01 = ((5,17),"center: RA = %s  ; DEC = %s" %(meta1[2],meta1[3]),"YELLOW")
         # posicion inicial:
         (y0, y1, x0, x1) = comp[0]
         i,j = np.unravel_index(png1[y0:y1,x0:x1].argmax(), png1[y0:y1,x0:x1].shape)
@@ -186,7 +188,7 @@ def main(options, fitfolder):
         txt2 = (fin, " to "+ meta[0][11:], "ORANGE")
         txt3 = ((50+x0+max(j,v),(y0+y1)/2-5), ' app.speed: %s arc"/h' %(vel), "BROWN")
         
-        rgb = Array2rgb(png1,comp,[txt0,txt1,txt3] )
+        rgb = Array2rgb(png1,comp,[txt0,txt01,txt1,txt3] )
         rgb.save(tmpfolder+"frame_001.png")
         os.system("optipng -o2 -q %sframe_001.png"%(tmpfolder)) 
         t0 = dt.datetime.now()
@@ -204,9 +206,9 @@ def main(options, fitfolder):
             png = Shift(png,dy=tn[0],dx=tn[1])
             # choose text
             if f < cant/2 :
-                rgb = Array2rgb(png,comp,[txt0,txt1,txt3] )
+                rgb = Array2rgb(png,comp,[txt0,txt01,txt1,txt3] )
             else:
-                rgb = Array2rgb(png,comp,[txt0,txt2,txt3] )
+                rgb = Array2rgb(png,comp,[txt0,txt01,txt2,txt3] )
             
             n += 1
             rgb.save(tmpfolder+"frame_%s.png" %(("00"+str(n))[-3:]))
@@ -227,9 +229,10 @@ def main(options, fitfolder):
         print
         print "Making animation ...",
         t0 = dt.datetime.now()
-        os.system("apngasm anima.png ./tmp/frame_001.png 1 4")
+        os.system("apngasm %s.apng ./tmp/frame_001.png 1 4"%(obs))
         print 26*" "+str(dt.datetime.now()-t0)[:-7]
         print "Done. You can view anima.png with Firefox browser."
+        #~ os.system("firefox ./%s.apng &"%(obs))
         
     return 0
 

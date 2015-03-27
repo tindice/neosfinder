@@ -40,9 +40,9 @@ def recognize(image, mindim=15):
         maxs = map(max, zip(*Comp))   
         mins = map(min, zip(*Comp))
         x0, x1, y0, y1 = mins[0], maxs[0], mins[1], maxs[1]
-        print
-        print png[y0:y1+1,x0:x1+1]
-        raw_input(str(lbl))
+        #~ print
+        #~ print png[y0:y1+1,x0:x1+1]
+        #~ raw_input(str(lbl))
         
         # Descarto componentes pequeños:
         if (x1-x0+y1-y0) < mindim: continue

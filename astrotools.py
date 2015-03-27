@@ -93,7 +93,7 @@ def Shift(array,dx=0,dy=0):
     return a
     
 def Getdata(filefullname):
-    """ Returns the Fit data array and the tuple (obsTime,obsDur)
+    """ Returns the Fit data array and the tuple (obsTime,Telescop, AsRect,Decl)
     """
     if type(filefullname) == type('str'):
         #~ if filefullname[-4:] != ".fit": return (0,0), 0
@@ -106,7 +106,7 @@ def Getdata(filefullname):
         hduList.close()
     else:
         data = filefullname.copy()
-    return (prihdr["DATE-OBS"],prihdr["EXPOSURE"]), data
+    return (prihdr["DATE-OBS"],prihdr["TELESCOP"],prihdr["OBJCTRA"],prihdr["OBJCTDEC"]), data
     
 def Fit2png(data,i0=0, i1=0, sharp=0):
     """ Returns the contrast enhaced array 
