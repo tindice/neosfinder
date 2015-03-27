@@ -20,6 +20,10 @@ pngfolder = "./tmp"
 #~ i,j = np.unravel_index(a.argmax(), a.shape)
 #~ print i,j,a[i,j]
 
+<<<<<<< HEAD
+
+=======
+>>>>>>> e9c1b101149741c99f664a13ceea7502c1ff334d
 #~ e = Image.open("/home/rodolfo/neosfinder/1 a 041.png")
 #~ meta, a = Getdata(fitfolder+"suleika_3_b1x_-041.fit")
 #~ print meta
@@ -119,6 +123,7 @@ for filename in sorted(os.listdir(fitfolder[:-1])):
 #~ exclude = Checkfits(fitlist)
 #~ print exclude
 
+print hhmmss2s("01:02:05")
 
 
 

@@ -137,17 +137,16 @@ def run(img):
     return (labels, output_img)
 
 def bw(img):
-    img = img.point(lambda p: p > 80 and 255)
+    img = img.point(lambda p: p > 120 and 255)
     return img.convert('1')
 	
 def main():
     # Open the image
-    #~ img = Image.open(sys.argv[1])
     img = Image.open("/home/rodolfo/neosfinder/1 a 041.png")
 
     # Threshold the image, this implementation is designed to process b+w
     # images only
-    img = img.point(lambda p: p > 190 and 255)
+    img = img.point(lambda p: p > 80 and 255)
     img = img.convert('1')
     #~ img.show()
     # labels is a dictionary of the connected component data in the form:

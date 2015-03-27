@@ -184,13 +184,9 @@ def ChooseBestAlign(arr1,arr2,shifts):
         returns the best one. Asumes that the minimum Sum gives the best.
     '''
     # Descartar shifts grandes y Quitar shifts repetidos
-    #~ np.clip(shifts, -50, 50, out=shifts)
     b = np.ascontiguousarray(shifts).view(np.dtype((np.void, shifts.dtype.itemsize * shifts.shape[1])))
     _, idx = np.unique(b, return_index=True)
     shifts = np.unique(b).view(shifts.dtype).reshape(-1, shifts.shape[1])
-    
-    #~ mask = np.amax(shifts, axis=0)  # Enmascarar bordes
-    #~ masky, maskx = mask[0], mask[1]
     
     shrows = len(shifts)    # agregar columna para poner suma
     shifts = np.c_[shifts,np.zeros((shrows, 1),dtype=np.uint8)]
@@ -199,14 +195,9 @@ def ChooseBestAlign(arr1,arr2,shifts):
         arr2 = np.roll(arr2,shifts[n,1],axis=1)
         arr2 = np.roll(arr2,shifts[n,0],axis=0)
         ali = np.maximum(arr2, arr1)
-        #~ ali = np.maximum(Shift(arr2,dy=shifts[n,0],dx=shifts[n,1]), arr1)
-        #~ ali = ali[masky:-masky, maskx:-maskx]
-        
         
         shifts[n,2] = ali.sum(dtype=np.uint32)  # poner suma en 3a. columna.
-        #~ shifts[n,2] = ali.sum()  # poner suma en 3a. columna.
         
-    #~ print shifts[np.argmin(shifts,axis=0)[2], :2]    
     # buscar min ali y retornar su [dy dx]
     return shifts[np.argmin(shifts,axis=0)[2], :2]
     

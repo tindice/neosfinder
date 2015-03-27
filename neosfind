@@ -32,17 +32,18 @@
 def main(options, fitfolder):
     tmpfolder = "./tmp/"
     framelist = [f for f in os.listdir(tmpfolder[:-1]) if f[:5]=="frame"]
-    anim = ""
-    if options.verbose and len(framelist) > 1:
-        anim = raw_input("Have %i frames yet. Make animation or delete them? [M/d] " %(len(framelist))).upper()
-    if anim == "M" or (not options.verbose and len(framelist) > 1):
-            print "Making animation ...",
-            t0 = dt.datetime.now()
-            os.system("apngasm anima.png ./tmp/frame_001.png 1 4")
-            print 26*" "+str(dt.datetime.now()-t0)[:-7]
-            print "Done. You can view anima.png with Firefox browser."
-            exit
-    # else, delete tmp/frames:
+    if not options.kill:
+        anim = ""
+        if options.verbose and len(framelist) > 1:
+            anim = raw_input("Have %i frames yet. Make animation or delete them? [m/d] " %(len(framelist))).upper()
+        if anim == "M" or (not options.verbose and len(framelist) > 1):
+                print "Making animation ...",
+                t0 = dt.datetime.now()
+                os.system("apngasm anima.png ./tmp/frame_001.png 1 4")
+                print 26*" "+str(dt.datetime.now()-t0)[:-7]
+                print "Done. You can view anima.png with Firefox browser."
+                raise SystemExit
+        # else, delete tmp/frames:
     for f in framelist:
         os.remove(tmpfolder+f)
 
@@ -124,7 +125,7 @@ def main(options, fitfolder):
     if len(comp) == 0:
         print
         print "Nothing found."
-        exit
+        raise SystemExit
     
     # 4) Poner colores y mostrar :
     s = Image.fromarray(Shift(png,dy=tn[0],dx=tn[1]))
@@ -151,7 +152,7 @@ def main(options, fitfolder):
     print "Found !"
     print "Showing draft: (close your viewer to continue)"
     print
-    os.system("eog %stmp.png"%(tmpfolder)) 
+    os.system("eog %stmp.png &"%(tmpfolder)) 
 
     # 5) Generar frames :
     if options.verbose:
@@ -161,6 +162,7 @@ def main(options, fitfolder):
             options.frames = cada
         else:
             options.frames = 0
+            
     if options.frames > 0:
         txt0 = ((5,5),"obs.: "+ meta1[0][:10],"YELLOW")
         # posicion inicial:
@@ -191,7 +193,7 @@ def main(options, fitfolder):
         print "Saving png frames ... "
     
         n = 1
-        for f in range(cada,cant, cada):
+        for f in range(options.frames,cant, options.frames):
             update_progress(f,cant)
             print str(dt.datetime.now()-t0)[:-7],
     
@@ -253,8 +255,8 @@ if __name__ == '__main__':
                         help="Force align calculation, even existing align.log values.")
     optParser.add_option("-f", "--frames", type="int", dest="frames", metavar="n", default=4,
                         help="Saves one frame in n, skips (n-1).")
-    #~ optParser.add_option("-l", "--lineal", action="store_true", dest="lineal", default=False,
-                        #~ help="Lineal time Transfer")
+    optParser.add_option("-k", "--kill", action="store_true", dest="kill", default=False,
+                        help="Kill (delete) all previous frames.")
     #  optParser.add_option("-k", "--keep-front", type="int", dest="keepfront", metavar="NUM",
     #                        help="Keeps only NUM of characters from the front of the filename")
     #  optParser.add_option("-b", "--trim-back", type="int", dest="trimback", metavar="NUM",
