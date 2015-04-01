@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from gi.repository import Gtk
-from nfClass import Gui
+from Nf import Gui
 
 Ui = Gui()
 

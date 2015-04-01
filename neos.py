@@ -1,8 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import numpy as np, Image
-import os
+import numpy as np, os, Image
 from astrotools import *
 import datetime as dt
 from recognize import recognize, stamptext
