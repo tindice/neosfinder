@@ -12,6 +12,10 @@ class Gui:
     print "quit from menu"
     Gtk.main_quit()
 
+  def on_mnuEqualize(self, menuitem, data=None):
+    print "help about selected"
+    self.response = self.equadialog.run()
+    
   def on_mnuAcercaDe_activate(self, menuitem, data=None):
     print "help about selected"
     self.response = self.aboutdialog.run()
@@ -50,6 +54,7 @@ class Gui:
     self.window = self.builder.get_object("winMain")
     self.fitchooser = self.builder.get_object("fitchooserdialog")
     self.aboutdialog = self.builder.get_object("dlgAcercaDe")
+    self.equadialog = self.builder.get_object("dlgEqualize")
     self.fitlist = []
     self.imagen = self.builder.get_object("imagen")
     self.window.show()
