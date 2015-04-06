@@ -2,9 +2,10 @@
 # -*- coding: utf-8 -*-
 
 from gi.repository import Gtk
-from nfClass import Gui
+import nfClass
 
-Ui = Gui()
+
+Ui = nfClass.Gui()
 
 Gtk.main()
 print Ui.fitlist
