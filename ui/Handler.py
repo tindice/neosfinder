@@ -13,12 +13,14 @@ def on_mnuEqualize(self, menuitem, data=None):
     # valores por defecto:
     amin, amax = np.amin(self.data), np.amax(self.data)
     delta = amax-amin
-    i0, i1 = amin+ 0.0185*delta, amin+ 0.0323*delta
+    #~ i0, i1 = amin+ 0.0185*delta, amin+ 0.0323*delta
     self.info.set_property("label","min=%i   max=%i"%(amin,amax))
-    self.adjmin.set_property("upper", 1.25 * delta/256)
-    self.adjmax.set_property("upper", 1.25 * delta/256)
-    self.adjmin.set_property("value", i0/256)
-    self.adjmax.set_property("value", i1/256)
+    #~ self.adjmin.set_property("upper", 1.25 * delta/256)
+    #~ self.adjmax.set_property("upper", 1.25 * delta/256)
+    #~ self.adjmin.set_property("upper", 100)
+    #~ self.adjmax.set_property("upper", 100)
+    self.adjmin.set_property("value", 500*0.0185)
+    self.adjmax.set_property("value", 500*0.0323)
     self.automin = self.adjmin.get_property("value")
     self.automax = self.adjmax.get_property("value")
     self.chkauto.set_property("active", True)
@@ -64,11 +66,14 @@ def on_fitchooserdialog_response(self, menuitem, data=None):
         size = (png.shape[1]/2, png.shape[0]/2)
         im = Image.fromarray(png)
         im.thumbnail(size, Image.BICUBIC)
-        im.save("../tmp/tmp.png")
+        #~ im.save("../tmp/tmp.png")
+        im = im.convert("RGB")
+        arr = np.array(im)
+        print arr.shape
 # TODO: 
         #~ pixbuf = Gtk.Gdk.pixbuf_new_from_array(np.array(im),Gtk.gdk.COLORSPACE_RGB,8)
-        #~ pixbuf = GdkPixbuf.pixbuf_new_from_array(np.array(im),Gtk.gdk.COLORSPACE_RGB,8)
-        pixbuf = GdkPixbuf.Pixbuf.new_from_file('../tmp/tmp.png')
+        pixbuf = GdkPixbuf.Pixbuf.new_from_data(arr, GdkPixbuf.Colorspace.RGB, False, 8, arr.shape[1], arr.shape[0], 3*arr.shape[1],None,0)
+        #~ pixbuf = GdkPixbuf.Pixbuf.new_from_file('../tmp/tmp.png')
         self.imagen.set_property("pixbuf", pixbuf)
         self.info.set_property("label",self.fitlist[0])
     else:

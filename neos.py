@@ -21,8 +21,10 @@ pngfolder = "./tmp"
 
 #~ e = Image.open("/home/rodolfo/neosfinder/1 a 041.png")
 meta, a = Getdata(fitfolder+"suleika_2_b1x_-041.fit")
-print meta
+print np.histogram(a)
 Pause()
+h = np.zeros((100,255))
+
 #~ FindRefs(a)
 
 # Probando equalizaciones:
@@ -81,15 +83,15 @@ Pause()
 
 # Saving pngs from fits
 #=====================================================================
-cant = 0
-for filename in sorted(os.listdir(fitfolder[:-1])):
-	cant += 1
-	f = fitfolder+filename
-	update_progress(cant,len(os.listdir(fitfolder[:-1])))
-	#if cant < 119 : continue
-	if not(filename[-4:]==".fit") : continue
-	meta,data = Getdata(f)
-	print meta
+#~ cant = 0
+#~ for filename in sorted(os.listdir(fitfolder[:-1])):
+	#~ cant += 1
+	#~ f = fitfolder+filename
+	#~ update_progress(cant,len(os.listdir(fitfolder[:-1])))
+	#~ #if cant < 119 : continue
+	#~ if not(filename[-4:]==".fit") : continue
+	#~ meta,data = Getdata(f)
+	#~ print meta
 
 # Saving pngs with crosses from fits
 #=====================================================================
@@ -118,7 +120,7 @@ for filename in sorted(os.listdir(fitfolder[:-1])):
 #~ exclude = Checkfits(fitlist)
 #~ print exclude
 
-print hhmmss2s("01:02:05")
+#~ print hhmmss2s("01:02:05")
 
 
 
