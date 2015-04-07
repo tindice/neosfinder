@@ -68,11 +68,11 @@ def on_fitchooserdialog_response(self, menuitem, data=None):
         im.thumbnail(size, Image.BICUBIC)
         #~ im.save("../tmp/tmp.png")
         im = im.convert("RGB")
-        arr = np.array(im)
-        print arr.shape
+        #~ im.show()
+        arr = np.array(im).flatten()
+        print size
 # TODO: 
-        #~ pixbuf = Gtk.Gdk.pixbuf_new_from_array(np.array(im),Gtk.gdk.COLORSPACE_RGB,8)
-        pixbuf = GdkPixbuf.Pixbuf.new_from_data(arr, GdkPixbuf.Colorspace.RGB, False, 8, arr.shape[1], arr.shape[0], 3*arr.shape[1],None,0)
+        pixbuf = GdkPixbuf.Pixbuf.new_from_data(arr, GdkPixbuf.Colorspace.RGB, False, 8, size[0], size[1], 3*size[0])
         #~ pixbuf = GdkPixbuf.Pixbuf.new_from_file('../tmp/tmp.png')
         self.imagen.set_property("pixbuf", pixbuf)
         self.info.set_property("label",self.fitlist[0])
