@@ -16,7 +16,7 @@ def ShowEqualized(data,s0=0.0185, s1=0.0323):
     im.thumbnail((size[1],size[0]), Image.BICUBIC)
     #~ im.show()
     arr = np.array(im.getdata()).flatten()
-    #~ print size
+    print s0, s1
 # TODO: 
     im.save("../tmp/tmp.png")
     pixbuf = GdkPixbuf.Pixbuf.new_from_file('../tmp/tmp.png')
@@ -35,13 +35,12 @@ def on_mnuEqualize(self, menuitem, data=None):
     v,_ = np.histogram(self.data,bins=256)
     h = np.zeros((100,256), dtype=np.uint8)
     for x in range(256):
-        #~ b =min(100,7*log1p(v[x]))
-        b = 7*log1p(v[x])
-        h[-b:,x] = 255
+        if v[x] != 0:
+            b =min(100,7*log1p(v[x]))
+            h[-b:,x] = 255
     # draw frame borders:
     h[0,:]=h[99,:]=h[:,0]=h[:,255] = 90 # ligth grey
     im = Image.fromarray(h)
-    #~ im.show()
     im.save("../tmp/tmp.png")
     pixbuf = GdkPixbuf.Pixbuf.new_from_file('../tmp/tmp.png')
     self.histo.set_property("pixbuf", pixbuf)
@@ -51,10 +50,6 @@ def on_mnuEqualize(self, menuitem, data=None):
     delta = amax-amin
     #~ i0, i1 = amin+ 0.0185*delta, amin+ 0.0323*delta
     self.info.set_property("label","min=%i   max=%i"%(amin,amax))
-    #~ self.adjmin.set_property("upper", 1.25 * delta/256)
-    #~ self.adjmax.set_property("upper", 1.25 * delta/256)
-    #~ self.adjmin.set_property("upper", 100)
-    #~ self.adjmax.set_property("upper", 100)
     self.adjmin.set_property("value", 500*0.0185)
     self.adjmax.set_property("value", 500*0.0323)
     self.automin = self.adjmin.get_property("value")
@@ -79,10 +74,14 @@ def on_chkAuto_toggled(self, menuitem, data=None):
         self.adjmax.set_property("value", self.automax)
           
 def on_adjmin_value_changed(self, menuitem, data=None):
+    self.adjmin.set_property("value",
+        min(self.adjmax.get_property("value"),self.adjmin.get_property("value")))
     if self.chkauto.get_property("active"):
         self.chkauto.set_property("active", False)
 
 def on_adjmax_value_changed(self, menuitem, data=None):
+    self.adjmax.set_property("value",
+        max(self.adjmax.get_property("value"),self.adjmin.get_property("value")))
     if self.chkauto.get_property("active"):
         self.chkauto.set_property("active", False)
 
