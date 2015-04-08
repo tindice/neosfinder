@@ -5,11 +5,47 @@ import numpy as np
 from PIL import Image , ImageDraw
 from astrotools import *
 from gi.repository import Gtk,  GdkPixbuf
+from math import log1p
+
+def ShowEqualized(data,s0=0.0185, s1=0.0323):
+    ''' returns pixbuf
+    '''
+    png = Fit2png(data,s0, s1)
+    size = tuple(x/2 for x in png.shape)
+    im = Image.fromarray(png)
+    im.thumbnail((size[1],size[0]), Image.BICUBIC)
+    #~ im.show()
+    arr = np.array(im.getdata()).flatten()
+    #~ print size
+# TODO: 
+    im.save("../tmp/tmp.png")
+    pixbuf = GdkPixbuf.Pixbuf.new_from_file('../tmp/tmp.png')
+    #~ im = im.convert("RGB")
+    #~ pixbuf = GdkPixbuf.Pixbuf.new_from_data(arr,
+     #~ GdkPixbuf.Colorspace.RGB, False, 8, size[1], size[0], 3*size[1])
+     
+    return pixbuf 
+
 
 def gtk_main_quit(self, menuitem, data=None):
     Gtk.main_quit()
 
 def on_mnuEqualize(self, menuitem, data=None):
+    # show histogram:
+    v,_ = np.histogram(self.data,bins=256)
+    h = np.zeros((100,256), dtype=np.uint8)
+    for x in range(256):
+        #~ b =min(100,7*log1p(v[x]))
+        b = 7*log1p(v[x])
+        h[-b:,x] = 255
+    # draw frame borders:
+    h[0,:]=h[99,:]=h[:,0]=h[:,255] = 90 # ligth grey
+    im = Image.fromarray(h)
+    #~ im.show()
+    im.save("../tmp/tmp.png")
+    pixbuf = GdkPixbuf.Pixbuf.new_from_file('../tmp/tmp.png')
+    self.histo.set_property("pixbuf", pixbuf)
+
     # valores por defecto:
     amin, amax = np.amin(self.data), np.amax(self.data)
     delta = amax-amin
@@ -24,17 +60,21 @@ def on_mnuEqualize(self, menuitem, data=None):
     self.automin = self.adjmin.get_property("value")
     self.automax = self.adjmax.get_property("value")
     self.chkauto.set_property("active", True)
+    
     self.equadialog.run()
     
 def on_dlgEqualize_response(self, menuitem, data=None):
-    if data == 1:
-        pass
+    if data == 1:   # Apply button pressed.
+        pbuf = ShowEqualized(self.data, self.adjmin.get_property("value")/500,
+                                 self.adjmax.get_property("value")/500)
+        self.imagen.set_property("pixbuf", pbuf)
+        self.info.set_property("label",self.fitlist[0])
+
     else:
         self.equadialog.hide()
         
 def on_chkAuto_toggled(self, menuitem, data=None):
     if self.chkauto.get_property("active"):
-        self.info.set_property("label","activo")
         self.adjmin.set_property("value", self.automin)
         self.adjmax.set_property("value", self.automax)
           
@@ -62,20 +102,10 @@ def on_fitchooserdialog_response(self, menuitem, data=None):
         self.fitlist = self.fitchooser.get_filenames()
         # display imagen 1:
         _, self.data = Getdata(self.fitlist[0])
-        png = Fit2png(self.data)
-        size = (png.shape[1]/2, png.shape[0]/2)
-        im = Image.fromarray(png)
-        im.thumbnail(size, Image.BICUBIC)
-        #~ im.save("../tmp/tmp.png")
-        im = im.convert("RGB")
-        #~ im.show()
-        arr = np.array(im).flatten()
-        print size
-# TODO: 
-        pixbuf = GdkPixbuf.Pixbuf.new_from_data(arr, GdkPixbuf.Colorspace.RGB, False, 8, size[0], size[1], 3*size[0])
-        #~ pixbuf = GdkPixbuf.Pixbuf.new_from_file('../tmp/tmp.png')
-        self.imagen.set_property("pixbuf", pixbuf)
+        pbuf = ShowEqualized(self.data)     # autoequaliz
+        self.imagen.set_property("pixbuf", pbuf)
         self.info.set_property("label",self.fitlist[0])
+
     else:
         print "Cancel"
     self.fitchooser.hide()

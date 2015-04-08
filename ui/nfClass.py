@@ -9,7 +9,7 @@ class Gui:
 
 
   def __init__(self):
-    XMLfile = "nfgui.glade"
+    XMLfile = "nf.glade"
     #~ self.gladefile = "tut1.glade"
     self.builder = Gtk.Builder()    # Crea una instancia de Builder
     # Carga la definicion de gui del archivo xml de Glade:
@@ -21,6 +21,7 @@ class Gui:
     self.equadialog = self.builder.get_object("dlgEqualize")
     self.fitlist = []
     self.imagen = self.builder.get_object("imagen")
+    self.histo = self.builder.get_object("imgHistogram")
     self.histogram = self.builder.get_object("drawingarea")
     self.info = self.builder.get_object("infolbl")
     self.adjmin = self.builder.get_object("adjmin")

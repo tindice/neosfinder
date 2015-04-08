@@ -108,28 +108,21 @@ def Getdata(filefullname):
         data = filefullname.copy()
     return (prihdr["DATE-OBS"],prihdr["TELESCOP"],prihdr["OBJCTRA"],prihdr["OBJCTDEC"]), data
     
-def Fit2png(data,i0=0, i1=0, sharp=0):
+def Fit2png(data,s0, s1):
     """ Returns the contrast enhaced array 
     """
     import numpy as np
     Height, Width = data.shape
     # Convert .FIT to PNG (int16 to uint8) with enhaced contrast.
     newarray = np.array(Image.new("L", (Width,Height), color=0)) 
-    # auto equalization:
+    # auto equalization: s0=0.0185  s1=0.0323
+    # draft equalization: s0=0.0  s1=0.174
     amin, amax = np.amin(data), np.amax(data)
     delta = amax - amin
-    if i0+i1+sharp == 0:    # autocontrast
-        i0 = amin + 0.0185 * delta
-        i1 = amin + 0.0323 * delta
-        sharp = 1.0
-    elif i0*i1*sharp == 0:  # manual
-        Pause("Error: must enter i0,i1,sharp or none for Auto. (Ctrl-C to exit)")
-    elif i0 == i1:          # draft equalization
-        i0 = amin
-        i1 = amin + 0.174 * delta
-        sharp = 1.0
+    i0 = amin + s0 * delta
+    i1 = amin + s1 * delta
         
-    t = -sharp *(data-(i0+i1)/2)/(i1-i0)
+    t = -1.0 *(data-(i0+i1)/2)/(i1-i0)
     newarray = 255/(1+np.exp(t))
     return (newarray - np.amin(newarray)).astype(np.uint8)
     
