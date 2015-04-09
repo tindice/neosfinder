@@ -1,6 +1,6 @@
 # imágenes de salida
-./tmp/**
-./tmp/frame*.png
+tmp/tmp.png
+tmp/frame*.png
 
 # glade baks
 *.glade~
