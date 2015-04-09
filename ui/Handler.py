@@ -19,7 +19,7 @@ def Sigmoid(h,s0,s1):
 
 def UpdateSigmoid(gui):
     h = Sigmoid(gui.arrHistogram,s0 = gui.adjmin.get_property("value")/500,
-                                  s1 = gui.adjmax.get_property("value")/500)
+                                 s1 = gui.adjmax.get_property("value")/500)
     im = Image.fromarray(h)
     im.save("../tmp/tmp.png")
     pixbuf = GdkPixbuf.Pixbuf.new_from_file('../tmp/tmp.png')
@@ -52,22 +52,13 @@ def on_mnuEqualize(self, menuitem, data=None):
     # valores por defecto:
     amin, amax = np.amin(self.data), np.amax(self.data)
     delta = amax-amin
-    #~ i0, i1 = amin+ 0.0185*delta, amin+ 0.0323*delta
     self.info.set_property("label","min=%i   max=%i"%(amin,amax))
     self.adjmin.set_property("value", 500*0.0185)
     self.adjmax.set_property("value", 500*0.0323)
     self.automin = self.adjmin.get_property("value")
     self.automax = self.adjmax.get_property("value")
     
-    # show histogram:
-    #~ v,_ = np.histogram(self.data,bins=256)
-    #~ h = np.zeros((100,256), dtype=np.uint8)
-    #~ for x in range(256):
-        #~ if v[x] != 0:
-            #~ b =min(100,7*log1p(v[x]))
-            #~ h[-b:,x] = 255
-    #~ # draw frame borders:
-    #~ h[0,:]=h[99,:]=h[:,0]=h[:,255] = 90 # ligth grey
+    # show histogram with sigmoid:
     h = Sigmoid(self.arrHistogram,self.automin/500,self.automax/500)
     im = Image.fromarray(h)
     im.save("../tmp/tmp.png")
@@ -79,12 +70,9 @@ def on_mnuEqualize(self, menuitem, data=None):
     
 def on_dlgEqualize_response(self, menuitem, data=None):
     if data == 1:   # Apply button pressed.
-        
-        
-        pbuf = ShowEqualized(self.data, s0 = self.adjmin.get_property("value")/500, s1 = self.adjmax.get_property("value")/500)
+        pbuf = ShowEqualized(self.data, s0 = self.adjmin.get_property("value")/500,
+                            s1 = self.adjmax.get_property("value")/500)
         self.imagen.set_property("pixbuf", pbuf)
-        #~ self.info.set_property("label",self.fitlist[0])
-
     else:
         self.equadialog.hide()
         
