@@ -8,5 +8,5 @@ import nfClass
 Ui = nfClass.Gui()
 
 Gtk.main()
-print Ui.fitlist
+#~ print Ui.fitlist
  

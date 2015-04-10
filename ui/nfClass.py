@@ -10,7 +10,6 @@ class Gui:
 
   def __init__(self):
     XMLfile = "nf.glade"
-    #~ self.gladefile = "tut1.glade"
     self.builder = Gtk.Builder()    # Crea una instancia de Builder
     # Carga la definicion de gui del archivo xml de Glade:
     self.builder.add_from_file(XMLfile)
@@ -20,6 +19,7 @@ class Gui:
     self.aboutdialog = self.builder.get_object("dlgAcercaDe")
     self.equadialog = self.builder.get_object("dlgEqualize")
     self.fitlist = []
+    self.msg = 0
     self.imagen = self.builder.get_object("imagen")
     self.histo = self.builder.get_object("imgHistogram")
     self.histogram = self.builder.get_object("drawingarea")
@@ -27,9 +27,12 @@ class Gui:
     self.adjmin = self.builder.get_object("adjmin")
     self.adjmax = self.builder.get_object("adjmax")
     self.chkauto = self.builder.get_object("chkAuto")
+    self.prev = self.builder.get_object("btnPrev")
+    self.first = self.builder.get_object("btnFirst")
+    self.next = self.builder.get_object("btnNext")
+    self.last = self.builder.get_object("btnLast")
     self.window.show()
     
-#~ print fitlist
 
 if __name__ == "__main__":
   main = Gui()

@@ -10,11 +10,17 @@ from math import log1p, exp
 def Sigmoid(h,s0,s1):
     g = h.copy()
     a = (s0+s1)*637.5
-    b = max((s1-s0)*1275.0, 1)
-    #~ print "a=",a,"    b=",b
-    for x in range(256):
-        S = 100 / (1+ exp((a-x) / b))
-        g[99-S,x] = 90
+    b = (s1-s0)*1275.0
+    if b != 0:
+        Sprev = 0
+        #~ print "a=",a,"    b=",b
+        for x in range(256):
+            S = 100 / (1+ exp((a-x) / b))
+            if abs(S-Sprev) > 1:
+                g[min(99-S,99-Sprev):max(99-S,99-Sprev),x] = 90
+            else:    
+                g[99-S,x] = 90
+            Sprev = S
     return g
 
 def UpdateSigmoid(gui):
@@ -52,12 +58,14 @@ def on_mnuEqualize(self, menuitem, data=None):
     # valores por defecto:
     amin, amax = np.amin(self.data), np.amax(self.data)
     delta = amax-amin
-    self.info.set_property("label","min=%i   max=%i"%(amin,amax))
-    self.adjmin.set_property("value", 500*0.0185)
-    self.adjmax.set_property("value", 500*0.0323)
-    self.automin = self.adjmin.get_property("value")
-    self.automax = self.adjmax.get_property("value")
-    
+    #~ self.info.set_property("label","min=%i   max=%i"%(amin,amax))
+    self.automin = 500*0.0185
+    self.automax = 500*0.0323
+    self.equadialog.run()
+
+def on_dlgEqualize_realize(self, menuitem, data=None):
+    self.adjmin.set_property("value", self.automin)
+    self.adjmax.set_property("value", self.automax)
     # show histogram with sigmoid:
     h = Sigmoid(self.arrHistogram,self.automin/500,self.automax/500)
     im = Image.fromarray(h)
@@ -66,7 +74,8 @@ def on_mnuEqualize(self, menuitem, data=None):
     self.histo.set_property("pixbuf", pixbuf)
 
     self.chkauto.set_property("active", True)
-    self.equadialog.run()
+    #~ self.msg = 1
+    #~ print self.automin
     
 def on_dlgEqualize_response(self, menuitem, data=None):
     if data == 1:   # Apply button pressed.
@@ -80,15 +89,19 @@ def on_chkAuto_toggled(self, menuitem, data=None):
     if self.chkauto.get_property("active"):
         self.adjmin.set_property("value", self.automin)
         self.adjmax.set_property("value", self.automax)
+        if self.msg == 1: print "chkAuto"
           
 def on_adjmin_value_changed(self, menuitem, data=None):
+    if self.msg == 1: print "min"
+
     if self.adjmin.get_property("value") > self.adjmax.get_property("value"):
-        self.adjmin.set_property("value", self.adjmax.get_property("value"))
+        self.adjmin.set_property("value", self.adjmax.get_property("value")-1)
     UpdateSigmoid(self)
     
 def on_adjmax_value_changed(self, menuitem, data=None):
+    if self.msg == 1: print "max"
     if self.adjmax.get_property("value") < self.adjmin.get_property("value"):
-        self.adjmax.set_property("value", self.adjmin.get_property("value"))
+        self.adjmax.set_property("value", self.adjmin.get_property("value")+1)
     UpdateSigmoid(self)
     
     
@@ -124,7 +137,7 @@ def on_about_closebutton_release(self, menuitem, data=None):
 def on_AbrirFit_activate(self, menuitem, data=None):
     self.fitchooser.run()
 
-def on_fitchooserdialog_response(self, menuitem, data=None):
+def on_fitchooserdialog_response(self, menuitem, data=1):
     if data == 1:
         self.fitlist = self.fitchooser.get_filenames()
         # display imagen 1:
@@ -146,3 +159,17 @@ def on_fitchooserdialog_response(self, menuitem, data=None):
     else:
         print "Cancel"
     self.fitchooser.hide()
+
+def on_btnFirst_clicked(self,button):
+    print "First", button
+    
+def on_btnLast_clicked(self,button):
+    print "LastC", button
+    
+def on_btnPrev_clicked(self,button):
+    print "Prev", button
+    
+def on_btnNext_clicked(self, button):
+    print "Next", button
+    
+    
