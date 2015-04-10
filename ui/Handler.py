@@ -52,6 +52,7 @@ def ShowEqualized(data,s0=0.0185, s1=0.0323):
 
 
 def gtk_main_quit(self, menuitem, data=None):
+    
     Gtk.main_quit()
 
 def on_mnuEqualize(self, menuitem, data=None):
