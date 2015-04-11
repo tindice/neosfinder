@@ -62,9 +62,10 @@ def on_mnuEqualize(self, menuitem, data=None):
     #~ self.info.set_property("label","min=%i   max=%i"%(amin,amax))
     self.automin = 500*0.0185
     self.automax = 500*0.0323
+    on_dlgEqualize_realize(self, menuitem)
     self.equadialog.run()
 
-def on_dlgEqualize_realize(self, menuitem, data=None):
+def on_dlgEqualize_realize(self, obj):
     self.adjmin.set_property("value", self.automin)
     self.adjmax.set_property("value", self.automax)
     # show histogram with sigmoid:
@@ -73,10 +74,7 @@ def on_dlgEqualize_realize(self, menuitem, data=None):
     im.save("../tmp/tmp.png")
     pixbuf = GdkPixbuf.Pixbuf.new_from_file('../tmp/tmp.png')
     self.histo.set_property("pixbuf", pixbuf)
-
-    self.chkauto.set_property("active", True)
-    #~ self.msg = 1
-    #~ print self.automin
+    self.chkauto.set_active(True)
     
 def on_dlgEqualize_response(self, menuitem, data=None):
     if data == 1:   # Apply button pressed.
@@ -87,45 +85,30 @@ def on_dlgEqualize_response(self, menuitem, data=None):
         self.equadialog.hide()
         
 def on_chkAuto_toggled(self, menuitem, data=None):
-    if self.chkauto.get_property("active"):
+    #~ print self.chkauto.get_active()
+    if self.chkauto.get_active():
         self.adjmin.set_property("value", self.automin)
         self.adjmax.set_property("value", self.automax)
-        if self.msg == 1: print "chkAuto"
+        #~ if self.msg == 1: print "chkAuto"
           
-def on_adjmin_value_changed(self, menuitem, data=None):
+def on_adjmin_value_changed(self, obj):
     if self.msg == 1: print "min"
 
     if self.adjmin.get_property("value") > self.adjmax.get_property("value"):
         self.adjmin.set_property("value", self.adjmax.get_property("value")-1)
     UpdateSigmoid(self)
     
-def on_adjmax_value_changed(self, menuitem, data=None):
+def on_adjmax_value_changed(self, obj):
     if self.msg == 1: print "max"
     if self.adjmax.get_property("value") < self.adjmin.get_property("value"):
         self.adjmax.set_property("value", self.adjmin.get_property("value")+1)
     UpdateSigmoid(self)
     
     
-def on_scalemin_release(self, menuitem, data=None):
-    #~ print self,menuitem,data
-    #~ self.adjmin.set_property("value",
-        #~ min(self.adjmax.get_property("value"),self.adjmin.get_property("value")))
-        
-    #~ if self.adjmin.get_property("value") > self.adjmax.get_property("value"):
-        #~ self.adjmin.set_property("value", self.adjmax.get_property("value"))
-        #~ UpdateSigmoid(self)
-    if self.chkauto.get_property("active"):
-        self.chkauto.set_property("active", False)
-
-def on_scalemax_release(self, menuitem, data=None):
-    #~ self.adjmax.set_property("value",
-        #~ max(self.adjmax.get_property("value"),self.adjmin.get_property("value")))
-    #~ if self.adjmax.get_property("value") < self.adjmin.get_property("value"):
-        #~ self.adjmax.set_property("value", self.adjmin.get_property("value"))
-        #~ UpdateSigmoid(self)
-
-    if self.chkauto.get_property("active"):
-        self.chkauto.set_property("active", False)
+def on_scale_release(self, obj, data):
+    print data
+    if self.chkauto.get_active():
+        self.chkauto.set_active(False)
 
 def on_mnuAcercaDe_activate(self, menuitem, data=None):
     print "help about selected"
@@ -136,6 +119,7 @@ def on_about_closebutton_release(self, menuitem, data=None):
     self.aboutdialog.close()
 
 def on_AbrirFit_activate(self, menuitem, data=None):
+    self.fitchooser.set_default_response(1)
     self.fitchooser.run()
 
 def on_fitchooserdialog_response(self, menuitem, data=1):
