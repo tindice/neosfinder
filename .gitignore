@@ -1,6 +1,7 @@
 # imágenes de salida
 tmp/tmp.png
 tmp/frame*.png
+*.apng
 
 # glade baks
 *.glade~

@@ -208,8 +208,8 @@
     <property name="can_focus">False</property>
     <property name="modal">True</property>
     <property name="window_position">center-on-parent</property>
-    <property name="default_width">320</property>
-    <property name="default_height">263</property>
+    <property name="default_width">400</property>
+    <property name="default_height">300</property>
     <property name="type_hint">dialog</property>
     <property name="create_folders">False</property>
     <property name="filter">fitfilter</property>
@@ -492,7 +492,7 @@
             <child>
               <object class="GtkButton" id="btnFirst">
                 <property name="label">gtk-goto-first</property>
-                <property name="visible">True</property>
+                <property name="visible">False</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <property name="use_stock">True</property>
@@ -508,7 +508,7 @@
             <child>
               <object class="GtkButton" id="btnPrev">
                 <property name="label">gtk-go-back</property>
-                <property name="visible">True</property>
+                <property name="visible">False</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <property name="use_stock">True</property>
@@ -544,7 +544,7 @@
             <child>
               <object class="GtkButton" id="btnNext">
                 <property name="label">gtk-go-forward</property>
-                <property name="visible">True</property>
+                <property name="visible">False</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <property name="use_stock">True</property>
@@ -561,7 +561,7 @@
             <child>
               <object class="GtkButton" id="btnLast">
                 <property name="label">gtk-goto-last</property>
-                <property name="visible">True</property>
+                <property name="visible">False</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <property name="use_stock">True</property>

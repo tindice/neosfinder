@@ -7,13 +7,14 @@ from astrotools import *
 from gi.repository import Gtk,  GdkPixbuf
 from math import log1p, exp
 
+# =======   Functions Section  ========================================
+
 def Sigmoid(h,s0,s1):
     g = h.copy()
     a = (s0+s1)*637.5
     b = (s1-s0)*1275.0
     if b != 0:
         Sprev = 0
-        #~ print "a=",a,"    b=",b
         for x in range(256):
             S = 100 / (1+ exp((a-x) / b))
             if abs(S-Sprev) > 1:
@@ -31,16 +32,17 @@ def UpdateSigmoid(gui):
     pixbuf = GdkPixbuf.Pixbuf.new_from_file('../tmp/tmp.png')
     gui.histo.set_property("pixbuf", pixbuf)
 
-def ShowEqualized(data,s0=0.0185, s1=0.0323):
-    ''' returns pixbuf and 
+def ShowEqualized(gui, file, s0=0.0185, s1=0.0323):
+    ''' accepts "file" as string or as np.array
     '''
-    png = Fit2png(data,s0, s1)
+    # gets image data from file:
+    _, gui.data = Getdata(file)
+        
+    png = Fit2png(gui.data,s0, s1)
     size = tuple(x/2 for x in png.shape)
     im = Image.fromarray(png)
     im.thumbnail((size[1],size[0]), Image.BICUBIC)
-    #~ im.show()
     arr = np.array(im.getdata()).flatten()
-    #~ print s0, s1
 # TODO: 
     im.save("../tmp/tmp.png")
     pixbuf = GdkPixbuf.Pixbuf.new_from_file('../tmp/tmp.png')
@@ -48,26 +50,43 @@ def ShowEqualized(data,s0=0.0185, s1=0.0323):
     #~ pixbuf = GdkPixbuf.Pixbuf.new_from_data(arr,
      #~ GdkPixbuf.Colorspace.RGB, False, 8, size[1], size[0], 3*size[1])
      
-    return pixbuf 
+    # show imge: 
+    gui.imagen.set_property("pixbuf", pixbuf)
+    gui.info.set_property("label",file)
+    # calc arrHistogram:
+    v,_ = np.histogram(gui.data,range=(0,65500),bins=256)
+    h = np.zeros((100,256), dtype=np.uint8)
+    for x in range(256):
+        if v[x] != 0:
+            b =min(100,7*log1p(v[x]))
+            h[-b:,x] = 255
+    # draw frame borders:
+    h[0,:]=h[99,:]=h[:,0]=h[:,255] = 90 # ligth grey
+    gui.arrHistogram = h
+    return  
 
+def UpdateEqualized(gui):
+    ShowEqualized(gui, gui.fitlist[gui.fitlist_n], 
+                    s0 = gui.adjmin.get_property("value")/500,
+                    s1 = gui.adjmax.get_property("value")/500)
+
+# ====================================================================
+
+# ====  Handlers Section    ===================================
 
 def gtk_main_quit(self, menuitem, data=None):
     
     Gtk.main_quit()
 
 def on_mnuEqualize(self, menuitem, data=None):
-    # valores por defecto:
-    amin, amax = np.amin(self.data), np.amax(self.data)
-    delta = amax-amin
-    #~ self.info.set_property("label","min=%i   max=%i"%(amin,amax))
-    self.automin = 500*0.0185
-    self.automax = 500*0.0323
-    on_dlgEqualize_realize(self, menuitem)
-    self.equadialog.run()
-
+    if self.msg == 0:   # only first time,
+        on_dlgEqualize_realize(self, menuitem)
+        self.equadialog.run()
+    else:
+        self.equadialog.show()
+        
 def on_dlgEqualize_realize(self, obj):
-    self.adjmin.set_property("value", self.automin)
-    self.adjmax.set_property("value", self.automax)
+    self.msg = 1
     # show histogram with sigmoid:
     h = Sigmoid(self.arrHistogram,self.automin/500,self.automax/500)
     im = Image.fromarray(h)
@@ -76,85 +95,87 @@ def on_dlgEqualize_realize(self, obj):
     self.histo.set_property("pixbuf", pixbuf)
     self.chkauto.set_active(True)
     
-def on_dlgEqualize_response(self, menuitem, data=None):
-    if data == 1:   # Apply button pressed.
-        pbuf = ShowEqualized(self.data, s0 = self.adjmin.get_property("value")/500,
+def on_dlgEqualize_response(self, obj, btnID=None):
+    if btnID == 1:   # Apply button pressed.
+        ShowEqualized(self,self.data, s0 = self.adjmin.get_property("value")/500,
                             s1 = self.adjmax.get_property("value")/500)
-        self.imagen.set_property("pixbuf", pbuf)
     else:
         self.equadialog.hide()
         
 def on_chkAuto_toggled(self, menuitem, data=None):
-    #~ print self.chkauto.get_active()
     if self.chkauto.get_active():
         self.adjmin.set_property("value", self.automin)
         self.adjmax.set_property("value", self.automax)
-        #~ if self.msg == 1: print "chkAuto"
           
 def on_adjmin_value_changed(self, obj):
-    if self.msg == 1: print "min"
-
+    if self.msg == 0:  return
     if self.adjmin.get_property("value") > self.adjmax.get_property("value"):
         self.adjmin.set_property("value", self.adjmax.get_property("value")-1)
     UpdateSigmoid(self)
     
 def on_adjmax_value_changed(self, obj):
-    if self.msg == 1: print "max"
+    if self.msg == 0:  return
     if self.adjmax.get_property("value") < self.adjmin.get_property("value"):
         self.adjmax.set_property("value", self.adjmin.get_property("value")+1)
     UpdateSigmoid(self)
     
     
 def on_scale_release(self, obj, data):
-    print data
     if self.chkauto.get_active():
         self.chkauto.set_active(False)
 
 def on_mnuAcercaDe_activate(self, menuitem, data=None):
-    print "help about selected"
     self.response = self.aboutdialog.run()
     
 def on_about_closebutton_release(self, menuitem, data=None):
-    #~ print "close button"
     self.aboutdialog.close()
 
 def on_AbrirFit_activate(self, menuitem, data=None):
     self.fitchooser.set_default_response(1)
     self.fitchooser.run()
 
-def on_fitchooserdialog_response(self, menuitem, data=1):
-    if data == 1:
-        self.fitlist = self.fitchooser.get_filenames()
-        # display imagen 1:
-        _, self.data = Getdata(self.fitlist[0])
-        pbuf = ShowEqualized(self.data)     # autoequaliz
-        self.imagen.set_property("pixbuf", pbuf)
-        self.info.set_property("label",self.fitlist[0])
-        # calc arrHistogram:
-        v,_ = np.histogram(self.data,range=(0,65500),bins=256)
-        h = np.zeros((100,256), dtype=np.uint8)
-        for x in range(256):
-            if v[x] != 0:
-                b =min(100,7*log1p(v[x]))
-                h[-b:,x] = 255
-        # draw frame borders:
-        h[0,:]=h[99,:]=h[:,0]=h[:,255] = 90 # ligth grey
-        self.arrHistogram = h
-
-    else:
-        print "Cancel"
+def on_fitchooserdialog_response(self, obj, btnID=1):
+    if btnID == 1:
+        self.fitlist = sorted(self.fitchooser.get_filenames())
+        #~ self.fitminmax = {n: n**2 for n in range(len(self.fitlist))}
+        if len(self.fitlist) > 1:
+            for btn in (self.first, self.next, self.prev, self.last):
+                btn.set_property("visible",True)
+        ShowEqualized(self, self.fitlist[0])
+        self.first.set_sensitive(False)
+        self.next.set_sensitive(False)
     self.fitchooser.hide()
 
 def on_btnFirst_clicked(self,button):
-    print "First", button
+    self.fitlist_n = 0
+    UpdateEqualized(self)
+    self.first.set_sensitive(False)
+    self.prev.set_sensitive(False)
+    self.next.set_sensitive(True)
+    self.last.set_sensitive(True)
+    
     
 def on_btnLast_clicked(self,button):
-    print "LastC", button
-    
+    self.fitlist_n = len(self.fitlist)-1
+    UpdateEqualized(self)
+    self.first.set_sensitive(True)
+    self.prev.set_sensitive(True)
+    self.last.set_sensitive(False)
+    self.next.set_sensitive(False)
+
 def on_btnPrev_clicked(self,button):
-    print "Prev", button
+    if self.fitlist_n == 1:
+        on_btnFirst_clicked(self,button)
+    else:
+        self.fitlist_n -= 1
+        UpdateEqualized(self)
+        self.next.set_sensitive(True)
+        self.last.set_sensitive(True)
     
 def on_btnNext_clicked(self, button):
-    print "Next", button
-    
+    if self.fitlist_n < len(self.fitlist)-1:
+        self.fitlist_n += 1
+        UpdateEqualized(self)
+        self.first.set_sensitive(True)
+
     

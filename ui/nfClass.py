@@ -14,12 +14,11 @@ class Gui:
     # Carga la definicion de gui del archivo xml de Glade:
     self.builder.add_from_file(XMLfile)
     self.builder.connect_signals(self)
+    # levanta objetos:
     self.window = self.builder.get_object("winMain")
     self.fitchooser = self.builder.get_object("fitchooserdialog")
     self.aboutdialog = self.builder.get_object("dlgAcercaDe")
     self.equadialog = self.builder.get_object("dlgEqualize")
-    self.fitlist = []
-    self.msg = 0
     self.imagen = self.builder.get_object("imagen")
     self.histo = self.builder.get_object("imgHistogram")
     self.histogram = self.builder.get_object("drawingarea")
@@ -31,6 +30,15 @@ class Gui:
     self.first = self.builder.get_object("btnFirst")
     self.next = self.builder.get_object("btnNext")
     self.last = self.builder.get_object("btnLast")
+    # inicializa variables:
+    #~ self.fitminmax = {}
+    self.fitlist = []
+    self.fitlist_n = 0
+    self.msg = 0
+    self.automin = 500*0.0185
+    self.automax = 500*0.0323
+    self.adjmin.set_property("value", self.automin)
+    self.adjmax.set_property("value", self.automax)
     self.window.show()
     
 
