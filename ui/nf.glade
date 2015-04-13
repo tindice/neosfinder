@@ -10,7 +10,6 @@
   </object>
   <object class="GtkAdjustment" id="adjmin">
     <property name="upper">100</property>
-    <property name="value">0</property>
     <property name="step_increment">1</property>
     <property name="page_increment">10</property>
     <signal name="value-changed" handler="on_adjmin_value_changed" swapped="no"/>
@@ -36,7 +35,6 @@
                 <property name="receives_default">False</property>
                 <property name="xalign">0.0099999997764825821</property>
                 <property name="yalign">0.50999999046325684</property>
-                <property name="active">False</property>
                 <property name="draw_indicator">True</property>
                 <signal name="toggled" handler="on_chkAuto_toggled" swapped="no"/>
               </object>
@@ -310,7 +308,7 @@
             <property name="visible">True</property>
             <property name="can_focus">False</property>
             <child>
-              <object class="GtkMenuItem" id="menuitem1">
+              <object class="GtkMenuItem" id="mnuFile">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <property name="label" translatable="yes">_Archivo</property>
@@ -378,7 +376,7 @@
               </object>
             </child>
             <child>
-              <object class="GtkMenuItem" id="menuitem2">
+              <object class="GtkMenuItem" id="mnuEdit">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <property name="label" translatable="yes">_Editar</property>
@@ -429,7 +427,7 @@
               </object>
             </child>
             <child>
-              <object class="GtkMenuItem" id="menuitem3">
+              <object class="GtkMenuItem" id="mnuView">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <property name="label" translatable="yes">_Ver</property>
@@ -437,7 +435,15 @@
               </object>
             </child>
             <child>
-              <object class="GtkMenuItem" id="menuitem4">
+              <object class="GtkMenuItem" id="mnuTools">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes">_Herramientas</property>
+                <property name="use_underline">True</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkMenuItem" id="mnuHelp">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <property name="label" translatable="yes">Ay_uda</property>
@@ -492,7 +498,6 @@
             <child>
               <object class="GtkButton" id="btnFirst">
                 <property name="label">gtk-goto-first</property>
-                <property name="visible">False</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <property name="use_stock">True</property>
@@ -508,7 +513,6 @@
             <child>
               <object class="GtkButton" id="btnPrev">
                 <property name="label">gtk-go-back</property>
-                <property name="visible">False</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <property name="use_stock">True</property>
@@ -544,7 +548,6 @@
             <child>
               <object class="GtkButton" id="btnNext">
                 <property name="label">gtk-go-forward</property>
-                <property name="visible">False</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <property name="use_stock">True</property>
@@ -561,7 +564,6 @@
             <child>
               <object class="GtkButton" id="btnLast">
                 <property name="label">gtk-goto-last</property>
-                <property name="visible">False</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <property name="use_stock">True</property>

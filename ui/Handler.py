@@ -142,26 +142,28 @@ def on_fitchooserdialog_response(self, obj, btnID=1):
             for btn in (self.first, self.next, self.prev, self.last):
                 btn.set_property("visible",True)
         ShowEqualized(self, self.fitlist[0])
-        self.first.set_sensitive(False)
-        self.next.set_sensitive(False)
+        for btn in (self.first,self.prev):
+            btn.set_sensitive(False) 
+        for btn in (self.next,self.last):
+            btn.set_sensitive(True) 
     self.fitchooser.hide()
 
 def on_btnFirst_clicked(self,button):
     self.fitlist_n = 0
     UpdateEqualized(self)
-    self.first.set_sensitive(False)
-    self.prev.set_sensitive(False)
-    self.next.set_sensitive(True)
-    self.last.set_sensitive(True)
+    for btn in (self.first,self.prev):
+        btn.set_sensitive(False) 
+    for btn in (self.next,self.last):
+        btn.set_sensitive(True) 
     
     
 def on_btnLast_clicked(self,button):
     self.fitlist_n = len(self.fitlist)-1
     UpdateEqualized(self)
-    self.first.set_sensitive(True)
-    self.prev.set_sensitive(True)
-    self.last.set_sensitive(False)
-    self.next.set_sensitive(False)
+    for btn in (self.first,self.prev):
+        btn.set_sensitive(True) 
+    for btn in (self.next,self.last):
+        btn.set_sensitive(False) 
 
 def on_btnPrev_clicked(self,button):
     if self.fitlist_n == 1:
@@ -169,13 +171,16 @@ def on_btnPrev_clicked(self,button):
     else:
         self.fitlist_n -= 1
         UpdateEqualized(self)
-        self.next.set_sensitive(True)
-        self.last.set_sensitive(True)
-    
+        for btn in (self.next,self.last):
+            btn.set_sensitive(True) 
+
 def on_btnNext_clicked(self, button):
-    if self.fitlist_n < len(self.fitlist)-1:
+    if self.fitlist_n == len(self.fitlist)-2:
+        on_btnLast_clicked(self,button)
+    else:
         self.fitlist_n += 1
         UpdateEqualized(self)
-        self.first.set_sensitive(True)
+        for btn in (self.first,self.prev):
+            btn.set_sensitive(True) 
 
     
