@@ -3,6 +3,10 @@
 
 from gi.repository import Gtk
     
+window = Gtk.Window()
+screen = window.get_screen()
+screenWidth, screenHeight = screen.width(), screen.height()
+
 
 class Gui:
   from Handler import *
@@ -39,6 +43,8 @@ class Gui:
     self.automax = 500*0.0323
     self.adjmin.set_property("value", self.automin)
     self.adjmax.set_property("value", self.automax)
+    self.window.set_property("default_width", screenWidth)
+    self.window.set_property("default_height", screenHeight)
     self.window.show()
     
 

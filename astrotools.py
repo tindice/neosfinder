@@ -96,12 +96,8 @@ def Getdata(filefullname):
     """ Returns the Fit data array and the tuple (obsTime,Telescop, AsRect,Decl)
     """
     if type(filefullname) == type('str'):
-        #~ if filefullname[-4:] != ".fit": return (0,0), 0
         hduList = pyf.open(filefullname)
         prihdr = hduList[0].header
-        #~ print prihdr
-        #~ print 
-        #~ Pause()
         data = hduList[0].data
         hduList.close()
     else:

@@ -39,7 +39,7 @@ def ShowEqualized(gui, file, s0=0.0185, s1=0.0323):
     _, gui.data = Getdata(file)
         
     png = Fit2png(gui.data,s0, s1)
-    size = tuple(x/2 for x in png.shape)
+    size = tuple(x/3 for x in png.shape)
     im = Image.fromarray(png)
     im.thumbnail((size[1],size[0]), Image.BICUBIC)
     arr = np.array(im.getdata()).flatten()
@@ -124,13 +124,28 @@ def on_scale_release(self, obj, data):
     if self.chkauto.get_active():
         self.chkauto.set_active(False)
 
-def on_mnuAcercaDe_activate(self, menuitem, data=None):
+def on_mnuDetectar(self, menuitem, data=None):
+    pass
+    
+def on_mnuRotar(self, menuitem, data=None):
+    pass
+    
+def on_mnuVoltearH(self, menuitem, data=None):
+    pass
+    
+def on_mnuVoltearV(self, menuitem, data=None):
+    pass
+    
+def on_mnuZoom(self, menuitem, data=None):
+    pass
+    
+def on_mnuAcercaDe(self, menuitem, data=None):
     self.response = self.aboutdialog.run()
     
 def on_about_closebutton_release(self, menuitem, data=None):
     self.aboutdialog.close()
 
-def on_AbrirFit_activate(self, menuitem, data=None):
+def on_mnuAbrirFits(self, menuitem, data=None):
     self.fitchooser.set_default_response(1)
     self.fitchooser.run()
 

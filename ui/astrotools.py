@@ -97,15 +97,15 @@ def Getdata(filefullname):
         accepts "filefullname" as string or as np.array
     """
     if type(filefullname) == type('str'):
-        #~ if filefullname[-4:] != ".fit": return (0,0), 0
         hduList = pyf.open(filefullname)
         prihdr = hduList[0].header
         data = hduList[0].data
         hduList.close()
-        return (prihdr["DATE-OBS"],prihdr["TELESCOP"],
-                 prihdr["OBJCTRA"],prihdr["OBJCTDEC"]), data
+        return (prihdr[5],prihdr[31],
+                 prihdr[17],prihdr[18]), data
+
     else:
-        return None,filefullname.copy()
+        return ("","","",""),filefullname.copy()
     
 def Fit2png(data,s0, s1):
     """ Returns the contrast enhaced array 
@@ -117,6 +117,7 @@ def Fit2png(data,s0, s1):
     # auto equalization: s0=0.0185  s1=0.0323
     # draft equalization: s0=0.0  s1=0.174
     amin, amax = np.amin(data), np.amax(data)
+    print amin, amax
     delta = amax - amin
     i0 = amin + s0 * delta
     i1 = amin + s1 * delta

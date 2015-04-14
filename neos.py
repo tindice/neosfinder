@@ -11,6 +11,11 @@ t0 = dt.datetime.now()
 fitfolder = '../Descargas/suleika_2/'
 pngfolder = "./tmp"
 
+from gi.repository import Gtk
+window = Gtk.Window()
+screen = window.get_screen()
+print screen.width(), screen.height()
+
 # Probando :
 #=====================================================================
 #~ e = Image.open(pngfolder+"/frame_002.png")
@@ -20,8 +25,8 @@ pngfolder = "./tmp"
 #~ print i,j,a[i,j]
 
 #~ e = Image.open("/home/rodolfo/neosfinder/1 a 041.png")
-meta, a = Getdata(fitfolder+"suleika_2_b1x_-001.fit")
-print meta
+#~ meta, a = Getdata(fitfolder+"suleika_2_b1x_-001.fit")
+#~ print meta
 #~ v,_ = np.histogram(a)
 #~ print v
 #~ Pause()
