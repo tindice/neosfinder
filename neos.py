@@ -21,17 +21,18 @@ pngfolder = "./tmp"
 
 #~ e = Image.open("/home/rodolfo/neosfinder/1 a 041.png")
 meta, a = Getdata(fitfolder+"suleika_2_b1x_-001.fit")
-v,_ = np.histogram(a)
-print v
-Pause()
-h = np.zeros((100,255), dtype=np.uint8)
-for x in range(255):
-	b =max(-100,-v[x])
+print meta
+#~ v,_ = np.histogram(a)
+#~ print v
+#~ Pause()
+#~ h = np.zeros((100,255), dtype=np.uint8)
+#~ for x in range(255):
+	#~ b =max(-100,-v[x])
 	#~ print b
-	h[b:,x] = 255
+	#~ h[b:,x] = 255
 #~ print h
-im = Image.fromarray(h)
-im.show()
+#~ im = Image.fromarray(h)
+#~ im.show()
 
 #~ FindRefs(a)
 

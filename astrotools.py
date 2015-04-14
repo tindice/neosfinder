@@ -99,14 +99,15 @@ def Getdata(filefullname):
         #~ if filefullname[-4:] != ".fit": return (0,0), 0
         hduList = pyf.open(filefullname)
         prihdr = hduList[0].header
-        #~ print 
+        #~ print prihdr
         #~ print 
         #~ Pause()
         data = hduList[0].data
         hduList.close()
     else:
         data = filefullname.copy()
-    return (prihdr["DATE-OBS"],prihdr["TELESCOP"],prihdr["OBJCTRA"],prihdr["OBJCTDEC"]), data
+    #~ return (prihdr["DATE-OBS"],prihdr["TELESCOP"],prihdr["OBJCTRA"],prihdr["OBJCTDEC"]), data
+    return (prihdr[5],prihdr[31],prihdr[17],prihdr[18]), data
     
 def Fit2png(data,i0=0, i1=0, sharp=0):
     """ Returns the contrast enhaced array 
