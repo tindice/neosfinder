@@ -2,11 +2,13 @@
 # -*- coding: utf-8 -*-
 
 from gi.repository import Gtk
-    
+
+# ===== Variables Globales ====================    
 window = Gtk.Window()
 screen = window.get_screen()
 screenWidth, screenHeight = screen.width(), screen.height()
-#~ print screenHeight
+
+# ===============================================
 
 class Gui:
   from Handler import *
@@ -41,6 +43,10 @@ class Gui:
     self.msg = 0
     self.automin = 500*0.0185
     self.automax = 500*0.0323
+    self.ViewFlipH = False
+    self.ViewFlipV = False
+    self.ViewRotated = 0
+
     self.adjmin.set_property("value", self.automin)
     self.adjmax.set_property("value", self.automax)
     self.window.set_property("default_width", screenWidth)

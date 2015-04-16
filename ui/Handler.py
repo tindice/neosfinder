@@ -36,8 +36,16 @@ def ShowEqualized(gui, file, s0=0.0185, s1=0.0323):
     ''' accepts "file" as string or as np.array
     '''
     screenHeight = gui.window.get_property("default_height")
-    # gets image data from file:
-    _, gui.data = Getdata(file)
+
+    if type(file) == type("str"):    # gets image data from file:
+        _, gui.data = Getdata(file)
+        if gui.ViewFlipH:
+            gui.data = np.fliplr(gui.data)
+        if gui.ViewFlipV:
+            gui.data = np.flipud(gui.data)
+        if gui.ViewRotated != 0:
+            gui.data = np.rot90(gui.data, gui.ViewRotated)
+
     png = Fit2png(gui.data,s0, s1)
     k = 0.65 * screenHeight / png.shape[0]
     size = tuple(x*k for x in png.shape)
@@ -56,23 +64,24 @@ def ShowEqualized(gui, file, s0=0.0185, s1=0.0323):
     if type(file) == type("str"):
         idx = file.rfind("/")
         gui.info.set_property("label",file[idx+1:])
-        
-    # calc arrHistogram:
-    v,_ = np.histogram(gui.data,range=(0,65500),bins=256)
-    h = np.zeros((100,256), dtype=np.uint8)
-    for x in range(256):
-        if v[x] != 0:
-            b =min(100,7*log1p(v[x]))
-            h[-b:,x] = 255
-    # draw frame borders:
-    h[0,:]=h[99,:]=h[:,0]=h[:,255] = 90 # ligth grey
-    gui.arrHistogram = h
+    
+        # calc arrHistogram:
+        v,_ = np.histogram(gui.data,range=(0,65500),bins=256)
+        h = np.zeros((100,256), dtype=np.uint8)
+        for x in range(256):
+            if v[x] != 0:
+                b =min(100,7*log1p(v[x]))
+                h[-b:,x] = 255
+        # draw frame borders:
+        h[0,:]=h[99,:]=h[:,0]=h[:,255] = 90 # ligth grey
+        gui.arrHistogram = h
     return  
 
 def UpdateEqualized(gui):
-    ShowEqualized(gui, gui.fitlist[gui.fitlist_n], 
+    ShowEqualized(gui, gui.data, 
                     s0 = gui.adjmin.get_property("value")/500,
                     s1 = gui.adjmax.get_property("value")/500)
+
 
 # ====================================================================
 
@@ -134,13 +143,25 @@ def on_mnuDetectar(self, menuitem, data=None):
     pass
     
 def on_mnuRotar(self, menuitem, data=None):
-    pass
+    #~ global ViewRotated
+    self.data = np.rot90(self.data)
+    UpdateEqualized(self)
+    if self.ViewRotated == 3:
+        self.ViewRotated = 0
+    else:
+        self.ViewRotated += 1
     
 def on_mnuVoltearH(self, menuitem, data=None):
-    pass
+    #~ global ViewFlipH
+    self.data = np.fliplr(self.data)
+    UpdateEqualized(self)
+    self.ViewFlipH = not self.ViewFlipH
     
 def on_mnuVoltearV(self, menuitem, data=None):
-    pass
+    #~ global ViewFlipV
+    self.data = np.flipud(self.data)
+    UpdateEqualized(self)
+    self.ViewFlipV = not self.ViewFlipV
     
 def on_mnuZoom(self, menuitem, data=None):
     pass
@@ -171,7 +192,10 @@ def on_fitchooserdialog_response(self, obj, btnID=1):
 
 def on_btnFirst_clicked(self,button):
     self.fitlist_n = 0
-    UpdateEqualized(self)
+    #~ UpdateEqualized(self)
+    ShowEqualized(self, self.fitlist[self.fitlist_n], 
+                    s0 = self.adjmin.get_property("value")/500,
+                    s1 = self.adjmax.get_property("value")/500)
     for btn in (self.first,self.prev):
         btn.set_sensitive(False) 
     for btn in (self.next,self.last):
@@ -180,7 +204,10 @@ def on_btnFirst_clicked(self,button):
     
 def on_btnLast_clicked(self,button):
     self.fitlist_n = len(self.fitlist)-1
-    UpdateEqualized(self)
+    #~ UpdateEqualized(self)
+    ShowEqualized(self, self.fitlist[self.fitlist_n], 
+                    s0 = self.adjmin.get_property("value")/500,
+                    s1 = self.adjmax.get_property("value")/500)
     for btn in (self.first,self.prev):
         btn.set_sensitive(True) 
     for btn in (self.next,self.last):
@@ -191,7 +218,10 @@ def on_btnPrev_clicked(self,button):
         on_btnFirst_clicked(self,button)
     else:
         self.fitlist_n -= 1
-        UpdateEqualized(self)
+        #~ UpdateEqualized(self)
+        ShowEqualized(self, self.fitlist[self.fitlist_n], 
+                    s0 = self.adjmin.get_property("value")/500,
+                    s1 = self.adjmax.get_property("value")/500)
         for btn in (self.next,self.last):
             btn.set_sensitive(True) 
 
@@ -200,7 +230,10 @@ def on_btnNext_clicked(self, button):
         on_btnLast_clicked(self,button)
     else:
         self.fitlist_n += 1
-        UpdateEqualized(self)
+        #~ UpdateEqualized(self)
+        ShowEqualized(self, self.fitlist[self.fitlist_n], 
+                    s0 = self.adjmin.get_property("value")/500,
+                    s1 = self.adjmax.get_property("value")/500)
         for btn in (self.first,self.prev):
             btn.set_sensitive(True) 
 
