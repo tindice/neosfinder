@@ -6,7 +6,7 @@ from gi.repository import Gtk
 window = Gtk.Window()
 screen = window.get_screen()
 screenWidth, screenHeight = screen.width(), screen.height()
-
+#~ print screenHeight
 
 class Gui:
   from Handler import *

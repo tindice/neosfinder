@@ -99,13 +99,20 @@ def Getdata(filefullname):
     if type(filefullname) == type('str'):
         hduList = pyf.open(filefullname)
         prihdr = hduList[0].header
-        data = hduList[0].data
+        data = hduList[0].data.astype(np.uint16, copy=False)
         hduList.close()
+        #~ if np.amin(data) < 0:
+            #~ data = data + 32768
+        #~ print "at11>", np.amin(data)
         return (prihdr[5],prihdr[31],
                  prihdr[17],prihdr[18]), data
 
     else:
-        return ("","","",""),filefullname.copy()
+        data = filefullname
+        #~ if np.amin(data) < 0:
+            #~ data = data + 32768
+        #~ print "at12>", np.amin(data)
+        return ("","","",""),data
     
 def Fit2png(data,s0, s1):
     """ Returns the contrast enhaced array 
@@ -117,7 +124,7 @@ def Fit2png(data,s0, s1):
     # auto equalization: s0=0.0185  s1=0.0323
     # draft equalization: s0=0.0  s1=0.174
     amin, amax = np.amin(data), np.amax(data)
-    print amin, amax
+    print "at2>", amin, amax
     delta = amax - amin
     i0 = amin + s0 * delta
     i1 = amin + s1 * delta

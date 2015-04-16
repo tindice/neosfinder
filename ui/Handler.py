@@ -37,7 +37,7 @@ def ShowEqualized(gui, file, s0=0.0185, s1=0.0323):
     '''
     # gets image data from file:
     _, gui.data = Getdata(file)
-        
+    print "H ", np.amin(gui.data)
     png = Fit2png(gui.data,s0, s1)
     size = tuple(x/3 for x in png.shape)
     im = Image.fromarray(png)
@@ -52,7 +52,9 @@ def ShowEqualized(gui, file, s0=0.0185, s1=0.0323):
      
     # show imge: 
     gui.imagen.set_property("pixbuf", pixbuf)
-    gui.info.set_property("label",file)
+    if type(file) == type("str"):
+        gui.info.set_property("label",file)
+        
     # calc arrHistogram:
     v,_ = np.histogram(gui.data,range=(0,65500),bins=256)
     h = np.zeros((100,256), dtype=np.uint8)
@@ -79,21 +81,23 @@ def gtk_main_quit(self, menuitem, data=None):
     Gtk.main_quit()
 
 def on_mnuEqualize(self, menuitem, data=None):
+    on_dlgEqualize_realize(self, menuitem)
     if self.msg == 0:   # only first time,
-        on_dlgEqualize_realize(self, menuitem)
         self.equadialog.run()
     else:
         self.equadialog.show()
         
 def on_dlgEqualize_realize(self, obj):
-    self.msg = 1
     # show histogram with sigmoid:
-    h = Sigmoid(self.arrHistogram,self.automin/500,self.automax/500)
+    print ">",self.adjmin.get_property("value")/500,self.adjmax.get_property("value")/500
+    h = Sigmoid(self.arrHistogram,self.adjmin.get_property("value")/500,self.adjmax.get_property("value")/500)
     im = Image.fromarray(h)
     im.save("../tmp/tmp.png")
     pixbuf = GdkPixbuf.Pixbuf.new_from_file('../tmp/tmp.png')
     self.histo.set_property("pixbuf", pixbuf)
-    self.chkauto.set_active(True)
+    if self.msg == 0:
+        self.msg = 1
+        self.chkauto.set_active(True)
     
 def on_dlgEqualize_response(self, obj, btnID=None):
     if btnID == 1:   # Apply button pressed.
