@@ -35,11 +35,12 @@ def UpdateSigmoid(gui):
 def ShowEqualized(gui, file, s0=0.0185, s1=0.0323):
     ''' accepts "file" as string or as np.array
     '''
+    screenHeight = gui.window.get_property("default_height")
     # gets image data from file:
     _, gui.data = Getdata(file)
-    print "H ", np.amin(gui.data)
     png = Fit2png(gui.data,s0, s1)
-    size = tuple(x/3 for x in png.shape)
+    k = 0.65 * screenHeight / png.shape[0]
+    size = tuple(x*k for x in png.shape)
     im = Image.fromarray(png)
     im.thumbnail((size[1],size[0]), Image.BICUBIC)
     arr = np.array(im.getdata()).flatten()
@@ -53,7 +54,8 @@ def ShowEqualized(gui, file, s0=0.0185, s1=0.0323):
     # show imge: 
     gui.imagen.set_property("pixbuf", pixbuf)
     if type(file) == type("str"):
-        gui.info.set_property("label",file)
+        idx = file.rfind("/")
+        gui.info.set_property("label",file[idx+1:])
         
     # calc arrHistogram:
     v,_ = np.histogram(gui.data,range=(0,65500),bins=256)

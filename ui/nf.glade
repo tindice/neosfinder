@@ -194,6 +194,22 @@
       <pattern>*.fit</pattern>
     </patterns>
   </object>
+  <object class="GtkFileFilter" id="vfitfilter">
+    <mime-types>
+      <mime-type>image/fits</mime-type>
+    </mime-types>
+    <patterns>
+      <pattern>*v.fit</pattern>
+    </patterns>
+  </object>
+  <object class="GtkFileFilter" id="rfitfilter">
+    <mime-types>
+      <mime-type>image/fits</mime-type>
+    </mime-types>
+    <patterns>
+      <pattern>*r.fit</pattern>
+    </patterns>
+  </object>
   <object class="GtkFileChooserWidget" id="filechooser">
     <property name="can_focus">False</property>
     <property name="events">GDK_STRUCTURE_MASK | GDK_SCROLL_MASK</property>

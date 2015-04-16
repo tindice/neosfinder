@@ -124,7 +124,7 @@ def Fit2png(data,s0, s1):
     # auto equalization: s0=0.0185  s1=0.0323
     # draft equalization: s0=0.0  s1=0.174
     amin, amax = np.amin(data), np.amax(data)
-    print "at2>", amin, amax
+    #~ print "at2>", amin, amax
     delta = amax - amin
     i0 = amin + s0 * delta
     i1 = amin + s1 * delta
