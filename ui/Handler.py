@@ -4,7 +4,7 @@
 import numpy as np
 from PIL import Image , ImageDraw
 from astrotools import *
-from gi.repository import Gtk,  GdkPixbuf
+from gi.repository import Gtk, Gdk, GdkPixbuf
 from math import log1p, exp
 
 # =======   Functions Section  ========================================
@@ -45,6 +45,12 @@ def ShowEqualized(gui, file, s0=0.0185, s1=0.0323):
             gui.data = np.flipud(gui.data)
         if gui.ViewRotated != 0:
             gui.data = np.rot90(gui.data, gui.ViewRotated)
+        k = gui.ZoomK
+        if k > 1: # si voy a ampliar
+            (h,w) = gui.data.shape
+            x0,y0 = w*(1-1/k)/2, h*(1-1/k)/2
+            x1,y1 = w*(k+1)/2/k, h*(k+1)/2/k
+            gui.data = gui.data[y0:y1, x0:x1]  # crop array
 
     png = Fit2png(gui.data,s0, s1)
     k = 0.65 * screenHeight / png.shape[0]
@@ -173,19 +179,13 @@ def on_mnuZoom(self, menuitem, data=None):
     pb = self.imagen.get_property("pixbuf")
     src_x = (1-1/k)/2 * pb.get_height()
     src_y = (1-1/k)/2 * pb.get_width()
-    spb = gdk_pixbuf_new_subpixbuf (pb,
-              int(src_x), int(src_y),
+    spb = pb.new_subpixbuf(int(src_x), int(src_y),
               int(pb.get_width()/k) , int(pb.get_height()/k))
-    pxb = gdk_pixbuf_scale_simple (spb,
-                         pb.get_width(), pb.get_height(),
+    pxb = spb.scale_simple(pb.get_width(), pb.get_height(),
                          GdkPixbuf.InterpType.BILINEAR)
     self.imagen.set_property("pixbuf", pxb)
+    self.ZoomK *= k
               
-    #~ pb.scale ( pb, 0, 0,
-     #~ pb.get_width(), pb.get_height(), 0.0, 0.0,
-      #~ 1.1, 1.1, GdkPixbuf.InterpType.BILINEAR)
-    #~ self.imagen.set_property("pixbuf", pb)
-    
 def on_mnuAcercaDe(self, menuitem, data=None):
     self.response = self.aboutdialog.run()
     
@@ -197,6 +197,8 @@ def on_mnuAbrirFits(self, menuitem, data=None):
     self.fitchooser.run()
 
 def on_fitchooserdialog_response(self, obj, btnID=1):
+    watch_cursor = Gdk.Cursor(Gdk.CursorType.WATCH)
+    self.window.get_window().set_cursor(watch_cursor)
     if btnID == 1:
         self.fitlist = sorted(self.fitchooser.get_filenames())
         #~ self.fitminmax = {n: n**2 for n in range(len(self.fitlist))}
@@ -208,7 +210,9 @@ def on_fitchooserdialog_response(self, obj, btnID=1):
             btn.set_sensitive(False) 
         for btn in (self.next,self.last):
             btn.set_sensitive(True) 
+    self.window.get_window().set_cursor(None)
     self.fitchooser.hide()
+    
 
 def on_btnFirst_clicked(self,button):
     self.fitlist_n = 0

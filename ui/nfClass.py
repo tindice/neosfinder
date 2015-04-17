@@ -46,6 +46,7 @@ class Gui:
     self.ViewFlipH = False
     self.ViewFlipV = False
     self.ViewRotated = 0
+    self.ZoomK = 1
 
     self.adjmin.set_property("value", self.automin)
     self.adjmax.set_property("value", self.automax)
