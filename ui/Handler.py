@@ -143,28 +143,48 @@ def on_mnuDetectar(self, menuitem, data=None):
     pass
     
 def on_mnuRotar(self, menuitem, data=None):
-    #~ global ViewRotated
-    self.data = np.rot90(self.data)
-    UpdateEqualized(self)
+    #~ self.data = np.rot90(self.data)
+    #~ UpdateEqualized(self)
+    pb = self.imagen.get_property("pixbuf").rotate_simple(90)
+    self.imagen.set_property("pixbuf", pb)
     if self.ViewRotated == 3:
         self.ViewRotated = 0
     else:
         self.ViewRotated += 1
     
 def on_mnuVoltearH(self, menuitem, data=None):
-    #~ global ViewFlipH
-    self.data = np.fliplr(self.data)
-    UpdateEqualized(self)
+    #~ self.data = np.fliplr(self.data)
+    #~ UpdateEqualized(self)
+    
+    pb = self.imagen.get_property("pixbuf").flip(True)
+    self.imagen.set_property("pixbuf", pb)
+
     self.ViewFlipH = not self.ViewFlipH
     
 def on_mnuVoltearV(self, menuitem, data=None):
-    #~ global ViewFlipV
-    self.data = np.flipud(self.data)
-    UpdateEqualized(self)
+    #~ self.data = np.flipud(self.data)
+    #~ UpdateEqualized(self)
+    pb = self.imagen.get_property("pixbuf").flip(False)
+    self.imagen.set_property("pixbuf", pb)
     self.ViewFlipV = not self.ViewFlipV
     
 def on_mnuZoom(self, menuitem, data=None):
-    pass
+    k = 1.25
+    pb = self.imagen.get_property("pixbuf")
+    src_x = (1-1/k)/2 * pb.get_height()
+    src_y = (1-1/k)/2 * pb.get_width()
+    spb = gdk_pixbuf_new_subpixbuf (pb,
+              int(src_x), int(src_y),
+              int(pb.get_width()/k) , int(pb.get_height()/k))
+    pxb = gdk_pixbuf_scale_simple (spb,
+                         pb.get_width(), pb.get_height(),
+                         GdkPixbuf.InterpType.BILINEAR)
+    self.imagen.set_property("pixbuf", pxb)
+              
+    #~ pb.scale ( pb, 0, 0,
+     #~ pb.get_width(), pb.get_height(), 0.0, 0.0,
+      #~ 1.1, 1.1, GdkPixbuf.InterpType.BILINEAR)
+    #~ self.imagen.set_property("pixbuf", pb)
     
 def on_mnuAcercaDe(self, menuitem, data=None):
     self.response = self.aboutdialog.run()
