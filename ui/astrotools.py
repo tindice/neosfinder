@@ -121,7 +121,7 @@ def Fit2png(data,s0, s1):
     Height, Width = data.shape
     # Convert .FIT to PNG (int16 to uint8) with enhaced contrast.
     newarray = np.array(Image.new("L", (Width,Height), color=0)) 
-    # auto equalization: s0=0.0185  s1=0.0323
+    # auto equalization: s0=0.01  s1=0.0323
     # draft equalization: s0=0.0  s1=0.174
     amin, amax = np.amin(data), np.amax(data)
     #~ print "at2>", amin, amax

@@ -194,22 +194,6 @@
       <pattern>*.fit</pattern>
     </patterns>
   </object>
-  <object class="GtkFileFilter" id="vfitfilter">
-    <mime-types>
-      <mime-type>image/fits</mime-type>
-    </mime-types>
-    <patterns>
-      <pattern>*v.fit</pattern>
-    </patterns>
-  </object>
-  <object class="GtkFileFilter" id="rfitfilter">
-    <mime-types>
-      <mime-type>image/fits</mime-type>
-    </mime-types>
-    <patterns>
-      <pattern>*r.fit</pattern>
-    </patterns>
-  </object>
   <object class="GtkFileChooserWidget" id="filechooser">
     <property name="can_focus">False</property>
     <property name="events">GDK_STRUCTURE_MASK | GDK_SCROLL_MASK</property>
@@ -217,84 +201,6 @@
     <property name="create_folders">False</property>
     <property name="filter">fitfilter</property>
     <property name="select_multiple">True</property>
-  </object>
-  <object class="GtkFileChooserDialog" id="fitchooserdialog">
-    <property name="can_focus">False</property>
-    <property name="modal">True</property>
-    <property name="window_position">center-on-parent</property>
-    <property name="default_width">400</property>
-    <property name="default_height">300</property>
-    <property name="type_hint">dialog</property>
-    <property name="create_folders">False</property>
-    <property name="filter">fitfilter</property>
-    <property name="preview_widget_active">False</property>
-    <property name="select_multiple">True</property>
-    <property name="use_preview_label">False</property>
-    <signal name="response" handler="on_fitchooserdialog_response" swapped="no"/>
-    <child internal-child="vbox">
-      <object class="GtkBox" id="fitchooserdialog-vbox">
-        <property name="can_focus">False</property>
-        <property name="orientation">vertical</property>
-        <property name="spacing">2</property>
-        <child internal-child="action_area">
-          <object class="GtkButtonBox" id="fitchooserdialog-action">
-            <property name="can_focus">False</property>
-            <property name="layout_style">end</property>
-            <child>
-              <object class="GtkButton" id="btnFitChoose_cancel">
-                <property name="label">gtk-cancel</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">True</property>
-                <property name="relief">half</property>
-                <property name="use_stock">True</property>
-                <property name="xalign">0.54000002145767212</property>
-                <property name="yalign">0.47999998927116394</property>
-                <property name="image_position">bottom</property>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">True</property>
-                <property name="position">0</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkButton" id="btnFitChoose_ok">
-                <property name="label">gtk-ok</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="has_focus">True</property>
-                <property name="is_focus">True</property>
-                <property name="can_default">True</property>
-                <property name="receives_default">True</property>
-                <property name="relief">half</property>
-                <property name="use_stock">True</property>
-                <property name="xalign">0.51999998092651367</property>
-                <signal name="clicked" handler="on_fitchooserdialog_response" swapped="no"/>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">True</property>
-                <property name="position">1</property>
-              </packing>
-            </child>
-          </object>
-          <packing>
-            <property name="expand">False</property>
-            <property name="fill">True</property>
-            <property name="pack_type">end</property>
-            <property name="position">0</property>
-          </packing>
-        </child>
-        <child>
-          <placeholder/>
-        </child>
-      </object>
-    </child>
-    <action-widgets>
-      <action-widget response="0">btnFitChoose_cancel</action-widget>
-      <action-widget response="1">btnFitChoose_ok</action-widget>
-    </action-widgets>
   </object>
   <object class="GtkImage" id="i">
     <property name="visible">True</property>
@@ -507,13 +413,23 @@
                       </object>
                     </child>
                     <child>
-                      <object class="GtkImageMenuItem" id="mnuZoom">
-                        <property name="label">Zoom</property>
+                      <object class="GtkImageMenuItem" id="mnuZoomU">
+                        <property name="label">Zoom +</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="image">image6</property>
                         <property name="use_stock">False</property>
-                        <signal name="activate" handler="on_mnuZoom" swapped="no"/>
+                        <signal name="activate" handler="on_mnuZoomU" swapped="no"/>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkImageMenuItem" id="mnuZoomD">
+                        <property name="label">Zoom -</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="image">image7</property>
+                        <property name="use_stock">False</property>
+                        <signal name="activate" handler="on_mnuZoomD" swapped="no"/>
                       </object>
                     </child>
                   </object>
@@ -719,5 +635,146 @@
         </child>
       </object>
     </child>
+  </object>
+  <object class="GtkImage" id="image7">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="stock">gtk-missing-image</property>
+  </object>
+  <object class="GtkListStore" id="lstFilter">
+    <columns>
+      <!-- column-name Tipo -->
+      <column type="gchararray"/>
+      <!-- column-name filtro -->
+      <column type="gchararray"/>
+    </columns>
+    <data>
+      <row>
+        <col id="0" translatable="yes">Todos los Fits</col>
+        <col id="1" translatable="yes">*.fit</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">sólo filtro Rojo</col>
+        <col id="1" translatable="yes">*r.fit</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">sólo filtro Verde</col>
+        <col id="1" translatable="yes">*.v.fit</col>
+      </row>
+    </data>
+  </object>
+  <object class="GtkFileChooserDialog" id="fitchooserdialog">
+    <property name="can_focus">False</property>
+    <property name="modal">True</property>
+    <property name="window_position">center-on-parent</property>
+    <property name="default_width">400</property>
+    <property name="default_height">300</property>
+    <property name="type_hint">dialog</property>
+    <property name="create_folders">False</property>
+    <property name="filter">fitfilter</property>
+    <property name="preview_widget_active">False</property>
+    <property name="select_multiple">True</property>
+    <property name="use_preview_label">False</property>
+    <signal name="response" handler="on_fitchooserdialog_response" swapped="no"/>
+    <child internal-child="vbox">
+      <object class="GtkBox" id="fitchooserdialog-vbox">
+        <property name="can_focus">False</property>
+        <property name="orientation">vertical</property>
+        <property name="spacing">2</property>
+        <property name="baseline_position">bottom</property>
+        <child internal-child="action_area">
+          <object class="GtkButtonBox" id="fitchooserdialog-action">
+            <property name="can_focus">False</property>
+            <property name="layout_style">end</property>
+            <child>
+              <object class="GtkButton" id="btnFitChoose_cancel">
+                <property name="label">gtk-cancel</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+                <property name="relief">half</property>
+                <property name="use_stock">True</property>
+                <property name="xalign">0.54000002145767212</property>
+                <property name="yalign">0.47999998927116394</property>
+                <property name="image_position">bottom</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkButton" id="btnFitChoose_ok">
+                <property name="label">gtk-ok</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="has_focus">True</property>
+                <property name="is_focus">True</property>
+                <property name="can_default">True</property>
+                <property name="receives_default">True</property>
+                <property name="relief">half</property>
+                <property name="use_stock">True</property>
+                <property name="xalign">0.51999998092651367</property>
+                <signal name="clicked" handler="on_fitchooserdialog_response" swapped="no"/>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="pack_type">end</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkComboBox" id="combobox1">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="model">lstFilter</property>
+            <property name="active">1</property>
+            <property name="has_entry">True</property>
+            <property name="entry_text_column">0</property>
+            <child internal-child="entry">
+              <object class="GtkEntry" id="combobox-entry">
+                <property name="can_focus">False</property>
+                <property name="text" translatable="yes">*.fit</property>
+                <property name="input_purpose">alpha</property>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">2</property>
+          </packing>
+        </child>
+      </object>
+    </child>
+    <action-widgets>
+      <action-widget response="0">btnFitChoose_cancel</action-widget>
+      <action-widget response="1">btnFitChoose_ok</action-widget>
+    </action-widgets>
+  </object>
+  <object class="GtkFileFilter" id="rfitfilter">
+    <mime-types>
+      <mime-type>image/fits</mime-type>
+    </mime-types>
+    <patterns>
+      <pattern>*r.fit</pattern>
+    </patterns>
+  </object>
+  <object class="GtkFileFilter" id="vfitfilter">
+    <mime-types>
+      <mime-type>image/fits</mime-type>
+    </mime-types>
+    <patterns>
+      <pattern>*v.fit</pattern>
+    </patterns>
   </object>
 </interface>

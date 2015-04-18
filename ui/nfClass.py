@@ -36,18 +36,26 @@ class Gui:
     self.first = self.builder.get_object("btnFirst")
     self.next = self.builder.get_object("btnNext")
     self.last = self.builder.get_object("btnLast")
+    
+    # Accelerators
+    #~ self.my_accelerators = Gtk.AccelGroup()
+    #~ self.window.add_accel_group(self.my_accelerators)
+    #~ self.entry = self.builder.get_object("entry1")
+    #~ self.add_accelerator(self.entry, "<Control>+", signal="on_mnuZoom")
+    
     # inicializa variables:
     #~ self.fitminmax = {}
     self.fitlist = []
     self.fitlist_n = 0
     self.msg = 0
-    self.automin = 500*0.0185
-    self.automax = 500*0.0323
+    self.automin = 500*0.01
+    self.automax = 500*0.016
     self.ViewFlipH = False
     self.ViewFlipV = False
-    self.ViewRotated = 0
-    self.ZoomK = 1
+    self.ViewRotate = 0
+    self.ViewZoom = 1
 
+    # asigna valores:
     self.adjmin.set_property("value", self.automin)
     self.adjmax.set_property("value", self.automax)
     self.window.set_property("default_width", screenWidth)

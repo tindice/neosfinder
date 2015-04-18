@@ -9,6 +9,67 @@ from math import log1p, exp
 
 # =======   Functions Section  ========================================
 
+def ViewDefault(gui):
+    ''' Restores View parameters.
+    '''
+    gui.ViewZoom = 1
+    gui.ViewRotate = 0
+    gui.ViewFlipH = False
+    gui.ViewFlipV = False
+
+#~ def Zoom(gui, k):
+    #~ gui.ViewZoom *= k
+    #~ print "VZ", gui.ViewZoom
+    #~ if k < 1:
+        #~ pixbuf = GdkPixbuf.Pixbuf.new_from_file('../tmp/tmp.png')
+        #~ Zoom(gui,gui.ViewZoom)
+        #~ return
+    #~ elif k == 1:
+        #~ pixbuf = GdkPixbuf.Pixbuf.new_from_file('../tmp/tmp.png')
+        #~ 
+    #~ pb = gui.imagen.get_property("pixbuf")
+    #~ src_x = (1-1/k)/2 * pb.get_height()
+    #~ src_y = (1-1/k)/2 * pb.get_width()
+    #~ # crops from pixbuf
+    #~ spb = pb.new_subpixbuf(int(src_x), int(src_y),
+              #~ int(pb.get_width()/k) , int(pb.get_height()/k))
+      #~ # amplify
+    #~ pxb = spb.scale_simple(pb.get_width(), pb.get_height(),
+                         #~ GdkPixbuf.InterpType.BILINEAR)
+      #~ # and apply
+    #~ gui.imagen.set_property("pixbuf", pxb)
+#~ 
+def Zoom(gui, k):
+    #~ k = 1.25
+    gui.ViewZoom *= k
+    print "VZ", gui.ViewZoom
+    if k == 1:
+        pxb = GdkPixbuf.Pixbuf.new_from_file('../tmp/tmp.png')
+    elif k > 1:
+        pb = gui.imagen.get_property("pixbuf")
+        src_x = (1-1/k)/2 * pb.get_height()
+        src_y = (1-1/k)/2 * pb.get_width()
+        # crops from pixbuf
+        spb = pb.new_subpixbuf(int(src_x), int(src_y),
+                  int(pb.get_width()/k) , int(pb.get_height()/k))
+          # amplify
+        pxb = spb.scale_simple(pb.get_width(), pb.get_height(),
+                             GdkPixbuf.InterpType.BILINEAR)
+    else:
+        pb = GdkPixbuf.Pixbuf.new_from_file('../tmp/tmp.png')
+        src_x = (1-1/gui.ViewZoom)/2 * pb.get_height()
+        src_y = (1-1/gui.ViewZoom)/2 * pb.get_width()
+        sub_w = pb.get_width()/gui.ViewZoom
+        sub_h = pb.get_height()/gui.ViewZoom
+        # crops from pixbuf
+        spb = pb.new_subpixbuf(int(src_x), int(src_y),
+                  int(sub_w) , int(sub_h))
+          # amplify
+        pxb = spb.scale_simple(pb.get_width(), pb.get_height(),
+                             GdkPixbuf.InterpType.BILINEAR)
+      # and apply
+    gui.imagen.set_property("pixbuf", pxb)
+
 def Sigmoid(h,s0,s1):
     g = h.copy()
     a = (s0+s1)*637.5
@@ -32,10 +93,13 @@ def UpdateSigmoid(gui):
     pixbuf = GdkPixbuf.Pixbuf.new_from_file('../tmp/tmp.png')
     gui.histo.set_property("pixbuf", pixbuf)
 
-def ShowEqualized(gui, file, s0=0.0185, s1=0.0323):
+def ShowEqualized(gui, file, s0=0 , s1=0):
     ''' accepts "file" as string or as np.array
     '''
     screenHeight = gui.window.get_property("default_height")
+    if s0 == 0:
+        s0=gui.automin/500
+        s1=gui.automax/500
 
     if type(file) == type("str"):    # gets image data from file:
         _, gui.data = Getdata(file)
@@ -43,9 +107,9 @@ def ShowEqualized(gui, file, s0=0.0185, s1=0.0323):
             gui.data = np.fliplr(gui.data)
         if gui.ViewFlipV:
             gui.data = np.flipud(gui.data)
-        if gui.ViewRotated != 0:
-            gui.data = np.rot90(gui.data, gui.ViewRotated)
-        k = gui.ZoomK
+        if gui.ViewRotate != 0:
+            gui.data = np.rot90(gui.data, gui.ViewRotate)
+        k = gui.ViewZoom
         if k > 1: # si voy a ampliar
             (h,w) = gui.data.shape
             x0,y0 = w*(1-1/k)/2, h*(1-1/k)/2
@@ -147,16 +211,16 @@ def on_scale_release(self, obj, data):
 
 def on_mnuDetectar(self, menuitem, data=None):
     pass
-    
+                
 def on_mnuRotar(self, menuitem, data=None):
     #~ self.data = np.rot90(self.data)
     #~ UpdateEqualized(self)
     pb = self.imagen.get_property("pixbuf").rotate_simple(90)
     self.imagen.set_property("pixbuf", pb)
-    if self.ViewRotated == 3:
-        self.ViewRotated = 0
+    if self.ViewRotate == 3:
+        self.ViewRotate = 0
     else:
-        self.ViewRotated += 1
+        self.ViewRotate += 1
     
 def on_mnuVoltearH(self, menuitem, data=None):
     #~ self.data = np.fliplr(self.data)
@@ -174,17 +238,12 @@ def on_mnuVoltearV(self, menuitem, data=None):
     self.imagen.set_property("pixbuf", pb)
     self.ViewFlipV = not self.ViewFlipV
     
-def on_mnuZoom(self, menuitem, data=None):
-    k = 1.25
-    pb = self.imagen.get_property("pixbuf")
-    src_x = (1-1/k)/2 * pb.get_height()
-    src_y = (1-1/k)/2 * pb.get_width()
-    spb = pb.new_subpixbuf(int(src_x), int(src_y),
-              int(pb.get_width()/k) , int(pb.get_height()/k))
-    pxb = spb.scale_simple(pb.get_width(), pb.get_height(),
-                         GdkPixbuf.InterpType.BILINEAR)
-    self.imagen.set_property("pixbuf", pxb)
-    self.ZoomK *= k
+def on_mnuZoomU(self, menuitem, data=None):
+    Zoom(self, 1.25)
+              
+def on_mnuZoomD(self, menuitem, data=None):
+    if self.ViewZoom < 1.25 : return
+    Zoom(self, 1/1.25)
               
 def on_mnuAcercaDe(self, menuitem, data=None):
     self.response = self.aboutdialog.run()
@@ -197,11 +256,12 @@ def on_mnuAbrirFits(self, menuitem, data=None):
     self.fitchooser.run()
 
 def on_fitchooserdialog_response(self, obj, btnID=1):
-    watch_cursor = Gdk.Cursor(Gdk.CursorType.WATCH)
-    self.window.get_window().set_cursor(watch_cursor)
     if btnID == 1:
+        watch_cursor = Gdk.Cursor(Gdk.CursorType.WATCH)
+        self.window.get_window().set_cursor(watch_cursor)
+        ViewDefault(self)
+        
         self.fitlist = sorted(self.fitchooser.get_filenames())
-        #~ self.fitminmax = {n: n**2 for n in range(len(self.fitlist))}
         if len(self.fitlist) > 1:
             for btn in (self.first, self.next, self.prev, self.last):
                 btn.set_property("visible",True)
@@ -210,6 +270,7 @@ def on_fitchooserdialog_response(self, obj, btnID=1):
             btn.set_sensitive(False) 
         for btn in (self.next,self.last):
             btn.set_sensitive(True) 
+            
     self.window.get_window().set_cursor(None)
     self.fitchooser.hide()
     
