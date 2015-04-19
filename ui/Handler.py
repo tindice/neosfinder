@@ -158,6 +158,12 @@ def UpdateEqualized(gui):
 
 # ====  Handlers Section    ===================================
 
+def on_notyet(self,menuitem):
+    self.msgdialog.run()
+    
+def on_msgdialog_response(self,winget, data=None):
+    self.msgdialog.destroy()
+    
 def gtk_main_quit(self, menuitem, data=None):
     
     Gtk.main_quit()

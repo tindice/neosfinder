@@ -188,7 +188,7 @@
   </object>
   <object class="GtkFileFilter" id="fitfilter">
     <mime-types>
-      <mime-type></mime-type>
+      <mime-type/>
     </mime-types>
     <patterns>
       <pattern>*.fit</pattern>
@@ -232,12 +232,7 @@
     <property name="can_focus">False</property>
     <property name="stock">gtk-missing-image</property>
   </object>
-  <object class="GtkImage" id="image6">
-    <property name="visible">True</property>
-    <property name="can_focus">False</property>
-    <property name="stock">gtk-missing-image</property>
-  </object>
-  <object class="GtkImage" id="image7">
+  <object class="GtkImage" id="image8">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
     <property name="stock">gtk-missing-image</property>
@@ -287,6 +282,7 @@
                         <property name="can_focus">False</property>
                         <property name="use_underline">True</property>
                         <property name="use_stock">True</property>
+                        <signal name="activate" handler="on_notyet" swapped="no"/>
                       </object>
                     </child>
                     <child>
@@ -296,6 +292,7 @@
                         <property name="can_focus">False</property>
                         <property name="use_underline">True</property>
                         <property name="use_stock">True</property>
+                        <signal name="activate" handler="on_notyet" swapped="no"/>
                       </object>
                     </child>
                     <child>
@@ -305,6 +302,7 @@
                         <property name="can_focus">False</property>
                         <property name="use_underline">True</property>
                         <property name="use_stock">True</property>
+                        <signal name="activate" handler="on_notyet" swapped="no"/>
                       </object>
                     </child>
                     <child>
@@ -328,11 +326,10 @@
               </object>
             </child>
             <child>
-              <object class="GtkMenuItem" id="mnuEditar">
+              <object class="GtkMenuItem" id="mnuImagen">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="label" translatable="yes">_Editar</property>
-                <property name="use_underline">True</property>
+                <property name="label" translatable="yes">Imagen</property>
                 <child type="submenu">
                   <object class="GtkMenu" id="menu2">
                     <property name="visible">True</property>
@@ -349,11 +346,12 @@
                     </child>
                     <child>
                       <object class="GtkImageMenuItem" id="imagemenuitem7">
-                        <property name="label">gtk-copy</property>
+                        <property name="label">. . .</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="use_underline">True</property>
-                        <property name="use_stock">True</property>
+                        <property name="image">image8</property>
+                        <property name="use_stock">False</property>
+                        <signal name="activate" handler="on_notyet" swapped="no"/>
                       </object>
                     </child>
                     <child>
@@ -363,6 +361,7 @@
                         <property name="can_focus">False</property>
                         <property name="use_underline">True</property>
                         <property name="use_stock">True</property>
+                        <signal name="activate" handler="on_notyet" swapped="no"/>
                       </object>
                     </child>
                     <child>
@@ -372,6 +371,7 @@
                         <property name="can_focus">False</property>
                         <property name="use_underline">True</property>
                         <property name="use_stock">True</property>
+                        <signal name="activate" handler="on_notyet" swapped="no"/>
                       </object>
                     </child>
                   </object>
@@ -419,21 +419,19 @@
                     </child>
                     <child>
                       <object class="GtkImageMenuItem" id="mnuZoomU">
-                        <property name="label">Zoom +</property>
+                        <property name="label">gtk-zoom-in</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="image">image6</property>
-                        <property name="use_stock">False</property>
+                        <property name="use_stock">True</property>
                         <signal name="activate" handler="on_mnuZoomU" swapped="no"/>
                       </object>
                     </child>
                     <child>
                       <object class="GtkImageMenuItem" id="mnuZoomD">
-                        <property name="label">Zoom -</property>
+                        <property name="label">gtk-zoom-out</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="image">image7</property>
-                        <property name="use_stock">False</property>
+                        <property name="use_stock">True</property>
                         <signal name="activate" handler="on_mnuZoomD" swapped="no"/>
                       </object>
                     </child>
@@ -459,7 +457,7 @@
                         <property name="use_underline">True</property>
                         <property name="image">image1</property>
                         <property name="use_stock">False</property>
-                        <signal name="activate" handler="on_mnuDetectar" swapped="no"/>
+                        <signal name="activate" handler="on_notyet" swapped="no"/>
                       </object>
                     </child>
                     <child>
@@ -469,6 +467,7 @@
                         <property name="can_focus">False</property>
                         <property name="use_underline">True</property>
                         <property name="use_stock">True</property>
+                        <signal name="activate" handler="on_notyet" swapped="no"/>
                       </object>
                     </child>
                     <child>
@@ -478,6 +477,7 @@
                         <property name="can_focus">False</property>
                         <property name="use_underline">True</property>
                         <property name="use_stock">True</property>
+                        <signal name="activate" handler="on_notyet" swapped="no"/>
                       </object>
                     </child>
                     <child>
@@ -487,6 +487,7 @@
                         <property name="can_focus">False</property>
                         <property name="use_underline">True</property>
                         <property name="use_stock">True</property>
+                        <signal name="activate" handler="on_notyet" swapped="no"/>
                       </object>
                     </child>
                   </object>
@@ -645,25 +646,19 @@
     <columns>
       <!-- column-name Tipo -->
       <column type="gchararray"/>
-      <!-- column-name filtro -->
-      <column type="gchararray"/>
     </columns>
     <data>
       <row>
         <col id="0" translatable="yes">Todos los Fits  ( *.fit )</col>
-        <col id="1" translatable="yes">*.fit</col>
       </row>
       <row>
         <col id="0" translatable="yes">filtro Rojo     ( *r.fit )</col>
-        <col id="1" translatable="yes">*r.fit</col>
       </row>
       <row>
         <col id="0" translatable="yes">filtro Verde    ( *v.fit )</col>
-        <col id="1" translatable="yes">*.v.fit</col>
       </row>
       <row>
         <col id="0" translatable="yes">Todos           ( *.* )</col>
-        <col id="1" translatable="yes">*.*</col>
       </row>
     </data>
   </object>
@@ -765,9 +760,60 @@
       <action-widget response="1">btnFitChoose_ok</action-widget>
     </action-widgets>
   </object>
+  <object class="GtkMessageDialog" id="msgdialog">
+    <property name="can_focus">False</property>
+    <property name="resizable">False</property>
+    <property name="modal">True</property>
+    <property name="type_hint">dialog</property>
+    <property name="has_resize_grip">False</property>
+    <property name="startup_id">0</property>
+    <property name="text" translatable="yes">No implementado aún.</property>
+    <property name="secondary_text" translatable="yes">estamos trabajando ...</property>
+    <signal name="response" handler="on_msgdialog_response" swapped="no"/>
+    <child internal-child="vbox">
+      <object class="GtkBox" id="messagedialog-vbox1">
+        <property name="can_focus">False</property>
+        <property name="orientation">vertical</property>
+        <property name="spacing">2</property>
+        <child internal-child="action_area">
+          <object class="GtkButtonBox" id="messagedialog-action_area1">
+            <property name="can_focus">False</property>
+            <property name="layout_style">end</property>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <object class="GtkButton" id="btnMsgOk">
+                <property name="label">gtk-ok</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+                <property name="use_stock">True</property>
+                <property name="always_show_image">True</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="pack_type">end</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
+      </object>
+    </child>
+    <action-widgets>
+      <action-widget response="1">btnMsgOk</action-widget>
+    </action-widgets>
+  </object>
   <object class="GtkFileFilter" id="rfitfilter">
     <mime-types>
-      <mime-type></mime-type>
+      <mime-type/>
     </mime-types>
     <patterns>
       <pattern>*r.fit</pattern>
@@ -775,7 +821,7 @@
   </object>
   <object class="GtkFileFilter" id="vfitfilter">
     <mime-types>
-      <mime-type></mime-type>
+      <mime-type/>
     </mime-types>
     <patterns>
       <pattern>*v.fit</pattern>

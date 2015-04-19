@@ -40,6 +40,7 @@ class Gui:
     self.fitfilter = self.builder.get_object("fitfilter")
     self.rfitfilter = self.builder.get_object("rfitfilter")
     self.vfitfilter = self.builder.get_object("vfitfilter")
+    self.msgdialog = self.builder.get_object("msgdialog")
     
     # Accelerators
     #~ self.my_accelerators = Gtk.AccelGroup()
