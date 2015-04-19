@@ -36,6 +36,10 @@ class Gui:
     self.first = self.builder.get_object("btnFirst")
     self.next = self.builder.get_object("btnNext")
     self.last = self.builder.get_object("btnLast")
+    self.cmbFile = self.builder.get_object("cmbFile")
+    self.fitfilter = self.builder.get_object("fitfilter")
+    self.rfitfilter = self.builder.get_object("rfitfilter")
+    self.vfitfilter = self.builder.get_object("vfitfilter")
     
     # Accelerators
     #~ self.my_accelerators = Gtk.AccelGroup()
@@ -57,6 +61,7 @@ class Gui:
 
     # asigna valores:
     self.adjmin.set_property("value", self.automin)
+    self.cmbFile.set_active(0)
     self.adjmax.set_property("value", self.automax)
     self.window.set_property("default_width", screenWidth)
     self.window.set_property("default_height", screenHeight)

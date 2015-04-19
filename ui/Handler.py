@@ -102,7 +102,8 @@ def ShowEqualized(gui, file, s0=0 , s1=0):
         s1=gui.automax/500
 
     if type(file) == type("str"):    # gets image data from file:
-        _, gui.data = Getdata(file)
+        meta, gui.data = Getdata(file)
+        print meta
         if gui.ViewFlipH:
             gui.data = np.fliplr(gui.data)
         if gui.ViewFlipV:
@@ -133,7 +134,7 @@ def ShowEqualized(gui, file, s0=0 , s1=0):
     gui.imagen.set_property("pixbuf", pixbuf)
     if type(file) == type("str"):
         idx = file.rfind("/")
-        gui.info.set_property("label",file[idx+1:])
+        gui.info.set_property("label","%s\t UTC=%s"%(file[idx+1:],meta[0][-8:]))
     
         # calc arrHistogram:
         v,_ = np.histogram(gui.data,range=(0,65500),bins=256)
@@ -262,6 +263,7 @@ def on_fitchooserdialog_response(self, obj, btnID=1):
         ViewDefault(self)
         
         self.fitlist = sorted(self.fitchooser.get_filenames())
+        if self.fitlist == []: return
         if len(self.fitlist) > 1:
             for btn in (self.first, self.next, self.prev, self.last):
                 btn.set_property("visible",True)
@@ -321,5 +323,15 @@ def on_btnNext_clicked(self, button):
                     s1 = self.adjmax.get_property("value")/500)
         for btn in (self.first,self.prev):
             btn.set_sensitive(True) 
+
+def on_combobox1_changed(self,widget):
+    print "Combo changed", widget.get_active()
+    id = widget.get_active()
+    filter = [self.fitfilter,self.rfitfilter,self.vfitfilter,None]
+    self.fitchooser.set_property("filter", filter[id])
+    
+def on_lstFilter_row_changed(self,widget):
+    print "row changed", widget
+    
 
     

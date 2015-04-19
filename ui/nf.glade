@@ -188,7 +188,7 @@
   </object>
   <object class="GtkFileFilter" id="fitfilter">
     <mime-types>
-      <mime-type>image/fits</mime-type>
+      <mime-type></mime-type>
     </mime-types>
     <patterns>
       <pattern>*.fit</pattern>
@@ -233,6 +233,11 @@
     <property name="stock">gtk-missing-image</property>
   </object>
   <object class="GtkImage" id="image6">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="stock">gtk-missing-image</property>
+  </object>
+  <object class="GtkImage" id="image7">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
     <property name="stock">gtk-missing-image</property>
@@ -636,11 +641,6 @@
       </object>
     </child>
   </object>
-  <object class="GtkImage" id="image7">
-    <property name="visible">True</property>
-    <property name="can_focus">False</property>
-    <property name="stock">gtk-missing-image</property>
-  </object>
   <object class="GtkListStore" id="lstFilter">
     <columns>
       <!-- column-name Tipo -->
@@ -650,16 +650,20 @@
     </columns>
     <data>
       <row>
-        <col id="0" translatable="yes">Todos los Fits</col>
+        <col id="0" translatable="yes">Todos los Fits  ( *.fit )</col>
         <col id="1" translatable="yes">*.fit</col>
       </row>
       <row>
-        <col id="0" translatable="yes">sólo filtro Rojo</col>
+        <col id="0" translatable="yes">filtro Rojo     ( *r.fit )</col>
         <col id="1" translatable="yes">*r.fit</col>
       </row>
       <row>
-        <col id="0" translatable="yes">sólo filtro Verde</col>
+        <col id="0" translatable="yes">filtro Verde    ( *v.fit )</col>
         <col id="1" translatable="yes">*.v.fit</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">Todos           ( *.* )</col>
+        <col id="1" translatable="yes">*.*</col>
       </row>
     </data>
   </object>
@@ -733,18 +737,18 @@
           </packing>
         </child>
         <child>
-          <object class="GtkComboBox" id="combobox1">
+          <object class="GtkComboBox" id="cmbFile">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
+            <property name="halign">end</property>
             <property name="model">lstFilter</property>
-            <property name="active">1</property>
+            <property name="tearoff_title" translatable="yes">Archivos</property>
             <property name="has_entry">True</property>
             <property name="entry_text_column">0</property>
+            <signal name="changed" handler="on_combobox1_changed" swapped="no"/>
             <child internal-child="entry">
               <object class="GtkEntry" id="combobox-entry">
                 <property name="can_focus">False</property>
-                <property name="text" translatable="yes">*.fit</property>
-                <property name="input_purpose">alpha</property>
               </object>
             </child>
           </object>
@@ -763,7 +767,7 @@
   </object>
   <object class="GtkFileFilter" id="rfitfilter">
     <mime-types>
-      <mime-type>image/fits</mime-type>
+      <mime-type></mime-type>
     </mime-types>
     <patterns>
       <pattern>*r.fit</pattern>
@@ -771,7 +775,7 @@
   </object>
   <object class="GtkFileFilter" id="vfitfilter">
     <mime-types>
-      <mime-type>image/fits</mime-type>
+      <mime-type></mime-type>
     </mime-types>
     <patterns>
       <pattern>*v.fit</pattern>
