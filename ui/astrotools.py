@@ -92,6 +92,14 @@ def Shift(array,dx=0,dy=0):
     a = np.roll(a,dy,axis=0)
     return a
     
+def Getmeta(filefullname):
+    """ Returns the Fit 
+    """
+    hduList = pyf.open(filefullname)
+    prihdr = hduList[0].header
+    hduList.close()
+    return prihdr
+
 def Getdata(filefullname):
     """ Returns the Fit data array and the tuple (obsTime,Telescop, AsRect,Decl)
         accepts "filefullname" as string or as np.array

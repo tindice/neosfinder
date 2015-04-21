@@ -41,6 +41,9 @@ class Gui:
     self.rfitfilter = self.builder.get_object("rfitfilter")
     self.vfitfilter = self.builder.get_object("vfitfilter")
     self.msgdialog = self.builder.get_object("msgdialog")
+    self.dlgmeta = self.builder.get_object("dlgMeta1")
+    self.chkmeta0 = self.builder.get_object("chkMeta0")
+    self.textbuffer = self.builder.get_object("textbuffer1")
     
     # Accelerators
     #~ self.my_accelerators = Gtk.AccelGroup()
@@ -50,6 +53,7 @@ class Gui:
     
     # inicializa variables:
     #~ self.fitminmax = {}
+    self.chkmeta0.set_border_width(4)
     self.fitlist = []
     self.fitlist_n = 0
     self.msg = 0

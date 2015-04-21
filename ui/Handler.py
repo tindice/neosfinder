@@ -161,8 +161,12 @@ def UpdateEqualized(gui):
 def on_notyet(self,menuitem):
     self.msgdialog.run()
     
-def on_msgdialog_response(self,winget, data=None):
-    self.msgdialog.destroy()
+def on_msgdialog_response(self,widget, data=None):
+    widget.destroy()
+    
+def on_dlgMeta_response(self,widget, data=None):
+    if data == 0:
+        widget.hide()
     
 def gtk_main_quit(self, menuitem, data=None):
     
@@ -177,7 +181,7 @@ def on_mnuEqualize(self, menuitem, data=None):
         
 def on_dlgEqualize_realize(self, obj):
     # show histogram with sigmoid:
-    print ">",self.adjmin.get_property("value")/500,self.adjmax.get_property("value")/500
+    #~ print ">",self.adjmin.get_property("value")/500,self.adjmax.get_property("value")/500
     h = Sigmoid(self.arrHistogram,self.adjmin.get_property("value")/500,self.adjmax.get_property("value")/500)
     im = Image.fromarray(h)
     im.save("../tmp/tmp.png")
@@ -187,12 +191,12 @@ def on_dlgEqualize_realize(self, obj):
         self.msg = 1
         self.chkauto.set_active(True)
     
-def on_dlgEqualize_response(self, obj, btnID=None):
+def on_dlgEqualize_response(self, widget, btnID=None):
     if btnID == 1:   # Apply button pressed.
         ShowEqualized(self,self.data, s0 = self.adjmin.get_property("value")/500,
                             s1 = self.adjmax.get_property("value")/500)
     else:
-        self.equadialog.hide()
+        widget.hide()
         
 def on_chkAuto_toggled(self, menuitem, data=None):
     if self.chkauto.get_active():
@@ -247,6 +251,12 @@ def on_mnuVoltearV(self, menuitem, data=None):
     
 def on_mnuZoomU(self, menuitem, data=None):
     Zoom(self, 1.25)
+              
+def on_mnuMeta(self, menuitem, data=None):
+    header = Getmeta(self.fitlist[self.fitlist_n])
+    #~ print metalist
+    self.textbuffer.set_text(repr(header))
+    self.dlgmeta.run()
               
 def on_mnuZoomD(self, menuitem, data=None):
     if self.ViewZoom < 1.25 : return
@@ -331,7 +341,7 @@ def on_btnNext_clicked(self, button):
             btn.set_sensitive(True) 
 
 def on_combobox1_changed(self,widget):
-    print "Combo changed", widget.get_active()
+    #~ print "Combo changed", widget.get_active()
     id = widget.get_active()
     filter = [self.fitfilter,self.rfitfilter,self.vfitfilter,None]
     self.fitchooser.set_property("filter", filter[id])
