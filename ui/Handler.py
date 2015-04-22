@@ -96,6 +96,7 @@ def UpdateSigmoid(gui):
 def ShowEqualized(gui, file, s0=0 , s1=0):
     ''' accepts "file" as string or as np.array
     '''
+    gui.spinner.start()
     screenHeight = gui.window.get_property("default_height")
     if s0 == 0:
         s0=gui.automin/500
@@ -146,6 +147,8 @@ def ShowEqualized(gui, file, s0=0 , s1=0):
         # draw frame borders:
         h[0,:]=h[99,:]=h[:,0]=h[:,255] = 90 # ligth grey
         gui.arrHistogram = h
+    gui.spinner.stop()
+
     return  
 
 def UpdateEqualized(gui):
@@ -274,8 +277,8 @@ def on_mnuAbrirFits(self, menuitem, data=None):
 
 def on_fitchooserdialog_response(self, obj, btnID=1):
     if btnID == 1:
-        watch_cursor = Gdk.Cursor(Gdk.CursorType.WATCH)
-        self.window.get_window().set_cursor(watch_cursor)
+        #~ watch_cursor = Gdk.Cursor(Gdk.CursorType.WATCH)
+        #~ self.window.get_window().set_cursor(watch_cursor)
         ViewDefault(self)
         
         self.fitlist = sorted(self.fitchooser.get_filenames())
@@ -283,13 +286,15 @@ def on_fitchooserdialog_response(self, obj, btnID=1):
         if len(self.fitlist) > 1:
             for btn in (self.first, self.next, self.prev, self.last):
                 btn.set_property("visible",True)
+        metaConst, metaVar = GetMeta(self.fitlist)
         ShowEqualized(self, self.fitlist[0])
         for btn in (self.first,self.prev):
             btn.set_sensitive(False) 
         for btn in (self.next,self.last):
             btn.set_sensitive(True) 
+
             
-    self.window.get_window().set_cursor(None)
+    #~ self.window.get_window().set_cursor(None)
     self.fitchooser.hide()
     
 

@@ -92,12 +92,21 @@ def Shift(array,dx=0,dy=0):
     a = np.roll(a,dy,axis=0)
     return a
     
-def Getmeta(filefullname):
+def Getmeta(filelist):
     """ Returns the Fit 
     """
-    hduList = pyf.open(filefullname)
-    prihdr = hduList[0].header
-    hduList.close()
+    hdrDict = {}
+    for f in filelist:
+        hduList = pyf.open(f)
+        prihdr = hduList[0].header
+        hduList.close()
+        hdrDict[f] = prihdr
+        if f == filelist[0]: keyList = prihdr.keys()
+    for n in range(len(hdrDict)-1):
+        for key in keyList:
+            if hdrDict[n+1][key] == hdrDict[n][key]
+        
+    
     return prihdr
 
 def Getdata(filefullname):

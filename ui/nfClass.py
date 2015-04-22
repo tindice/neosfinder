@@ -44,6 +44,7 @@ class Gui:
     self.dlgmeta = self.builder.get_object("dlgMeta1")
     self.chkmeta0 = self.builder.get_object("chkMeta0")
     self.textbuffer = self.builder.get_object("textbuffer1")
+    self.spinner = self.builder.get_object("spinner3")
     
     # Accelerators
     #~ self.my_accelerators = Gtk.AccelGroup()
