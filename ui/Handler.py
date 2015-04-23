@@ -6,7 +6,7 @@ from PIL import Image , ImageDraw
 from astrotools import *
 from gi.repository import Gtk, Gdk, GdkPixbuf, GObject
 from math import log1p, exp
-import threading
+import threading, DataViewerClass
 
 # =======   Functions Section  ========================================
 
@@ -257,8 +257,8 @@ def on_mnuZoomU(self, menuitem, data=None):
     Zoom(self, 1.25)
               
 def on_mnuMeta(self, menuitem, data=None):
+    #~ metaviewer = DataViewerClass.DataViewer()
     header = Getmeta(self.fitlist[self.fitlist_n])
-    #~ print metalist
     self.textbuffer.set_text(repr(header))
     self.dlgmeta.run()
               
