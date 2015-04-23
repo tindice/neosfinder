@@ -4,8 +4,9 @@
 import numpy as np
 from PIL import Image , ImageDraw
 from astrotools import *
-from gi.repository import Gtk, Gdk, GdkPixbuf
+from gi.repository import Gtk, Gdk, GdkPixbuf, GObject
 from math import log1p, exp
+import threading
 
 # =======   Functions Section  ========================================
 
@@ -277,24 +278,57 @@ def on_mnuAbrirFits(self, menuitem, data=None):
 
 def on_fitchooserdialog_response(self, obj, btnID=1):
     if btnID == 1:
-        #~ watch_cursor = Gdk.Cursor(Gdk.CursorType.WATCH)
-        #~ self.window.get_window().set_cursor(watch_cursor)
-        ViewDefault(self)
-        
-        self.fitlist = sorted(self.fitchooser.get_filenames())
-        if self.fitlist == []: return
-        if len(self.fitlist) > 1:
-            for btn in (self.first, self.next, self.prev, self.last):
-                btn.set_property("visible",True)
-        metaConst, metaVar = GetMeta(self.fitlist)
-        ShowEqualized(self, self.fitlist[0])
-        for btn in (self.first,self.prev):
-            btn.set_sensitive(False) 
-        for btn in (self.next,self.last):
-            btn.set_sensitive(True) 
-
+        watch_cursor = Gdk.Cursor(Gdk.CursorType.WATCH)
+        self.window.get_window().set_cursor(watch_cursor)
+        GObject.threads_init()
+        Gdk.threads_init()
+        def otrohilo():
+            ViewDefault(self)
             
-    #~ self.window.get_window().set_cursor(None)
+            self.fitlist = sorted(self.fitchooser.get_filenames())
+            if self.fitlist == []: return
+            
+            # lista de diccionarios metadata:
+            metalist = list(GetMeta(f) for f in self.fitlist)
+            #~ # lista de registros variables:
+            #~ diflist = list(set(metalist[0].items()) ^ set(metalist[1].items()))
+            #~ # lista de claves variables:
+            #~ DifKlist=list(set(list(x[0] for x in diflist)))
+            # iterando:
+            DifKlist = []
+            for f in self.fitlist[1:]:
+                meta = GetMeta(f)
+                diflist = list(set(metalist[0].items()) ^ set(meta.items()))
+                difKlist=list(set(list(x[0] for x in diflist)))
+                DifKlist.extend(difKlist)
+            # unique:
+            DifKlist=list(set(DifKlist))
+            print DifKlist
+        
+            ShowEqualized(self, self.fitlist[0])
+            #~ for btn in (self.first,self.prev):
+                #~ btn.set_sensitive(False) 
+            #~ for btn in (self.next,self.last):
+                #~ btn.set_sensitive(True) 
+    
+            def done():
+                self.window.get_window().set_cursor(None)
+                return False
+
+
+            GObject.idle_add(done)
+            
+        thread = threading.Thread(target=otrohilo)
+        thread.start()
+        
+    if len(self.fitlist) > 1:
+        for btn in (self.first, self.next, self.prev, self.last):
+            btn.set_property("visible",True)
+    self.first.set_sensitive(False)
+    self.prev.set_sensitive(False)
+    self.next.set_sensitive(True)
+    self.last.set_sensitive(True)
+
     self.fitchooser.hide()
     
 
