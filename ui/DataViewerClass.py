@@ -3,32 +3,37 @@
 
 from gi.repository import Gtk
 
-class DataViewer:
+class DataViewer(Gtk.Window):
   def __init__(self):
     # Create a new window
-    self.window = Gtk.Window()
+    Gtk.Window.__init__(self, title="Metadatos")
+    #~ self.set_border_width(20)
     
-    # Set the window title
-    self.window.set_title("Metadatos")
+    # Create a grid
+    self.grid = Gtk.Grid()
+    self.grid.props.column_spacing = 10
     
-    # Set a handler for delete_event that immediately
-    # exits GTK.
-    #~ self.window.connect("delete_event", self.delete_event)
+    # Put the grid in the main window
+    self.add(self.grid)
+    self.rows = 0
     
-    # Sets the border width of the window.
-    #~ self.window.set_border_width(20)
-    
-    # Create a 3x2 table
-    table = Gtk.Table(3, 2, True)
-    
-    # Put the table in the main window
-    self.window.add(table)
+  def newrow(self,list):
+        lbl = Gtk.Label(list[0])
+        self.grid.attach(lbl, 0, self.rows, 1, 1)  
+        lbl = Gtk.Label(list[1])
+        self.grid.attach(lbl, 1, self.rows, 1, 1) 
+        lbl = Gtk.Label(list[2])
+        self.grid.attach(lbl, 2, self.rows, 1, 1) 
+        self.rows += 1
 
-    table.show()
-    self.window.show()
-
-
+def main():
+    win = DataViewer()
+    win.newrow(["uno","dos","tres"])
+    win.newrow(["cuatro","cinco","seis"])
+    win.connect("delete-event", Gtk.main_quit)
+    win.show_all()
+    Gtk.main()
+    
 
 if __name__ == "__main__":
-  main = DataViewer()
-  Gtk.main()
+  main()
