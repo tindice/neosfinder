@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from gi.repository import Gtk
-
+import DataViewerClass as dv
 # ===== Variables Globales ====================    
 window = Gtk.Window()
 screen = window.get_screen()
@@ -45,6 +45,8 @@ class Gui:
     self.chkmeta0 = self.builder.get_object("chkMeta0")
     self.textbuffer = self.builder.get_object("textbuffer1")
     self.spinner = self.builder.get_object("spinner3")
+    self.metaviewer = dv.DataViewer()
+    #~ self.window.add(self.metaviewer)
     
     # Accelerators
     #~ self.my_accelerators = Gtk.AccelGroup()
@@ -56,6 +58,7 @@ class Gui:
     #~ self.fitminmax = {}
     self.chkmeta0.set_border_width(4)
     self.fitlist = []
+    self.metalist = []
     self.fitlist_n = 0
     self.msg = 0
     self.automin = 500*0.01

@@ -6,7 +6,7 @@ from PIL import Image , ImageDraw
 from astrotools import *
 from gi.repository import Gtk, Gdk, GdkPixbuf, GObject
 from math import log1p, exp
-import threading, DataViewerClass
+import threading
 
 # =======   Functions Section  ========================================
 
@@ -257,10 +257,17 @@ def on_mnuZoomU(self, menuitem, data=None):
     Zoom(self, 1.25)
               
 def on_mnuMeta(self, menuitem, data=None):
-    #~ metaviewer = DataViewerClass.DataViewer()
-    header = Getmeta(self.fitlist[self.fitlist_n])
-    self.textbuffer.set_text(repr(header))
-    self.dlgmeta.run()
+    if self.fitlist != []:
+        self.metaviewer.setkeys(self.metalist[self.fitlist_n],self.DifKlist)
+    else:
+        self.metaviewer.newrow(["uno1","dos2","va un muy largo texto aquí."])
+    self.metaviewer.show_all()
+    self.metaviewer.set_keep_above(True)
+    self.metaviewer_is_open = True
+    
+    #~ header = Getmeta(self.fitlist[self.fitlist_n])
+    #~ self.textbuffer.set_text(repr(header))
+    #~ self.dlgmeta.run()
               
 def on_mnuZoomD(self, menuitem, data=None):
     if self.ViewZoom < 1.25 : return
@@ -289,27 +296,21 @@ def on_fitchooserdialog_response(self, obj, btnID=1):
             if self.fitlist == []: return
             
             # lista de diccionarios metadata:
-            metalist = list(GetMeta(f) for f in self.fitlist)
+            self.metalist = list(GetMeta(f) for f in self.fitlist)
             #~ # lista de registros variables:
-            #~ diflist = list(set(metalist[0].items()) ^ set(metalist[1].items()))
+            #~ diflist = list(set(self.metalist[0].items()) ^ set(self.metalist[1].items()))
             #~ # lista de claves variables:
-            #~ DifKlist=list(set(list(x[0] for x in diflist)))
-            # iterando:
-            DifKlist = []
+            self.DifKlist = []
             for f in self.fitlist[1:]:
                 meta = GetMeta(f)
-                diflist = list(set(metalist[0].items()) ^ set(meta.items()))
+                diflist = list(set(self.metalist[0].items()) ^ set(meta.items()))
                 difKlist=list(set(list(x[0] for x in diflist)))
-                DifKlist.extend(difKlist)
+                self.DifKlist.extend(difKlist)
             # unique:
-            DifKlist=list(set(DifKlist))
-            print DifKlist
+            self.DifKlist=list(set(self.DifKlist))
+            print self.DifKlist
         
             ShowEqualized(self, self.fitlist[0])
-            #~ for btn in (self.first,self.prev):
-                #~ btn.set_sensitive(False) 
-            #~ for btn in (self.next,self.last):
-                #~ btn.set_sensitive(True) 
     
             def done():
                 self.window.get_window().set_cursor(None)
@@ -324,6 +325,10 @@ def on_fitchooserdialog_response(self, obj, btnID=1):
     if len(self.fitlist) > 1:
         for btn in (self.first, self.next, self.prev, self.last):
             btn.set_property("visible",True)
+            
+        #~ if self.metaviewer_is_open:
+            #~ self.metaviewer.updatekeys(self.metalist[0],self.DifKlist)
+            
     self.first.set_sensitive(False)
     self.prev.set_sensitive(False)
     self.next.set_sensitive(True)
@@ -334,7 +339,6 @@ def on_fitchooserdialog_response(self, obj, btnID=1):
 
 def on_btnFirst_clicked(self,button):
     self.fitlist_n = 0
-    #~ UpdateEqualized(self)
     ShowEqualized(self, self.fitlist[self.fitlist_n], 
                     s0 = self.adjmin.get_property("value")/500,
                     s1 = self.adjmax.get_property("value")/500)
