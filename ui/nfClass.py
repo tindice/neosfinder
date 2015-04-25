@@ -56,6 +56,7 @@ class Gui:
     
     # inicializa variables:
     #~ self.fitminmax = {}
+    self.DifKlist = []
     self.chkmeta0.set_border_width(4)
     self.fitlist = []
     self.metalist = []
@@ -74,6 +75,8 @@ class Gui:
     self.adjmax.set_property("value", self.automax)
     self.window.set_property("default_width", screenWidth)
     self.window.set_property("default_height", screenHeight)
+    self.metaviewer.set_property("default_width", int(screenWidth/3))
+    self.metaviewer.set_property("default_height", int(screenHeight/10))
     self.window.show()
     
 

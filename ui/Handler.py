@@ -11,35 +11,15 @@ import threading
 # =======   Functions Section  ========================================
 
 def ViewDefault(gui):
-    ''' Restores View parameters.
+    ''' Restores View parameters and inicialize Metadata Viewer.
     '''
     gui.ViewZoom = 1
     gui.ViewRotate = 0
     gui.ViewFlipH = False
     gui.ViewFlipV = False
+    
+    gui.metaviewer.hide()
 
-#~ def Zoom(gui, k):
-    #~ gui.ViewZoom *= k
-    #~ print "VZ", gui.ViewZoom
-    #~ if k < 1:
-        #~ pixbuf = GdkPixbuf.Pixbuf.new_from_file('../tmp/tmp.png')
-        #~ Zoom(gui,gui.ViewZoom)
-        #~ return
-    #~ elif k == 1:
-        #~ pixbuf = GdkPixbuf.Pixbuf.new_from_file('../tmp/tmp.png')
-        #~ 
-    #~ pb = gui.imagen.get_property("pixbuf")
-    #~ src_x = (1-1/k)/2 * pb.get_height()
-    #~ src_y = (1-1/k)/2 * pb.get_width()
-    #~ # crops from pixbuf
-    #~ spb = pb.new_subpixbuf(int(src_x), int(src_y),
-              #~ int(pb.get_width()/k) , int(pb.get_height()/k))
-      #~ # amplify
-    #~ pxb = spb.scale_simple(pb.get_width(), pb.get_height(),
-                         #~ GdkPixbuf.InterpType.BILINEAR)
-      #~ # and apply
-    #~ gui.imagen.set_property("pixbuf", pxb)
-#~ 
 def Zoom(gui, k):
     #~ k = 1.25
     gui.ViewZoom *= k
@@ -104,8 +84,9 @@ def ShowEqualized(gui, file, s0=0 , s1=0):
         s1=gui.automax/500
 
     if type(file) == type("str"):    # gets image data from file:
+        print "file",file
         meta, gui.data = Getdata(file)
-        print meta
+        #~ print meta
         if gui.ViewFlipH:
             gui.data = np.fliplr(gui.data)
         if gui.ViewFlipV:
@@ -148,14 +129,23 @@ def ShowEqualized(gui, file, s0=0 , s1=0):
         # draw frame borders:
         h[0,:]=h[99,:]=h[:,0]=h[:,255] = 90 # ligth grey
         gui.arrHistogram = h
+        
+    # update Metadata viewer:
+        if gui.metaviewer.rows == 1:
+            print "cero"
+            gui.metaviewer.setkeys(gui.metalist[gui.fitlist_n],gui.DifKlist)
+            gui.metaviewer.show_all()
+        else:
+            gui.metaviewer.updatekeys(gui.metalist[gui.fitlist_n],gui.DifKlist)
+        
     gui.spinner.stop()
 
     return  
 
-def UpdateEqualized(gui):
-    ShowEqualized(gui, gui.data, 
-                    s0 = gui.adjmin.get_property("value")/500,
-                    s1 = gui.adjmax.get_property("value")/500)
+#~ def UpdateEqualized(gui):
+    #~ ShowEqualized(gui, gui.data, 
+                    #~ s0 = gui.adjmin.get_property("value")/500,
+                    #~ s1 = gui.adjmax.get_property("value")/500)
 
 
 # ====================================================================
@@ -258,11 +248,7 @@ def on_mnuZoomU(self, menuitem, data=None):
               
 def on_mnuMeta(self, menuitem, data=None):
     if self.fitlist != []:
-        self.metaviewer.setkeys(self.metalist[self.fitlist_n],self.DifKlist)
-    else:
-        self.metaviewer.newrow(["uno1","dos2","va un muy largo texto aquí."])
-    self.metaviewer.show_all()
-    self.metaviewer.set_keep_above(True)
+        self.metaviewer.set_visible(not(self.metaviewer.get_visible()))
     self.metaviewer_is_open = True
     
     #~ header = Getmeta(self.fitlist[self.fitlist_n])
@@ -283,17 +269,16 @@ def on_mnuAbrirFits(self, menuitem, data=None):
     self.fitchooser.set_default_response(1)
     self.fitchooser.run()
 
-def on_fitchooserdialog_response(self, obj, btnID=1):
+def on_fitchooserdialog_response(self, obj, btnID=-1):
     if btnID == 1:
-        watch_cursor = Gdk.Cursor(Gdk.CursorType.WATCH)
-        self.window.get_window().set_cursor(watch_cursor)
-        GObject.threads_init()
-        Gdk.threads_init()
+        #~ watch_cursor = Gdk.Cursor(Gdk.CursorType.WATCH)
+        #~ self.window.get_window().set_cursor(watch_cursor)
+        #~ GObject.threads_init()
+        #~ Gdk.threads_init()
         def otrohilo():
-            ViewDefault(self)
-            
             self.fitlist = sorted(self.fitchooser.get_filenames())
             if self.fitlist == []: return
+            ViewDefault(self)
             
             # lista de diccionarios metadata:
             self.metalist = list(GetMeta(f) for f in self.fitlist)
@@ -308,19 +293,21 @@ def on_fitchooserdialog_response(self, obj, btnID=1):
                 self.DifKlist.extend(difKlist)
             # unique:
             self.DifKlist=list(set(self.DifKlist))
-            print self.DifKlist
+            #~ print self.DifKlist
         
             ShowEqualized(self, self.fitlist[0])
     
-            def done():
-                self.window.get_window().set_cursor(None)
-                return False
-
-
-            GObject.idle_add(done)
-            
-        thread = threading.Thread(target=otrohilo)
-        thread.start()
+            #~ def done():
+                #~ self.window.get_window().set_cursor(None)
+                #~ return False
+#~ 
+#~ 
+            #~ GObject.idle_add(done)
+            #~ 
+        #~ thread = threading.Thread(target=otrohilo)
+        #~ thread.start()
+        otrohilo()
+    #~ print "volvi con", self.DifKlist
         
     if len(self.fitlist) > 1:
         for btn in (self.first, self.next, self.prev, self.last):
@@ -329,10 +316,10 @@ def on_fitchooserdialog_response(self, obj, btnID=1):
         #~ if self.metaviewer_is_open:
             #~ self.metaviewer.updatekeys(self.metalist[0],self.DifKlist)
             
-    self.first.set_sensitive(False)
-    self.prev.set_sensitive(False)
-    self.next.set_sensitive(True)
-    self.last.set_sensitive(True)
+        self.first.set_sensitive(False)
+        self.prev.set_sensitive(False)
+        self.next.set_sensitive(True)
+        self.last.set_sensitive(True)
 
     self.fitchooser.hide()
     

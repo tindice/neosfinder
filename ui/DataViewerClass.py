@@ -6,43 +6,59 @@ from gi.repository import Gtk
 class DataViewer(Gtk.Window):
   def __init__(self):
     # Create a new window
-    Gtk.Window.__init__(self, title="Metadatos")
+    Gtk.Window.__init__(self, title="Metadatos",deletable=False,type=0)
     #~ self.set_border_width(20)
+    self.set_keep_above(True)
+
     
     # Create a grid
-    self.grid = Gtk.Grid()
-    self.grid.props.column_spacing = 10
+    self.grid = Gtk.Grid(row_homogeneous=False)
+    self.grid.props.column_spacing = 6
     
     # Put the grid in the main window
     self.add(self.grid)
-    self.rows = 0
+    btn = Gtk.Button(label="campos variables")
+    self.grid.attach(btn, 0, 0, 1, 1)  
+    btn = Gtk.Button(label="valor")
+    self.grid.attach(btn, 1, 0, 1, 1)  
+    btn = Gtk.Button(label="comentario")
+    self.grid.attach(btn, 2, 0, 1, 1)  
+    self.rows = 1
     
-  def newrow(self,list):
+  def newrow(self,txtlist):
         lbl = Gtk.Label()
-        lbl.set_markup("<b>%s</b>"%list[0])
+        lbl.set_markup("<b>%s</b>"%txtlist[0])
         self.grid.attach(lbl, 0, self.rows, 1, 1)  
-        lbl = Gtk.Label(list[1])
+        lbl = Gtk.Label(txtlist[1])
         self.grid.attach(lbl, 1, self.rows, 1, 1) 
         lbl = Gtk.Label()
-        lbl.set_markup("<small>%s</small>"%list[2])
+        lbl.set_markup("<small>%s</small>"%txtlist[2])
+        lbl.set_line_wrap(True)
         self.grid.attach(lbl, 2, self.rows, 1, 1) 
         self.rows += 1
 
-  def changetext(self,row,list):
-        self.grid.get_child_at(1,row).set_label(list[0])
-        self.grid.get_child_at(2,row).set_markup("<small>%s</small>"%list[1])
+  def newline(self):
+        lbl = Gtk.Label(20*"_")
+        self.grid.attach(lbl, 0, self.rows, 3, 1)  
+        self.rows += 1
+
+  def changetext(self,row,txtlist):
+        print "row,txt",row,txtlist
+        lbl = self.grid.get_child_at(1,row)
+        lbl.set_label(txtlist[0])
+        lbl = self.grid.get_child_at(2,row)
+        lbl.set_markup("<small>%s</small>"%txtlist[1])
         
   def updatekeys(self,metadict,keylist):
-        print "upd", metadict[0], keylist
-        n = 0
+        n = 1
         for k in keylist:
-            changetext(n,[k,metadict[k][0],metadict[k][1]])
+            self.changetext(n,[str(metadict[k]),metadict.comments[k]])
             n += 1
             
   def setkeys(self,metadict,keylist):
-        print "upd", metadict[0], keylist
         for k in keylist:
-            newrow([k,metadict[k][0],metadict[k][1]])
+            self.newrow([k,str(metadict[k]),metadict.comments[k]])
+        self.newline()
 
 def main():
     win = DataViewer()
