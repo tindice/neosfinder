@@ -25,27 +25,6 @@ def Array2rgb(array,circles=[],texts=[]):
         ImageDraw.Draw(im).text(xy, string, fill=color)
     return im
 
-#~ def Putcross(array,refs,t=10):
-    #~ ''' Put crosses on the image array. ( Cross size= 2*t+1 )
-        #~ Uses the list refs=[(x0,y0),...,(xn,yn)] to center each cross.
-        #~ Returns the modified array '''
-    #~ a = array.astype(np.uint8)
-    #~ # Cross array definition
-    #~ lum = np.max(array)
-    #~ cros = np.zeros((2*t+1,2*t+1),dtype=np.uint8)
-    #~ cros[:t-3,t] = cros[t+4:,t] = lum
-    #~ cros[t,:t-3] = cros[t,t+4:] = lum
-    #~ for pt in range(0,len(refs)):
-        #~ ptx = refs[pt][0]
-        #~ pty = refs[pt][1]
-        #~ if (ptx>=t and ptx<a.shape[1]-t) and (pty>=t and pty<a.shape[0]-t):
-            #~ if a[pty,ptx] > 150:    # luminosidad digna
-                #~ a[pty-t:pty+t+1,ptx-t:ptx+t+1] = np.maximum(a[pty-t:pty+t+1,ptx-t:ptx+t+1],cros)
-    #~ return a
-    
-def update_progress(progress, total):
-    print '\r[{0}] {1}%'.format('#'*(progress/5)+" "*(40-progress/5), progress*100/total),
-
 def Pause(msg="Enter to cont, Ctrl-C to exit: "):
     raw_input(msg)
 
@@ -63,18 +42,6 @@ def Checkfits(path, filelist, mean_criteria=(0.5,10), uprogress=True, log=False)
     log = open(path+"exclude.log", "w")
     log.write(str(exclude)+"\n")
     log.close()
-
-    #~ if log:
-        #~ checklog = open("./check.log", "w")
-        #~ checklog.write("File%s\tmean\tstd\tvar\n" %(spc))
-        #~ spc = " " * (len(filelist[0]) - 4)
-        #~ cant = 0
-        #~ for f in filelist:
-            #~ cant += 1
-            #~ if uprogress: update_progress(cant,len(filelist))
-            #~ checklog.write("%s\t%i\t%i\t%i\n" %(f,int(np.mean(Getdata(path+f))),int(np.std(Getdata(path+f))),int(np.var(Getdata(path+f)))))
-        #~ checklog.close()
-        #~ if uprogress: print "\n"
     
     return fitlist, exclude
 
@@ -133,7 +100,6 @@ def Fit2png(data,s0, s1):
     # auto equalization: s0=0.01  s1=0.0323
     # draft equalization: s0=0.0  s1=0.174
     amin, amax = np.amin(data), np.amax(data)
-    #~ print "at2>", amin, amax
     delta = amax - amin
     i0 = amin + s0 * delta
     i1 = amin + s1 * delta

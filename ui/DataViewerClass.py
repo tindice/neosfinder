@@ -6,17 +6,22 @@ from gi.repository import Gtk
 class DataViewer(Gtk.Window):
   def __init__(self):
     # Create a new window
-    Gtk.Window.__init__(self, title="Metadatos",deletable=False,type=0)
+    Gtk.Window.__init__(self, title="Metadatos",deletable=False)
     #~ self.set_border_width(20)
     self.set_keep_above(True)
-
+    self.connect("delete_event", self.hideme)
+    
+    # Create a scrollwindow
+    self.scroll = Gtk.ScrolledWindow(shadow_type="in")
+    # Put it in the main window
+    self.add(self.scroll)
     
     # Create a grid
     self.grid = Gtk.Grid(row_homogeneous=False)
     self.grid.props.column_spacing = 6
     
-    # Put the grid in the main window
-    self.add(self.grid)
+    # Put the grid in the scroll
+    self.scroll.add(self.grid)
     btn = Gtk.Button(label="campos variables")
     self.grid.attach(btn, 0, 0, 1, 1)  
     btn = Gtk.Button(label="valor")
@@ -25,6 +30,10 @@ class DataViewer(Gtk.Window):
     self.grid.attach(btn, 2, 0, 1, 1)  
     self.rows = 1
     
+  def hideme(self, *args):
+      self.set_visible(False)
+      return True
+          
   def newrow(self,txtlist):
         lbl = Gtk.Label()
         lbl.set_markup("<b>%s</b>"%txtlist[0])

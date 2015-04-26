@@ -248,7 +248,8 @@ def on_mnuZoomU(self, menuitem, data=None):
               
 def on_mnuMeta(self, menuitem, data=None):
     if self.fitlist != []:
-        self.metaviewer.set_visible(not(self.metaviewer.get_visible()))
+        #~ self.metaviewer.visible = False
+        self.metaviewer.set_visible(not self.metaviewer.get_visible())
     self.metaviewer_is_open = True
     
     #~ header = Getmeta(self.fitlist[self.fitlist_n])
