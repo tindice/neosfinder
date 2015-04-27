@@ -351,12 +351,12 @@
                     </child>
                     <child>
                       <object class="GtkImageMenuItem" id="imagemenuitem7">
-                        <property name="label">. . .</property>
+                        <property name="label">Alinear</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="image">image8</property>
                         <property name="use_stock">False</property>
-                        <signal name="activate" handler="on_notyet" swapped="no"/>
+                        <signal name="activate" handler="on_mnuAlinear" swapped="no"/>
                       </object>
                     </child>
                     <child>

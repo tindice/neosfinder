@@ -23,7 +23,7 @@ def ViewDefault(gui):
 def Zoom(gui, k):
     #~ k = 1.25
     gui.ViewZoom *= k
-    print "VZ", gui.ViewZoom
+    #~ print "VZ", gui.ViewZoom
     if k == 1:
         pxb = GdkPixbuf.Pixbuf.new_from_file('../tmp/tmp.png')
     elif k > 1:
@@ -78,13 +78,13 @@ def ShowEqualized(gui, file, s0=0 , s1=0):
     ''' accepts "file" as string or as np.array
     '''
     gui.spinner.start()
-    screenHeight = gui.window.get_property("default_height")
+    #~ screenHeight = gui.window.get_property("default_height")
     if s0 == 0:
         s0=gui.automin/500
         s1=gui.automax/500
 
     if type(file) == type("str"):    # gets image data from file:
-        print "file",file
+        #~ print "file",file
         meta, gui.data = Getdata(file)
         #~ print meta
         if gui.ViewFlipH:
@@ -101,7 +101,7 @@ def ShowEqualized(gui, file, s0=0 , s1=0):
             gui.data = gui.data[y0:y1, x0:x1]  # crop array
 
     png = Fit2png(gui.data,s0, s1)
-    k = 0.65 * screenHeight / png.shape[0]
+    k = 0.65 * gui.window.get_property("default_height") / png.shape[0]
     size = tuple(x*k for x in png.shape)
     im = Image.fromarray(png)
     im.thumbnail((size[1],size[0]), Image.BICUBIC)
@@ -132,7 +132,7 @@ def ShowEqualized(gui, file, s0=0 , s1=0):
         
     # update Metadata viewer:
         if gui.metaviewer.rows == 1:
-            print "cero"
+            #~ print "cero"
             gui.metaviewer.setkeys(gui.metalist[gui.fitlist_n],gui.DifKlist)
             gui.metaviewer.show_all()
         else:
@@ -270,6 +270,52 @@ def on_mnuAbrirFits(self, menuitem, data=None):
     self.fitchooser.set_default_response(1)
     self.fitchooser.run()
 
+def on_mnuAlinear(self, menuitem, data=None):
+    Align = {}  # Diccionario "filename : (dy,dx)"-
+    for f in self.fitlist:
+        _, data = Getdata(f)
+        png = Fit2png(data, s0 = self.adjmin.get_property("value")/500,
+                            s1 = self.adjmax.get_property("value")/500)
+        if f == self.fitlist[0]:
+            # Uso primera imagen como base para alinear:
+            refs1 = FindRefs(data)
+            #~ draft1 = Fit2png(data,i0=1,i1=1,sharp=1) # draft equalization
+            pngsum = png.copy()
+            #~ meta1 = meta
+            #~ obs = meta1[1]+"_"+meta1[0][:10]
+            png1 = png.copy()
+            continue
+            
+        if f in Align.keys():
+            tn = Align[f]
+        else:
+            refs = FindRefs(data)
+            tn = ChooseBestAlign(png1,png,refs1-refs)
+            Align[f] = tuple(tn)
+        #  Superponer imágenes :
+        pngsum = np.maximum(Shift(png,dy=tn[0],dx=tn[1]), pngsum)
+    # Guardo Align para el futuro
+    self.Align = Align
+    # mostrar superposicion:
+    k = 0.65 * self.window.get_property("default_height") / pngsum.shape[0]
+    size = tuple(x*k for x in pngsum.shape)
+    im = Image.fromarray(pngsum)
+    im.thumbnail((size[1],size[0]), Image.BICUBIC)
+    
+    #-----------
+    redgreen = im.copy()
+    blue = Image.fromarray(png1)
+    blue.thumbnail((size[1],size[0]), Image.BICUBIC)
+    im = Image.merge("RGB", (redgreen,redgreen,blue))
+    #-----------
+
+    arr = np.array(im.getdata()).flatten()
+    im.save("../tmp/tmp.png")
+    pixbuf = GdkPixbuf.Pixbuf.new_from_file('../tmp/tmp.png')
+    self.imagen.set_property("pixbuf", pixbuf)
+    self.info.set_property("label","Todas alineadas")
+
+    
 def on_fitchooserdialog_response(self, obj, btnID=-1):
     if btnID == 1:
         #~ watch_cursor = Gdk.Cursor(Gdk.CursorType.WATCH)

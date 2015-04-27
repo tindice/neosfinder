@@ -52,7 +52,7 @@ class DataViewer(Gtk.Window):
         self.rows += 1
 
   def changetext(self,row,txtlist):
-        print "row,txt",row,txtlist
+        #~ print "row,txt",row,txtlist
         lbl = self.grid.get_child_at(1,row)
         lbl.set_label(txtlist[0])
         lbl = self.grid.get_child_at(2,row)
