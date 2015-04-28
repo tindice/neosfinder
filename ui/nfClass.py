@@ -45,6 +45,7 @@ class Gui:
     self.chkmeta0 = self.builder.get_object("chkMeta0")
     self.textbuffer = self.builder.get_object("textbuffer1")
     self.spinner = self.builder.get_object("spinner3")
+    self.frame = self.builder.get_object("frame1")
     self.metaviewer = dv.DataViewer()
     #~ self.window.add(self.metaviewer)
     
@@ -53,11 +54,12 @@ class Gui:
     #~ self.window.add_accel_group(self.my_accelerators)
     #~ self.entry = self.builder.get_object("entry1")
     #~ self.add_accelerator(self.entry, "<Control>+", signal="on_mnuZoom")
+    self.initialize()
     
+  def initialize(self, obj=None):  
     # inicializa variables:
     #~ self.fitminmax = {}
     self.DifKlist = []
-    self.metaviewer_is_open = False
     self.chkmeta0.set_border_width(4)
     self.fitlist = []
     self.metalist = []

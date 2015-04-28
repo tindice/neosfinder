@@ -10,15 +10,15 @@ import threading
 
 # =======   Functions Section  ========================================
 
-def ViewDefault(gui):
-    ''' Restores View parameters and inicialize Metadata Viewer.
-    '''
-    gui.ViewZoom = 1
-    gui.ViewRotate = 0
-    gui.ViewFlipH = False
-    gui.ViewFlipV = False
-    
-    gui.metaviewer.hide()
+#~ def ViewDefault(gui):
+    #~ ''' Restores View parameters and inicialize Metadata Viewer.
+    #~ '''
+    #~ gui.ViewZoom = 1
+    #~ gui.ViewRotate = 0
+    #~ gui.ViewFlipH = False
+    #~ gui.ViewFlipV = False
+    #~ 
+    #~ gui.metaviewer.hide()
 
 def Zoom(gui, k):
     #~ k = 1.25
@@ -78,6 +78,8 @@ def ShowEqualized(gui, file, s0=0 , s1=0):
     ''' accepts "file" as string or as np.array
     '''
     gui.spinner.start()
+    # toogle   GTK_SHADOW_ETCHED_OUT / GTK_SHADOW_ETCHED_IN
+    gui.frame.set_shadow_type(3+gui.frame.get_shadow_type()%2)
     #~ screenHeight = gui.window.get_property("default_height")
     if s0 == 0:
         s0=gui.automin/500
@@ -250,14 +252,8 @@ def on_mnuZoomU(self, menuitem, data=None):
               
 def on_mnuMeta(self, menuitem, data=None):
     if self.fitlist != []:
-        #~ self.metaviewer.visible = False
         self.metaviewer.set_visible(not self.metaviewer.get_visible())
-    self.metaviewer_is_open = True
     
-    #~ header = Getmeta(self.fitlist[self.fitlist_n])
-    #~ self.textbuffer.set_text(repr(header))
-    #~ self.dlgmeta.run()
-              
 def on_mnuZoomD(self, menuitem, data=None):
     if self.ViewZoom < 1.25 : return
     Zoom(self, 1/1.25)
@@ -320,6 +316,7 @@ def on_mnuAlinear(self, menuitem, data=None):
     
 def on_fitchooserdialog_response(self, obj, btnID=-1):
     if btnID == 1:
+        self.initialize()
         #~ watch_cursor = Gdk.Cursor(Gdk.CursorType.WATCH)
         #~ self.window.get_window().set_cursor(watch_cursor)
         #~ GObject.threads_init()
@@ -327,14 +324,14 @@ def on_fitchooserdialog_response(self, obj, btnID=-1):
         def otrohilo():
             self.fitlist = sorted(self.fitchooser.get_filenames())
             if self.fitlist == []: return
-            ViewDefault(self)
+            #~ ViewDefault(self)
             
             # lista de diccionarios metadata:
             self.metalist = list(GetMeta(f) for f in self.fitlist)
             #~ # lista de registros variables:
             #~ diflist = list(set(self.metalist[0].items()) ^ set(self.metalist[1].items()))
             #~ # lista de claves variables:
-            self.DifKlist = []
+            self.DifKlist = ["seed"]
             for f in self.fitlist[1:]:
                 meta = GetMeta(f)
                 diflist = list(set(self.metalist[0].items()) ^ set(meta.items()))
@@ -342,11 +339,14 @@ def on_fitchooserdialog_response(self, obj, btnID=-1):
                 self.DifKlist.extend(difKlist)
             # unique:
             self.DifKlist=list(set(self.DifKlist))
-            #~ print self.DifKlist
+            #~ self.DifKlist.remove("seed")
+            print "DifKlist", self.DifKlist
             
-            if self.metaviewer_is_open:
-                self.metaviewer.close()
-                self.metaviewer = dv.DataViewer()
+            self.metaviewer.cleanme() # reiniciarlo
+            #~ self.metaviewer.close()
+            #~ self.metaviewer = dv.DataViewer()
+                
+            print self.fitlist
             ShowEqualized(self, self.fitlist[0])
     
             #~ def done():
@@ -364,9 +364,6 @@ def on_fitchooserdialog_response(self, obj, btnID=-1):
     if len(self.fitlist) > 1:
         for btn in (self.first, self.next, self.prev, self.last):
             btn.set_property("visible",True)
-            
-        #~ if self.metaviewer_is_open:
-            #~ self.metaviewer.updatekeys(self.metalist[0],self.DifKlist)
             
         self.first.set_sensitive(False)
         self.prev.set_sensitive(False)

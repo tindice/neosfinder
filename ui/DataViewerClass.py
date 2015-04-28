@@ -34,6 +34,12 @@ class DataViewer(Gtk.Window):
       self.set_visible(False)
       return True
           
+  def cleanme(self, *args):
+      while self.rows > 1:
+          self.grid.remove_row(1)
+          self.rows -= 1
+      return True
+          
   def newrow(self,txtlist):
         lbl = Gtk.Label()
         lbl.set_markup("<b>%s</b>"%txtlist[0])
@@ -45,11 +51,13 @@ class DataViewer(Gtk.Window):
         #~ lbl.set_line_wrap(True)
         self.grid.attach(lbl, 2, self.rows, 1, 1) 
         self.rows += 1
+        return True
 
   def newline(self):
         lbl = Gtk.Label(20*"_")
         self.grid.attach(lbl, 0, self.rows, 3, 1)  
         self.rows += 1
+        return True
 
   def changetext(self,row,txtlist):
         #~ print "row,txt",row,txtlist
@@ -63,11 +71,14 @@ class DataViewer(Gtk.Window):
         for k in keylist:
             self.changetext(n,[str(metadict[k]),metadict.comments[k]])
             n += 1
+        return True
             
   def setkeys(self,metadict,keylist):
+        print "setkeys", keylist
         for k in keylist:
             self.newrow([k,str(metadict[k]),metadict.comments[k]])
         self.newline()
+        return True
 
 def main():
     win = DataViewer()
