@@ -57,6 +57,7 @@ class Gui:
     # inicializa variables:
     #~ self.fitminmax = {}
     self.DifKlist = []
+    self.metaviewer_is_open = False
     self.chkmeta0.set_border_width(4)
     self.fitlist = []
     self.metalist = []

@@ -117,7 +117,9 @@ def ShowEqualized(gui, file, s0=0 , s1=0):
     gui.imagen.set_property("pixbuf", pixbuf)
     if type(file) == type("str"):
         idx = file.rfind("/")
-        gui.info.set_property("label","%s\t UTC=%s"%(file[idx+1:],meta[0][-8:]))
+        gui.window.set_property("title",
+            "Neosfinder   -   ( %s )\t   %i de %i."%(file[idx+1:],
+             1+gui.fitlist_n, len(gui.fitlist)))
     
         # calc arrHistogram:
         v,_ = np.histogram(gui.data,range=(0,65500),bins=256)
@@ -313,7 +315,7 @@ def on_mnuAlinear(self, menuitem, data=None):
     im.save("../tmp/tmp.png")
     pixbuf = GdkPixbuf.Pixbuf.new_from_file('../tmp/tmp.png')
     self.imagen.set_property("pixbuf", pixbuf)
-    self.info.set_property("label","Todas alineadas")
+    self.window.set_property("title","Neosfinder - ( Todas alineadas )")
 
     
 def on_fitchooserdialog_response(self, obj, btnID=-1):
@@ -341,7 +343,10 @@ def on_fitchooserdialog_response(self, obj, btnID=-1):
             # unique:
             self.DifKlist=list(set(self.DifKlist))
             #~ print self.DifKlist
-        
+            
+            if self.metaviewer_is_open:
+                self.metaviewer.close()
+                self.metaviewer = dv.DataViewer()
             ShowEqualized(self, self.fitlist[0])
     
             #~ def done():
@@ -354,7 +359,7 @@ def on_fitchooserdialog_response(self, obj, btnID=-1):
         #~ thread = threading.Thread(target=otrohilo)
         #~ thread.start()
         otrohilo()
-    #~ print "volvi con", self.DifKlist
+    #~ print "volvi con", self.fitlist_n, self.fitlist
         
     if len(self.fitlist) > 1:
         for btn in (self.first, self.next, self.prev, self.last):

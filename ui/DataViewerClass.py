@@ -42,7 +42,7 @@ class DataViewer(Gtk.Window):
         self.grid.attach(lbl, 1, self.rows, 1, 1) 
         lbl = Gtk.Label()
         lbl.set_markup("<small>%s</small>"%txtlist[2])
-        lbl.set_line_wrap(True)
+        #~ lbl.set_line_wrap(True)
         self.grid.attach(lbl, 2, self.rows, 1, 1) 
         self.rows += 1
 
