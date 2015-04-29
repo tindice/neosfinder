@@ -103,7 +103,7 @@ def ShowEqualized(gui, file, s0=0 , s1=0):
             gui.data = gui.data[y0:y1, x0:x1]  # crop array
 
     png = Fit2png(gui.data,s0, s1)
-    k = 0.65 * gui.window.get_property("default_height") / png.shape[0]
+    k = 0.75 * gui.window.get_property("default_height") / png.shape[0]
     size = tuple(x*k for x in png.shape)
     im = Image.fromarray(png)
     im.thumbnail((size[1],size[0]), Image.BICUBIC)
@@ -137,7 +137,7 @@ def ShowEqualized(gui, file, s0=0 , s1=0):
     # update Metadata viewer:
         if gui.metaviewer.rows == 1:
             #~ print "cero"
-            gui.metaviewer.setkeys(gui.metalist[gui.fitlist_n],gui.DifKlist)
+            gui.metaviewer.setkeys(gui.metalist[gui.fitlist_n],gui.DifKlist,gui.ConKlist)
             gui.metaviewer.show_all()
         else:
             gui.metaviewer.updatekeys(gui.metalist[gui.fitlist_n],gui.DifKlist)
@@ -295,7 +295,7 @@ def on_mnuAlinear(self, menuitem, data=None):
     # Guardo Align para el futuro
     self.Align = Align
     # mostrar superposicion:
-    k = 0.65 * self.window.get_property("default_height") / pngsum.shape[0]
+    k = 0.75 * self.window.get_property("default_height") / pngsum.shape[0]
     size = tuple(x*k for x in pngsum.shape)
     im = Image.fromarray(pngsum)
     im.thumbnail((size[1],size[0]), Image.BICUBIC)
@@ -326,27 +326,31 @@ def on_fitchooserdialog_response(self, obj, btnID=-1):
             if self.fitlist == []: return
             #~ ViewDefault(self)
             
+            self.metaviewer.cleanme() # reiniciarlo
             # lista de diccionarios metadata:
             self.metalist = list(GetMeta(f) for f in self.fitlist)
             #~ # lista de registros variables:
             #~ diflist = list(set(self.metalist[0].items()) ^ set(self.metalist[1].items()))
-            #~ # lista de claves variables:
-            self.DifKlist = ["seed"]
-            for f in self.fitlist[1:]:
-                meta = GetMeta(f)
-                diflist = list(set(self.metalist[0].items()) ^ set(meta.items()))
-                difKlist=list(set(list(x[0] for x in diflist)))
-                self.DifKlist.extend(difKlist)
-            # unique:
-            self.DifKlist=list(set(self.DifKlist))
-            #~ self.DifKlist.remove("seed")
+            #~ self.DifKlist = []  
+            self.ConKlist = list(k for k in self.metalist[0].keys())
+
+            if len(self.fitlist) > 1:
+                for f in self.fitlist[1:]:
+                    meta = GetMeta(f)
+                    diflist = list(set(self.metalist[0].items()) ^ set(meta.items()))
+                    difKlist=list(set(list(x[0] for x in diflist)))
+                    self.DifKlist.extend(difKlist)
+                self.DifKlist=list(set(self.DifKlist))  # lista de claves variable unique
+                for key in self.DifKlist:
+                    self.ConKlist.remove(key)
+    
             print "DifKlist", self.DifKlist
+            print "ConKlist", self.ConKlist
             
-            self.metaviewer.cleanme() # reiniciarlo
             #~ self.metaviewer.close()
             #~ self.metaviewer = dv.DataViewer()
                 
-            print self.fitlist
+            #~ print self.fitlist
             ShowEqualized(self, self.fitlist[0])
     
             #~ def done():

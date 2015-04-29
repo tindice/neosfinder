@@ -22,12 +22,13 @@ class DataViewer(Gtk.Window):
     
     # Put the grid in the scroll
     self.scroll.add(self.grid)
-    btn = Gtk.Button(label="campos variables")
-    self.grid.attach(btn, 0, 0, 1, 1)  
-    btn = Gtk.Button(label="valor")
-    self.grid.attach(btn, 1, 0, 1, 1)  
-    btn = Gtk.Button(label="comentario")
-    self.grid.attach(btn, 2, 0, 1, 1)  
+    #~ btn = Gtk.Button(label="campos variables")
+    #~ lbl = Gtk.Label(10*"_"+"campos variables"+10*"_")
+    #~ self.grid.attach(btn, 0, 0, 3, 1)  
+    #~ btn = Gtk.Button(label="valor")
+    #~ self.grid.attach(btn, 1, 0, 1, 1)  
+    #~ btn = Gtk.Button(label="comentario")
+    #~ self.grid.attach(btn, 2, 0, 1, 1)  
     self.rows = 1
     
   def hideme(self, *args):
@@ -53,31 +54,34 @@ class DataViewer(Gtk.Window):
         self.rows += 1
         return True
 
-  def newline(self):
-        lbl = Gtk.Label(20*"_")
+  def newline(self, txt=""):
+        lbl = Gtk.Label(20*"_"+txt+20*"_")
         self.grid.attach(lbl, 0, self.rows, 3, 1)  
         self.rows += 1
         return True
 
-  def changetext(self,row,txtlist):
-        #~ print "row,txt",row,txtlist
+  def changetext(self,row,txt):
         lbl = self.grid.get_child_at(1,row)
-        lbl.set_label(txtlist[0])
-        lbl = self.grid.get_child_at(2,row)
-        lbl.set_markup("<small>%s</small>"%txtlist[1])
+        lbl.set_label(txt)
+        return True
         
   def updatekeys(self,metadict,keylist):
-        n = 1
+        print "upd", keylist
+        n = 2
         for k in keylist:
-            self.changetext(n,[str(metadict[k]),metadict.comments[k]])
+            print n, k, str(metadict[k])
+            self.changetext(n,str(metadict[k]))
             n += 1
         return True
             
-  def setkeys(self,metadict,keylist):
-        print "setkeys", keylist
-        for k in keylist:
+  def setkeys(self,metadict,varkeys,conskeys):
+        if varkeys != []:
+            self.newline("Variables:")
+            for k in varkeys:
+                self.newrow([k,str(metadict[k]),metadict.comments[k]])
+            self.newline("Constantes:")
+        for k in conskeys:
             self.newrow([k,str(metadict[k]),metadict.comments[k]])
-        self.newline()
         return True
 
 def main():
