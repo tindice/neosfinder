@@ -275,8 +275,11 @@ def on_mnuAbrirFits(self, menuitem, data=None):
     self.fitchooser.run()
 
 def on_mnuAlinear(self, menuitem, data=None):
-    pass
-    
+    if self.fitlist_n == 0:
+        #~ self.dlgmsg.text = "La primera imagen ya está alineada."
+        #~ self.dlgmsg.run()
+        Gtk.MessageDialog(text = "La primera imagen ya está alineada.").run()
+        
 def on_mnuAlinearTodas(self, menuitem, data=None):
     Align = {}  # Diccionario "filename : (dy,dx)"-
     for f in self.fitlist:
