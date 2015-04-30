@@ -66,10 +66,10 @@ class DataViewer(Gtk.Window):
         return True
         
   def updatekeys(self,metadict,keylist):
-        print "upd", keylist
+        #~ print "upd", keylist
         n = 2
         for k in keylist:
-            print n, k, str(metadict[k])
+            #~ print n, k, str(metadict[k])
             self.changetext(n,str(metadict[k]))
             n += 1
         return True

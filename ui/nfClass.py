@@ -31,6 +31,7 @@ class Gui:
     self.info = self.builder.get_object("infolbl")
     self.adjmin = self.builder.get_object("adjmin")
     self.adjmax = self.builder.get_object("adjmax")
+    self.adjselfit = self.builder.get_object("adjfitlist")
     self.chkauto = self.builder.get_object("chkAuto")
     self.prev = self.builder.get_object("btnPrev")
     self.first = self.builder.get_object("btnFirst")
@@ -46,6 +47,7 @@ class Gui:
     self.textbuffer = self.builder.get_object("textbuffer1")
     self.spinner = self.builder.get_object("spinner3")
     self.frame = self.builder.get_object("frame1")
+    self.selfit = self.builder.get_object("sclSelFit")
     self.metaviewer = dv.DataViewer()
     #~ self.window.add(self.metaviewer)
     
@@ -72,8 +74,10 @@ class Gui:
     self.ViewFlipV = False
     self.ViewRotate = 0
     self.ViewZoom = 1
-
+    self.align = {}
+    
     # asigna valores:
+    self.adjselfit.set_property("lower", 1)
     self.adjmin.set_property("value", self.automin)
     self.cmbFile.set_active(0)
     self.adjmax.set_property("value", self.automax)
