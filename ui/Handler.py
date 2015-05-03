@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import numpy as np
-from PIL import Image , ImageDraw
+from PIL import Image , ImageDraw, ImageChops
 from astrotools import *
 from gi.repository import Gtk, Gdk, GdkPixbuf, GObject
 from math import log1p, exp
@@ -74,9 +74,16 @@ def UpdateSigmoid(gui):
     pixbuf = GdkPixbuf.Pixbuf.new_from_file('../tmp/tmp.png')
     gui.histo.set_property("pixbuf", pixbuf)
 
+def ShowImage(gui, im):
+    im.save("../tmp/tmp.png")
+    pixbuf = GdkPixbuf.Pixbuf.new_from_file('../tmp/tmp.png')
+    gui.imagen.set_property("pixbuf", pixbuf)
+    return True
+
 def ShowEqualized(gui, file, s0=0 , s1=0):
     ''' accepts "file" as string or as np.array
     '''
+    print "3"
     gui.spinner.start()
     # toogle   GTK_SHADOW_ETCHED_OUT / GTK_SHADOW_ETCHED_IN
     gui.frame.set_shadow_type(3+gui.frame.get_shadow_type()%2)
@@ -114,6 +121,9 @@ def ShowEqualized(gui, file, s0=0 , s1=0):
     arr = np.array(im.getdata()).flatten()
 # TODO: 
     im.save("../tmp/tmp.png")
+    if file == gui.fitlist[0]: # si primera imagen,
+        gui.im_0 = im           # guardar
+    gui.im_actual = im
     pixbuf = GdkPixbuf.Pixbuf.new_from_file('../tmp/tmp.png')
     #~ im = im.convert("RGB")
     #~ pixbuf = GdkPixbuf.Pixbuf.new_from_data(arr,
@@ -122,6 +132,7 @@ def ShowEqualized(gui, file, s0=0 , s1=0):
     #~ # resize slider:
     gui.adjselfit.set_property("upper", len(gui.fitlist))
     # show imge: 
+    print "4"
     gui.imagen.set_property("pixbuf", pixbuf)
     if type(file) == type("str"):
         idx = file.rfind("/")
@@ -150,12 +161,14 @@ def ShowEqualized(gui, file, s0=0 , s1=0):
         
     gui.spinner.stop()
 
-    return  
+    return  True
 
-#~ def UpdateEqualized(gui):
-    #~ ShowEqualized(gui, gui.data, 
-                    #~ s0 = gui.adjmin.get_property("value")/500,
-                    #~ s1 = gui.adjmax.get_property("value")/500)
+def ShowAlign(gui, dx=0, dy=0):
+    im1 = ImageChops.offset(gui.im_actual,dx,dy)
+    im = Image.merge("RGB", (gui.im_0,im1,gui.im_0))
+    ShowImage(gui,im)
+    return True
+    
 
 
 # ====================================================================
@@ -201,6 +214,13 @@ def on_dlgEqualize_response(self, widget, btnID=None):
                             s1 = self.adjmax.get_property("value")/500)
     else:
         widget.hide()
+        
+def on_dlgAlinear_response(self, widget=None, btnID=None):
+    if btnID == 1:   # Apply button pressed.
+        ShowAlign(self, dx=int(self.adjdx.get_property("value")),
+                        dy=int(self.adjdy.get_property("value")))
+    else:
+        self.dlgalinear.hide()
         
 def on_chkAuto_toggled(self, menuitem, data=None):
     if self.chkauto.get_active():
@@ -276,9 +296,15 @@ def on_mnuAbrirFits(self, menuitem, data=None):
 
 def on_mnuAlinear(self, menuitem, data=None):
     if self.fitlist_n == 0:
-        #~ self.dlgmsg.text = "La primera imagen ya está alineada."
-        #~ self.dlgmsg.run()
         Gtk.MessageDialog(text = "La primera imagen ya está alineada.").run()
+        return True
+    dx, dy = 0, 0
+    if self.fitlist[self.fitlist_n] in self.align.keys():
+        dx, dy = self.align[self.fitlist[self.fitlist_n]]
+        self.adjdx.set_property("value", dx)
+        self.adjdy.set_property("value", dy)
+    on_dlgAlinear_response(self,btnID=1)
+    self.dlgalinear.run()
         
 def on_mnuAlinearTodas(self, menuitem, data=None):
     Align = {}  # Diccionario "filename : (dy,dx)"-
@@ -320,24 +346,24 @@ def on_mnuAlinearTodas(self, menuitem, data=None):
     im = Image.merge("RGB", (redgreen,redgreen,blue))
     #-----------
 
-    arr = np.array(im.getdata()).flatten()
-    im.save("../tmp/tmp.png")
-    pixbuf = GdkPixbuf.Pixbuf.new_from_file('../tmp/tmp.png')
-    self.imagen.set_property("pixbuf", pixbuf)
+    #~ arr = np.array(im.getdata()).flatten()
+    ShowImage(self,im)
     self.window.set_property("title","Neosfinder - ( Todas alineadas )")
 
     
 def on_fitchooserdialog_response(self, obj, btnID=-1):
     if btnID == 1:
+        print "1"
         self.initialize()
+        print "2"
         #~ watch_cursor = Gdk.Cursor(Gdk.CursorType.WATCH)
         #~ self.window.get_window().set_cursor(watch_cursor)
         #~ GObject.threads_init()
         #~ Gdk.threads_init()
         def otrohilo():
             self.fitlist = sorted(self.fitchooser.get_filenames())
+            print self.fitlist
             if self.fitlist == []: return
-            #~ ViewDefault(self)
             
             self.metaviewer.cleanme() # reiniciarlo
             # lista de diccionarios metadata:
@@ -451,4 +477,15 @@ def on_adjfitlist_value_changed(self,widget,data=None):
                     s0 = self.adjmin.get_property("value")/500,
                     s1 = self.adjmax.get_property("value")/500)
 
+def on_adjDx_value_changed(self,widget,data=None):
+    pass
+    
+def on_adjDy_value_changed(self,widget,data=None):
+    pass
+    
+def on_adjZoom_value_changed(self,widget,data=None):
+    pass
+    
+def  on_chkAlignAuto_toggled(self,widget,data=None):
+    pass
     

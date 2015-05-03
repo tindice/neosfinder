@@ -48,6 +48,9 @@ class Gui:
     self.spinner = self.builder.get_object("spinner3")
     self.frame = self.builder.get_object("frame1")
     self.selfit = self.builder.get_object("sclSelFit")
+    self.dlgalinear = self.builder.get_object("dlgAlinear")
+    self.adjdx = self.builder.get_object("adjDx")
+    self.adjdy = self.builder.get_object("adjDy")
     self.metaviewer = dv.DataViewer()
     #~ self.window.add(self.metaviewer)
     
@@ -74,7 +77,10 @@ class Gui:
     self.ViewFlipV = False
     self.ViewRotate = 0
     self.ViewZoom = 1
+    self.folder = None
     self.align = {}
+    self.im_0 = None             # PIL.Image(self.fitlist[0])
+    self.im_actual = None             # PIL.Image(self.fitlist_n)
     
     # asigna valores:
     self.adjselfit.set_property("lower", 1)
@@ -86,6 +92,12 @@ class Gui:
     self.metaviewer.set_property("default_width", int(screenWidth/3))
     self.metaviewer.set_property("default_height", int(screenHeight/10))
     self.window.show()
+    
+    #~ f = open("./settings", "r")
+    #~ self.folder = eval(f.readline())
+    #~ f.close()
+    #~ self.fitchooser.set_current_folder(self.folder)
+
     
 
 if __name__ == "__main__":
