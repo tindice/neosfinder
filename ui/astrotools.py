@@ -46,6 +46,8 @@ def Checkfits(path, filelist, mean_criteria=(0.5,10), uprogress=True, log=False)
     return fitlist, exclude
 
 def Shift(array,dx=0,dy=0):
+    dx = int(round(dx))
+    dy = int(round(dy))
     a = array.copy()
     if dx > 0:
         a[:,-dx:] *= 0

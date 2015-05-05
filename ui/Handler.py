@@ -131,8 +131,8 @@ def ShowEqualized(gui, file, s0=0 , s1=0):
      
     #~ # resize slider:
     gui.adjselfit.set_property("upper", len(gui.fitlist))
+    gui.selfit.set_property("visible", True)
     # show imge: 
-    print "4"
     gui.imagen.set_property("pixbuf", pixbuf)
     if type(file) == type("str"):
         idx = file.rfind("/")
@@ -164,6 +164,7 @@ def ShowEqualized(gui, file, s0=0 , s1=0):
     return  True
 
 def ShowAlign(gui, dx=0, dy=0):
+    print "ShowAlign", dx,dy
     im1 = ImageChops.offset(gui.im_actual,dx,dy)
     im = Image.merge("RGB", (gui.im_0,im1,gui.im_0))
     ShowImage(gui,im)
@@ -300,7 +301,7 @@ def on_mnuAlinear(self, menuitem, data=None):
         return True
     dx, dy = 0, 0
     if self.fitlist[self.fitlist_n] in self.align.keys():
-        dx, dy = self.align[self.fitlist[self.fitlist_n]]
+        dy, dx = self.align[self.fitlist[self.fitlist_n]]
         self.adjdx.set_property("value", dx)
         self.adjdy.set_property("value", dy)
     on_dlgAlinear_response(self,btnID=1)
@@ -320,13 +321,15 @@ def on_mnuAlinearTodas(self, menuitem, data=None):
             #~ meta1 = meta
             #~ obs = meta1[1]+"_"+meta1[0][:10]
             png1 = png.copy()
+            k = float(self.im_0.size[0])/png1.shape[1] # escala
+            print self.im_0.size[0], png1.shape[1], k
             continue
             
         if f in Align.keys():
             tn = Align[f]
         else:
             refs = FindRefs(data)
-            tn = ChooseBestAlign(png1,png,refs1-refs)
+            tn = ChooseBestAlign(png1,png,refs1-refs) * k
             Align[f] = tuple(tn)
         #  Superponer imágenes :
         pngsum = np.maximum(Shift(png,dy=tn[0],dx=tn[1]), pngsum)
