@@ -113,15 +113,16 @@ def ShowEqualized(gui, file, s0=0 , s1=0):
             gui.data = gui.data[y0:y1, x0:x1]  # crop array
 
     png = Fit2png(gui.data,s0, s1)
-    if file in gui.align.keys():
-        (dy,dx) = gui.align[file]
-        png = Shift(png,dx,dy)
-    
     k = 0.75 * gui.window.get_property("default_height") / png.shape[0]
     size = tuple(x*k for x in png.shape)
     im = Image.fromarray(png)
     im.thumbnail((size[1],size[0]), Image.BICUBIC)
     arr = np.array(im.getdata()).flatten()
+    if file in gui.align.keys():
+        (dy,dx) = gui.align[file]
+        #~ png = Shift(png,dx,dy)
+        im = ImageChops.offset(im,dx,dy)
+
 # TODO: 
     im.save("../tmp/tmp.png")
     if file == gui.fitlist[0]: # si primera imagen,
@@ -300,7 +301,7 @@ def on_mnuAlinear(self, menuitem, data=None):
         dy, dx = self.align[self.fitlist[self.fitlist_n]]
         self.adjdx.set_property("value", dx)
         self.adjdy.set_property("value", dy)
-    on_dlgAlinear_response(self,btnID=1)
+    #~ on_dlgAlinear_response(self,btnID=1)
     self.dlgalinear.run()
         
 def on_mnuAlinearTodas(self, menuitem, data=None):
@@ -324,9 +325,9 @@ def on_mnuAlinearTodas(self, menuitem, data=None):
         else:
             refs = FindRefs(data)
             tn = ChooseBestAlign(png1,png,refs1-refs) * e
-            self.align[f] = tuple(tn)
+            self.align[f] = tuple(int(round(x)) for x in tn)
         #  Superponer imágenes :
-        pngsum = np.maximum(Shift(png,dy=tn[0],dx=tn[1]), pngsum)
+        pngsum = np.maximum(Shift(png,dy=tn[0]/e,dx=tn[1]/e), pngsum)
 
     print self.align
     # mostrar superposicion:
@@ -336,10 +337,10 @@ def on_mnuAlinearTodas(self, menuitem, data=None):
     im.thumbnail((size[1],size[0]), Image.BICUBIC)
     
     #----------- poner colores
-    redgreen = im.copy()
-    blue = Image.fromarray(png1)
-    blue.thumbnail((size[1],size[0]), Image.BICUBIC)
-    im = Image.merge("RGB", (redgreen,redgreen,blue))
+    redblue = im.copy()
+    green = Image.fromarray(png1)
+    green.thumbnail((size[1],size[0]), Image.BICUBIC)
+    im = Image.merge("RGB", (redblue,green,redblue))
     #-----------
 
     ShowImage(self,im)
