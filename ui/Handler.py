@@ -52,6 +52,9 @@ def Zoom(gui, k):
     gui.imagen.set_property("pixbuf", pxb)
 
 def Sigmoid(h,s0,s1):
+    '''  Toma la imagen h (np.array) y le superpone la
+         sigmoide segun s0,s1.
+    '''
     g = h.copy()
     a = (s0+s1)*637.5
     b = (s1-s0)*1275.0
@@ -192,21 +195,20 @@ def gtk_main_quit(self, menuitem, data=None):
 
 def on_mnuEqualize(self, menuitem, data=None):
     on_dlgEqualize_realize(self, menuitem)
-    if self.msg == 0:   # only first time,
-        self.equadialog.run()
-    else:
-        self.equadialog.show()
+    self.equadialog.show()
         
 def on_dlgEqualize_realize(self, obj):
+    print "Realizo",self.histo.get_property("pixbuf")
     # show histogram with sigmoid:
-    #~ print ">",self.adjmin.get_property("value")/500,self.adjmax.get_property("value")/500
     h = Sigmoid(self.arrHistogram,self.adjmin.get_property("value")/500,self.adjmax.get_property("value")/500)
     im = Image.fromarray(h)
     im.save("../tmp/tmp.png")
     pixbuf = GdkPixbuf.Pixbuf.new_from_file('../tmp/tmp.png')
     self.histo.set_property("pixbuf", pixbuf)
-    if self.msg == 0:
-        self.msg = 1
+    #~ if self.msg == 0:
+        #~ self.msg = 1
+    if self.histo.get_property("pixbuf") == None:
+        print "Nunca pasare por aca !"
         self.chkauto.set_active(True)
     
 def on_dlgEqualize_response(self, widget, btnID=None):
@@ -259,17 +261,11 @@ def on_mnuRotar(self, menuitem, data=None):
         self.ViewRotate += 1
     
 def on_mnuVoltearH(self, menuitem, data=None):
-    #~ self.data = np.fliplr(self.data)
-    #~ UpdateEqualized(self)
-    
     pb = self.imagen.get_property("pixbuf").flip(True)
     self.imagen.set_property("pixbuf", pb)
-
     self.ViewFlipH = not self.ViewFlipH
     
 def on_mnuVoltearV(self, menuitem, data=None):
-    #~ self.data = np.flipud(self.data)
-    #~ UpdateEqualized(self)
     pb = self.imagen.get_property("pixbuf").flip(False)
     self.imagen.set_property("pixbuf", pb)
     self.ViewFlipV = not self.ViewFlipV
@@ -308,7 +304,6 @@ def on_mnuAlinear(self, menuitem, data=None):
     self.dlgalinear.run()
         
 def on_mnuAlinearTodas(self, menuitem, data=None):
-    Align = {}  # Diccionario "filename : (dy,dx)"-
     for f in self.fitlist:
         _, data = Getdata(f)
         png = Fit2png(data, s0 = self.adjmin.get_property("value")/500,
@@ -321,44 +316,39 @@ def on_mnuAlinearTodas(self, menuitem, data=None):
             #~ meta1 = meta
             #~ obs = meta1[1]+"_"+meta1[0][:10]
             png1 = png.copy()
-            k = float(self.im_0.size[0])/png1.shape[1] # escala
-            print self.im_0.size[0], png1.shape[1], k
+            e = float(self.im_0.size[0])/png1.shape[1] # escala
             continue
             
-        if f in Align.keys():
-            tn = Align[f]
+        if f in self.align.keys():
+            tn = self.align[f]
         else:
             refs = FindRefs(data)
-            tn = ChooseBestAlign(png1,png,refs1-refs) * k
-            Align[f] = tuple(tn)
+            tn = ChooseBestAlign(png1,png,refs1-refs) * e
+            self.align[f] = tuple(tn)
         #  Superponer imágenes :
         pngsum = np.maximum(Shift(png,dy=tn[0],dx=tn[1]), pngsum)
-    # Guardo Align para el futuro
-    self.align = Align
-    print Align
+
+    print self.align
     # mostrar superposicion:
     k = 0.75 * self.window.get_property("default_height") / pngsum.shape[0]
     size = tuple(x*k for x in pngsum.shape)
     im = Image.fromarray(pngsum)
     im.thumbnail((size[1],size[0]), Image.BICUBIC)
     
-    #-----------
+    #----------- poner colores
     redgreen = im.copy()
     blue = Image.fromarray(png1)
     blue.thumbnail((size[1],size[0]), Image.BICUBIC)
     im = Image.merge("RGB", (redgreen,redgreen,blue))
     #-----------
 
-    #~ arr = np.array(im.getdata()).flatten()
     ShowImage(self,im)
     self.window.set_property("title","Neosfinder - ( Todas alineadas )")
 
     
 def on_fitchooserdialog_response(self, obj, btnID=-1):
     if btnID == 1:
-        print "1"
         self.initialize()
-        print "2"
         #~ watch_cursor = Gdk.Cursor(Gdk.CursorType.WATCH)
         #~ self.window.get_window().set_cursor(watch_cursor)
         #~ GObject.threads_init()

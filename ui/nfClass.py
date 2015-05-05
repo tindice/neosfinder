@@ -78,7 +78,7 @@ class Gui:
     self.ViewRotate = 0
     self.ViewZoom = 1
     self.folder = None
-    self.align = {}
+    self.align = {}             # Diccionario {filename : (dy,dx)}
     self.im_0 = None             # PIL.Image(self.fitlist[0])
     self.im_actual = None             # PIL.Image(self.fitlist_n)
     
