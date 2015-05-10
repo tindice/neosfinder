@@ -89,8 +89,11 @@ def ShowEqualized(gui, file, s0=0 , s1=0):
     print "3"
     gui.spinner.start()
     # toogle   GTK_SHADOW_ETCHED_OUT / GTK_SHADOW_ETCHED_IN
-    gui.frame.set_shadow_type(3+gui.frame.get_shadow_type()%2)
-    #~ screenHeight = gui.window.get_property("default_height")
+    gui.viewport.set_shadow_type(3+gui.viewport.get_shadow_type()%2)
+    #~ h = 0.85 * gui.window.get_property("default_height")
+    #~ w = 0.85 * gui.window.get_property("default_width")
+    #~ gui.viewport.set_property("width_request", w )
+    #~ gui.viewport.set_property("height_request",h )
     if s0 == 0:
         s0=gui.automin/500
         s1=gui.automax/500
@@ -113,11 +116,11 @@ def ShowEqualized(gui, file, s0=0 , s1=0):
             gui.data = gui.data[y0:y1, x0:x1]  # crop array
 
     png = Fit2png(gui.data,s0, s1)
-    k = 0.75 * gui.window.get_property("default_height") / png.shape[0]
-    size = tuple(x*k for x in png.shape)
+    #~ k = 0.75 * gui.window.get_property("default_height") / png.shape[0]
+    #~ size = tuple(x*k for x in png.shape)
     im = Image.fromarray(png)
-    im.thumbnail((size[1],size[0]), Image.BICUBIC)
-    arr = np.array(im.getdata()).flatten()
+    #~ im.thumbnail((size[1],size[0]), Image.BICUBIC)
+    #~ arr = np.array(im.getdata()).flatten()
     if file in gui.align.keys():
         (dy,dx) = gui.align[file]
         #~ png = Shift(png,dx,dy)
@@ -136,8 +139,10 @@ def ShowEqualized(gui, file, s0=0 , s1=0):
     #~ # resize slider:
     gui.adjselfit.set_property("upper", len(gui.fitlist))
     gui.selfit.set_property("visible", True)
+    
     # show imge: 
     gui.imagen.set_property("pixbuf", pixbuf)
+    print "ShIm", gui.imagen.get_property("visible"),gui.imagen.get_property("pixbuf")
     if type(file) == type("str"):
         idx = file.rfind("/")
         gui.window.set_property("title",
@@ -302,6 +307,8 @@ def on_mnuAlinear(self, menuitem, data=None):
         self.adjdx.set_property("value", dx)
         self.adjdy.set_property("value", dy)
     #~ on_dlgAlinear_response(self,btnID=1)
+    im = Image.merge("RGB", (self.im_0,self.im_actual,self.im_0))
+    ShowImage(self,im)
     self.dlgalinear.run()
         
 def on_mnuAlinearTodas(self, menuitem, data=None):
@@ -398,63 +405,60 @@ def on_fitchooserdialog_response(self, obj, btnID=-1):
         otrohilo()
     #~ print "volvi con", self.fitlist_n, self.fitlist
         
-    if len(self.fitlist) > 1:
-        for btn in (self.first, self.next, self.prev, self.last):
-            btn.set_property("visible",True)
-            
-        self.first.set_sensitive(False)
-        self.prev.set_sensitive(False)
-        self.next.set_sensitive(True)
-        self.last.set_sensitive(True)
+    #~ if len(self.fitlist) > 1:
+        #~ for btn in (self.first, self.next, self.prev, self.last):
+            #~ btn.set_property("visible",True)
+            #~ 
+        #~ self.first.set_sensitive(False)
+        #~ self.prev.set_sensitive(False)
+        #~ self.next.set_sensitive(True)
+        #~ self.last.set_sensitive(True)
 
     self.fitchooser.hide()
     
 
-def on_btnFirst_clicked(self,button):
-    self.fitlist_n = 0
-    ShowEqualized(self, self.fitlist[self.fitlist_n], 
-                    s0 = self.adjmin.get_property("value")/500,
-                    s1 = self.adjmax.get_property("value")/500)
-    for btn in (self.first,self.prev):
-        btn.set_sensitive(False) 
-    for btn in (self.next,self.last):
-        btn.set_sensitive(True) 
-    
-    
-def on_btnLast_clicked(self,button):
-    self.fitlist_n = len(self.fitlist)-1
-    #~ UpdateEqualized(self)
-    ShowEqualized(self, self.fitlist[self.fitlist_n], 
-                    s0 = self.adjmin.get_property("value")/500,
-                    s1 = self.adjmax.get_property("value")/500)
-    for btn in (self.first,self.prev):
-        btn.set_sensitive(True) 
-    for btn in (self.next,self.last):
-        btn.set_sensitive(False) 
-
-def on_btnPrev_clicked(self,button):
-    if self.fitlist_n == 1:
-        on_btnFirst_clicked(self,button)
-    else:
-        self.fitlist_n -= 1
-        #~ UpdateEqualized(self)
-        ShowEqualized(self, self.fitlist[self.fitlist_n], 
-                    s0 = self.adjmin.get_property("value")/500,
-                    s1 = self.adjmax.get_property("value")/500)
-        for btn in (self.next,self.last):
-            btn.set_sensitive(True) 
-
-def on_btnNext_clicked(self, button):
-    if self.fitlist_n == len(self.fitlist)-2:
-        on_btnLast_clicked(self,button)
-    else:
-        self.fitlist_n += 1
-        #~ UpdateEqualized(self)
-        ShowEqualized(self, self.fitlist[self.fitlist_n], 
-                    s0 = self.adjmin.get_property("value")/500,
-                    s1 = self.adjmax.get_property("value")/500)
-        for btn in (self.first,self.prev):
-            btn.set_sensitive(True) 
+#~ def on_btnFirst_clicked(self,button):
+    #~ self.fitlist_n = 0
+    #~ ShowEqualized(self, self.fitlist[self.fitlist_n], 
+                    #~ s0 = self.adjmin.get_property("value")/500,
+                    #~ s1 = self.adjmax.get_property("value")/500)
+    #~ for btn in (self.first,self.prev):
+        #~ btn.set_sensitive(False) 
+    #~ for btn in (self.next,self.last):
+        #~ btn.set_sensitive(True) 
+    #~ 
+    #~ 
+#~ def on_btnLast_clicked(self,button):
+    #~ self.fitlist_n = len(self.fitlist)-1
+    #~ ShowEqualized(self, self.fitlist[self.fitlist_n], 
+                    #~ s0 = self.adjmin.get_property("value")/500,
+                    #~ s1 = self.adjmax.get_property("value")/500)
+    #~ for btn in (self.first,self.prev):
+        #~ btn.set_sensitive(True) 
+    #~ for btn in (self.next,self.last):
+        #~ btn.set_sensitive(False) 
+#~ 
+#~ def on_btnPrev_clicked(self,button):
+    #~ if self.fitlist_n == 1:
+        #~ on_btnFirst_clicked(self,button)
+    #~ else:
+        #~ self.fitlist_n -= 1
+        #~ ShowEqualized(self, self.fitlist[self.fitlist_n], 
+                    #~ s0 = self.adjmin.get_property("value")/500,
+                    #~ s1 = self.adjmax.get_property("value")/500)
+        #~ for btn in (self.next,self.last):
+            #~ btn.set_sensitive(True) 
+#~ 
+#~ def on_btnNext_clicked(self, button):
+    #~ if self.fitlist_n == len(self.fitlist)-2:
+        #~ on_btnLast_clicked(self,button)
+    #~ else:
+        #~ self.fitlist_n += 1
+        #~ ShowEqualized(self, self.fitlist[self.fitlist_n], 
+                    #~ s0 = self.adjmin.get_property("value")/500,
+                    #~ s1 = self.adjmax.get_property("value")/500)
+        #~ for btn in (self.first,self.prev):
+            #~ btn.set_sensitive(True) 
 
 def on_combobox1_changed(self,widget):
     #~ print "Combo changed", widget.get_active()
@@ -467,10 +471,18 @@ def on_lstFilter_row_changed(self,widget):
     
 def on_adjfitlist_value_changed(self,widget,data=None):
     self.fitlist_n = int(widget.get_property("value")) - 1
+    print "adj"
     ShowEqualized(self, self.fitlist[self.fitlist_n], 
                     s0 = self.adjmin.get_property("value")/500,
                     s1 = self.adjmax.get_property("value")/500)
 
+def on_winMain_configure_event(self,widget,data=None):
+    #~ w = self.viewport.get_property("width_request")
+    #~ dx = self.window.get_size()[0]-self.winsize0[0]
+    #~ self.viewport.set_property("width_request", w+dx)
+    #~ return True
+    pass
+    
 def on_adjDx_value_changed(self,widget,data=None):
     pass
     

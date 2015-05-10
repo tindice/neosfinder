@@ -46,11 +46,13 @@ class Gui:
     self.chkmeta0 = self.builder.get_object("chkMeta0")
     self.textbuffer = self.builder.get_object("textbuffer1")
     self.spinner = self.builder.get_object("spinner3")
-    self.frame = self.builder.get_object("frame1")
+    self.viewport = self.builder.get_object("scrolledwindow")
     self.selfit = self.builder.get_object("sclSelFit")
     self.dlgalinear = self.builder.get_object("dlgAlinear")
     self.adjdx = self.builder.get_object("adjDx")
     self.adjdy = self.builder.get_object("adjDy")
+    self.af1 = self.builder.get_object("af1")
+    self.af2 = self.builder.get_object("af2")
     self.metaviewer = dv.DataViewer()
     #~ self.window.add(self.metaviewer)
     
@@ -63,7 +65,7 @@ class Gui:
     
   def initialize(self, obj=None):  
     # inicializa variables:
-    #~ self.fitminmax = {}
+    #~ self.winsize = (0,0)
     self.DifKlist = []
     self.ConKlist = []
     self.chkmeta0.set_border_width(4)
@@ -87,8 +89,13 @@ class Gui:
     self.adjmin.set_property("value", self.automin)
     self.cmbFile.set_active(0)
     self.adjmax.set_property("value", self.automax)
-    self.window.set_property("default_width", screenWidth)
-    self.window.set_property("default_height", screenHeight)
+    self.af1.set_property("width_request", int(screenWidth*0.04))
+    self.af2.set_property("width_request", int(screenWidth*0.04))
+    self.selfit.set_property("width_request", int(screenWidth*0.85))
+    self.viewport.set_property("width_request", int(screenWidth*0.85))
+    self.viewport.set_property("height_request", int(screenHeight*0.8))
+    self.winsize0 = self.window.get_size()
+    #~ self.window.set_property("default_width", screenHeight*1)
     self.metaviewer.set_property("default_width", int(screenWidth/3))
     self.metaviewer.set_property("default_height", int(screenHeight/10))
     self.window.show()
