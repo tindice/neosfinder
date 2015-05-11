@@ -10,15 +10,12 @@ import threading
 
 # =======   Functions Section  ========================================
 
-#~ def ViewDefault(gui):
-    #~ ''' Restores View parameters and inicialize Metadata Viewer.
-    #~ '''
-    #~ gui.ViewZoom = 1
-    #~ gui.ViewRotate = 0
-    #~ gui.ViewFlipH = False
-    #~ gui.ViewFlipV = False
-    #~ 
-    #~ gui.metaviewer.hide()
+def ZoomDefault(gui):
+    w0 = gui.pxbf.get_width()
+    h0 = gui.pxbf.get_height()
+    w1 = gui.viewport.get_width()
+    print ">",w0,h0,w1
+    return
 
 def Zoom(gui, k):
     #~ k = 1.25
@@ -129,9 +126,9 @@ def ShowEqualized(gui, file, s0=0 , s1=0):
 # TODO: 
     im.save("../tmp/tmp.png")
     if file == gui.fitlist[0]: # si primera imagen,
-        gui.im_0 = im           # guardar
-    gui.im_actual = im
-    pixbuf = GdkPixbuf.Pixbuf.new_from_file('../tmp/tmp.png')
+        #~ gui.im_0 = im           # guardar
+    #~ gui.im_actual = im
+    gui.pxbf = GdkPixbuf.Pixbuf.new_from_file('../tmp/tmp.png')
     #~ im = im.convert("RGB")
     #~ pixbuf = GdkPixbuf.Pixbuf.new_from_data(arr,
      #~ GdkPixbuf.Colorspace.RGB, False, 8, size[1], size[0], 3*size[1])
@@ -141,8 +138,8 @@ def ShowEqualized(gui, file, s0=0 , s1=0):
     gui.selfit.set_property("visible", True)
     
     # show imge: 
-    gui.imagen.set_property("pixbuf", pixbuf)
-    print "ShIm", gui.imagen.get_property("visible"),gui.imagen.get_property("pixbuf")
+    gui.imagen.set_property("pixbuf", gui.pxbf)
+    #~ print "ShIm", gui.imagen.get_property("visible"),gui.imagen.get_property("pixbuf")
     if type(file) == type("str"):
         idx = file.rfind("/")
         gui.window.set_property("title",
@@ -186,7 +183,8 @@ def ShowAlign(gui, dx=0, dy=0):
 # ====  Handlers Section    ===================================
 
 def on_notyet(self,menuitem):
-    self.msgdialog.run()
+    ZoomDefault(self)
+    #~ self.msgdialog.run()
     
 def on_msgdialog_response(self,widget, data=None):
     widget.destroy()
@@ -355,16 +353,22 @@ def on_mnuAlinearTodas(self, menuitem, data=None):
 
     
 def on_fitchooserdialog_response(self, obj, btnID=-1):
-    if btnID == 1:
+    if btnID == 0:
+        self.fitchooser.hide()
+        return
+    else:
         self.initialize()
-        #~ watch_cursor = Gdk.Cursor(Gdk.CursorType.WATCH)
-        #~ self.window.get_window().set_cursor(watch_cursor)
-        #~ GObject.threads_init()
-        #~ Gdk.threads_init()
+        # mouse pointer:
+        watch_cursor = Gdk.Cursor(Gdk.CursorType.WATCH)
+        self.window.get_window().set_cursor(watch_cursor)
+        GObject.threads_init()
+        Gdk.threads_init()
+        
+        self.fitlist = sorted(self.fitchooser.get_filenames())
+        self.fitchooser.hide()
+        if self.fitlist == []: return
         def otrohilo():
-            self.fitlist = sorted(self.fitchooser.get_filenames())
             print self.fitlist
-            if self.fitlist == []: return
             
             self.metaviewer.cleanme() # reiniciarlo
             # lista de diccionarios metadata:
@@ -393,15 +397,15 @@ def on_fitchooserdialog_response(self, obj, btnID=-1):
             #~ print self.fitlist
             ShowEqualized(self, self.fitlist[0])
     
-            #~ def done():
-                #~ self.window.get_window().set_cursor(None)
-                #~ return False
+            def done():
+                self.window.get_window().set_cursor(None)
+                return False
 #~ 
 #~ 
-            #~ GObject.idle_add(done)
-            #~ 
-        #~ thread = threading.Thread(target=otrohilo)
-        #~ thread.start()
+            GObject.idle_add(done)
+            
+        thread = threading.Thread(target=otrohilo)
+        thread.start()
         otrohilo()
     #~ print "volvi con", self.fitlist_n, self.fitlist
         
@@ -414,7 +418,6 @@ def on_fitchooserdialog_response(self, obj, btnID=-1):
         #~ self.next.set_sensitive(True)
         #~ self.last.set_sensitive(True)
 
-    self.fitchooser.hide()
     
 
 #~ def on_btnFirst_clicked(self,button):

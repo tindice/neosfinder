@@ -81,8 +81,8 @@ class Gui:
     self.ViewZoom = 1
     self.folder = None
     self.align = {}             # Diccionario {filename : (dy,dx)}
-    self.im_0 = None             # PIL.Image(self.fitlist[0])
-    self.im_actual = None             # PIL.Image(self.fitlist_n)
+    self.pxbf_0 = None             # PIL.Image(self.fitlist[0])
+    self.pxbf = None             # PIL.Image(self.fitlist_n)
     
     # asigna valores:
     self.adjselfit.set_property("lower", 1)
