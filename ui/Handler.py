@@ -10,43 +10,27 @@ import threading
 
 # =======   Functions Section  ========================================
 
-def ZoomDefault(gui):
-    w0 = gui.pxbf.get_width()
-    h0 = gui.pxbf.get_height()
-    w1 = gui.viewport.get_width()
-    print ">",w0,h0,w1
-    return
+def ZoomDefault(gui, pxbf):
+    w0 = float(pxbf.get_width())
+    h0 = float(pxbf.get_height())
+    w1 = gui.viewport.get_property("width_request")
+    h1 = gui.viewport.get_property("height_request")
+    k = min(w1/w0, h1/h0)
+    return pxbf.scale_simple(k*w0, k*h0,
+                             GdkPixbuf.InterpType.BILINEAR)
 
 def Zoom(gui, k):
-    #~ k = 1.25
     gui.ViewZoom *= k
-    #~ print "VZ", gui.ViewZoom
-    if k == 1:
-        pxb = GdkPixbuf.Pixbuf.new_from_file('../tmp/tmp.png')
-    elif k > 1:
-        pb = gui.imagen.get_property("pixbuf")
-        src_x = (1-1/k)/2 * pb.get_height()
-        src_y = (1-1/k)/2 * pb.get_width()
-        # crops from pixbuf
-        spb = pb.new_subpixbuf(int(src_x), int(src_y),
-                  int(pb.get_width()/k) , int(pb.get_height()/k))
-          # amplify
-        pxb = spb.scale_simple(pb.get_width(), pb.get_height(),
-                             GdkPixbuf.InterpType.BILINEAR)
+    print "zoom:", gui.ViewZoom
+    if gui.ViewZoom == 1.0:
+        gui.imagen.set_property("pixbuf", gui.pxbf)
     else:
-        pb = GdkPixbuf.Pixbuf.new_from_file('../tmp/tmp.png')
-        src_x = (1-1/gui.ViewZoom)/2 * pb.get_height()
-        src_y = (1-1/gui.ViewZoom)/2 * pb.get_width()
-        sub_w = pb.get_width()/gui.ViewZoom
-        sub_h = pb.get_height()/gui.ViewZoom
-        # crops from pixbuf
-        spb = pb.new_subpixbuf(int(src_x), int(src_y),
-                  int(sub_w) , int(sub_h))
-          # amplify
-        pxb = spb.scale_simple(pb.get_width(), pb.get_height(),
+        size = (gui.pxbf.get_width(),gui.pxbf.get_height())
+        size = tuple(x * gui.ViewZoom for x in size)
+        pxb = gui.pxbf.scale_simple(size[0], size[1],
                              GdkPixbuf.InterpType.BILINEAR)
-      # and apply
-    gui.imagen.set_property("pixbuf", pxb)
+        gui.imagen.set_property("pixbuf", pxb)
+    return
 
 def Sigmoid(h,s0,s1):
     '''  Toma la imagen h (np.array) y le superpone la
@@ -77,20 +61,16 @@ def UpdateSigmoid(gui):
 def ShowImage(gui, im):
     im.save("../tmp/tmp.png")
     pixbuf = GdkPixbuf.Pixbuf.new_from_file('../tmp/tmp.png')
-    gui.imagen.set_property("pixbuf", pixbuf)
+    gui.imagen.set_property("pixbuf", ZoomDefault(gui,pixbuf))
     return True
 
-def ShowEqualized(gui, file, s0=0 , s1=0):
+def ShowEqualized(gui, file, s0=0 , s1=0, msg=None):
     ''' accepts "file" as string or as np.array
     '''
-    print "3"
+    print "ShwEq",msg
     gui.spinner.start()
     # toogle   GTK_SHADOW_ETCHED_OUT / GTK_SHADOW_ETCHED_IN
     gui.viewport.set_shadow_type(3+gui.viewport.get_shadow_type()%2)
-    #~ h = 0.85 * gui.window.get_property("default_height")
-    #~ w = 0.85 * gui.window.get_property("default_width")
-    #~ gui.viewport.set_property("width_request", w )
-    #~ gui.viewport.set_property("height_request",h )
     if s0 == 0:
         s0=gui.automin/500
         s1=gui.automax/500
@@ -105,34 +85,28 @@ def ShowEqualized(gui, file, s0=0 , s1=0):
             gui.data = np.flipud(gui.data)
         if gui.ViewRotate != 0:
             gui.data = np.rot90(gui.data, gui.ViewRotate)
-        k = gui.ViewZoom
-        if k > 1: # si voy a ampliar
-            (h,w) = gui.data.shape
-            x0,y0 = w*(1-1/k)/2, h*(1-1/k)/2
-            x1,y1 = w*(k+1)/2/k, h*(k+1)/2/k
-            gui.data = gui.data[y0:y1, x0:x1]  # crop array
-
+        #~ k = gui.ViewZoom
+        #~ if k > 1: # si voy a ampliar
+            #~ (h,w) = gui.data.shape
+            #~ x0,y0 = w*(1-1/k)/2, h*(1-1/k)/2
+            #~ x1,y1 = w*(k+1)/2/k, h*(k+1)/2/k
+            #~ gui.data = gui.data[y0:y1, x0:x1]  # crop array
+    else:
+        print "not string ???"
+        
     png = Fit2png(gui.data,s0, s1)
-    #~ k = 0.75 * gui.window.get_property("default_height") / png.shape[0]
-    #~ size = tuple(x*k for x in png.shape)
     im = Image.fromarray(png)
-    #~ im.thumbnail((size[1],size[0]), Image.BICUBIC)
-    #~ arr = np.array(im.getdata()).flatten()
     if file in gui.align.keys():
         (dy,dx) = gui.align[file]
-        #~ png = Shift(png,dx,dy)
         im = ImageChops.offset(im,dx,dy)
 
-# TODO: 
+
     im.save("../tmp/tmp.png")
     if file == gui.fitlist[0]: # si primera imagen,
-        #~ gui.im_0 = im           # guardar
-    #~ gui.im_actual = im
-    gui.pxbf = GdkPixbuf.Pixbuf.new_from_file('../tmp/tmp.png')
-    #~ im = im.convert("RGB")
-    #~ pixbuf = GdkPixbuf.Pixbuf.new_from_data(arr,
-     #~ GdkPixbuf.Colorspace.RGB, False, 8, size[1], size[0], 3*size[1])
-     
+        gui.im_0 = im           # guardar
+    gui.im_actual = im
+    pxbf = GdkPixbuf.Pixbuf.new_from_file('../tmp/tmp.png')
+    gui.pxbf = ZoomDefault(gui,pxbf)
     #~ # resize slider:
     gui.adjselfit.set_property("upper", len(gui.fitlist))
     gui.selfit.set_property("visible", True)
@@ -159,12 +133,14 @@ def ShowEqualized(gui, file, s0=0 , s1=0):
         
     # update Metadata viewer:
         if gui.metaviewer.rows == 1:
-            #~ print "cero"
-            gui.metaviewer.setkeys(gui.metalist[gui.fitlist_n],gui.DifKlist,gui.ConKlist)
+            gui.metaviewer.setkeys(gui.metalist[gui.fitlist_n],
+                                   gui.DifKlist,gui.ConKlist)
             gui.metaviewer.show_all()
         else:
-            gui.metaviewer.updatekeys(gui.metalist[gui.fitlist_n],gui.DifKlist)
-        
+            print "159"
+            gui.metaviewer.updatekeys(gui.metalist[gui.fitlist_n],
+                                      gui.DifKlist)
+        #~ 
     gui.spinner.stop()
 
     return  True
@@ -353,7 +329,8 @@ def on_mnuAlinearTodas(self, menuitem, data=None):
 
     
 def on_fitchooserdialog_response(self, obj, btnID=-1):
-    if btnID == 0:
+    print "filedialogID:", btnID
+    if btnID <= 0:
         self.fitchooser.hide()
         return
     else:
@@ -368,14 +345,13 @@ def on_fitchooserdialog_response(self, obj, btnID=-1):
         self.fitchooser.hide()
         if self.fitlist == []: return
         def otrohilo():
-            print self.fitlist
+            #~ print self.fitlist
             
             self.metaviewer.cleanme() # reiniciarlo
             # lista de diccionarios metadata:
             self.metalist = list(GetMeta(f) for f in self.fitlist)
             #~ # lista de registros variables:
             #~ diflist = list(set(self.metalist[0].items()) ^ set(self.metalist[1].items()))
-            #~ self.DifKlist = []  
             self.ConKlist = list(k for k in self.metalist[0].keys())
 
             if len(self.fitlist) > 1:
@@ -386,16 +362,7 @@ def on_fitchooserdialog_response(self, obj, btnID=-1):
                     self.DifKlist.extend(difKlist)
                 self.DifKlist=list(set(self.DifKlist))  # lista de claves variable unique
                 for key in self.DifKlist:
-                    self.ConKlist.remove(key)
-    
-            #~ print "DifKlist", self.DifKlist
-            #~ print "ConKlist", self.ConKlist
-            
-            #~ self.metaviewer.close()
-            #~ self.metaviewer = dv.DataViewer()
-                
-            #~ print self.fitlist
-            ShowEqualized(self, self.fitlist[0])
+                    if key in self.ConKlist: self.ConKlist.remove(key)
     
             def done():
                 self.window.get_window().set_cursor(None)
@@ -407,6 +374,8 @@ def on_fitchooserdialog_response(self, obj, btnID=-1):
         thread = threading.Thread(target=otrohilo)
         thread.start()
         otrohilo()
+        ShowEqualized(self, self.fitlist[0],msg="de fitchooser")
+    return
     #~ print "volvi con", self.fitlist_n, self.fitlist
         
     #~ if len(self.fitlist) > 1:
@@ -477,7 +446,8 @@ def on_adjfitlist_value_changed(self,widget,data=None):
     print "adj"
     ShowEqualized(self, self.fitlist[self.fitlist_n], 
                     s0 = self.adjmin.get_property("value")/500,
-                    s1 = self.adjmax.get_property("value")/500)
+                    s1 = self.adjmax.get_property("value")/500,
+                    msg = "FitNr")
 
 def on_winMain_configure_event(self,widget,data=None):
     #~ w = self.viewport.get_property("width_request")

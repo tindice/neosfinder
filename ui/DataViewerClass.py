@@ -7,7 +7,7 @@ class DataViewer(Gtk.Window):
   def __init__(self):
     # Create a new window
     Gtk.Window.__init__(self, title="Metadatos",deletable=False)
-    #~ self.set_border_width(20)
+    self.set_border_width(2)
     self.set_keep_above(True)
     self.connect("delete_event", self.hideme)
     
@@ -22,13 +22,6 @@ class DataViewer(Gtk.Window):
     
     # Put the grid in the scroll
     self.scroll.add(self.grid)
-    #~ btn = Gtk.Button(label="campos variables")
-    #~ lbl = Gtk.Label(10*"_"+"campos variables"+10*"_")
-    #~ self.grid.attach(btn, 0, 0, 3, 1)  
-    #~ btn = Gtk.Button(label="valor")
-    #~ self.grid.attach(btn, 1, 0, 1, 1)  
-    #~ btn = Gtk.Button(label="comentario")
-    #~ self.grid.attach(btn, 2, 0, 1, 1)  
     self.rows = 1
     
   def hideme(self, *args):
@@ -36,20 +29,21 @@ class DataViewer(Gtk.Window):
       return True
           
   def cleanme(self, *args):
+      print "cleanme"
       while self.rows > 1:
           self.grid.remove_row(1)
           self.rows -= 1
       return True
           
   def newrow(self,txtlist):
+        #~ print "newrow", txtlist
         lbl = Gtk.Label()
-        lbl.set_markup("<b>%s</b>"%txtlist[0])
+        lbl.set_markup("<b>%s</b>"%txtlist[0].replace("&","and"))
         self.grid.attach(lbl, 0, self.rows, 1, 1)  
-        lbl = Gtk.Label(txtlist[1])
+        lbl = Gtk.Label(txtlist[1].replace("&","and"))
         self.grid.attach(lbl, 1, self.rows, 1, 1) 
         lbl = Gtk.Label()
-        lbl.set_markup("<small>%s</small>"%txtlist[2])
-        #~ lbl.set_line_wrap(True)
+        lbl.set_markup("<small>%s</small>"%txtlist[2].replace("&","and"))
         self.grid.attach(lbl, 2, self.rows, 1, 1) 
         self.rows += 1
         return True
@@ -67,19 +61,20 @@ class DataViewer(Gtk.Window):
         
   def updatekeys(self,metadict,keylist):
         #~ print "upd", keylist
+        if keylist == []: return
         n = 2
         for k in keylist:
-            #~ print n, k, str(metadict[k])
             self.changetext(n,str(metadict[k]))
             n += 1
         return True
             
   def setkeys(self,metadict,varkeys,conskeys):
+        #~ print "conskeys", conskeys
         if varkeys != []:
             self.newline("Variables:")
             for k in varkeys:
                 self.newrow([k,str(metadict[k]),metadict.comments[k]])
-            self.newline("Constantes:")
+        self.newline("Constantes:")
         for k in conskeys:
             self.newrow([k,str(metadict[k]),metadict.comments[k]])
         return True
