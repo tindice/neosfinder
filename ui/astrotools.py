@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import  pyfits as pyf, numpy as np
+import numpy as np
 from PIL import Image, ImageDraw
-
+from astropy.io import fits
 def Array2rgb(array,circles=[],texts=[]):
     ''' where circles=[(y0, y1, x0, x1),...] 
             texts=[(xy,string,color),...]
@@ -64,7 +64,7 @@ def Shift(array,dx=0,dy=0):
 def GetMeta(filefullname):
     """ Returns the Fit metadata dictionary
     """
-    hduList = pyf.open(filefullname)
+    hduList = fits.open(filefullname)
     hduList.verify("fix")
     prihdr = hduList[0].header
     hduList.close()
@@ -75,7 +75,7 @@ def Getdata(filefullname):
         accepts "filefullname" as string or as np.array
     """
     if type(filefullname) == type('str'):
-        hduList = pyf.open(filefullname)
+        hduList = fits.open(filefullname)
         prihdr = hduList[0].header
         data = hduList[0].data.astype(np.uint16, copy=False)
         hduList.close()
@@ -92,7 +92,7 @@ def Getdata(filefullname):
         #~ print "at12>", np.amin(data)
         return ("","","",""),data
     
-def Fit2png(data,s0, s1):
+def Fit2png(data,s0, s1, black=True):
     """ Returns the contrast enhaced array 
     """
     import numpy as np
@@ -108,7 +108,9 @@ def Fit2png(data,s0, s1):
         
     t = -1.0 *(data-(i0+i1)/2)/(i1-i0)
     newarray = 255/(1+np.exp(t))
-    return (newarray - np.amin(newarray)).astype(np.uint8)
+    if black:
+        return (newarray - np.amin(newarray)).astype(np.uint8)
+    else: return newarray.astype(np.uint8)
     
 
 def Equalize(filefullname, dataonly=False, cutoff=50):
@@ -117,7 +119,7 @@ def Equalize(filefullname, dataonly=False, cutoff=50):
     the optional 'cutoff' value, in range(0,100).
     (bigger cutoff values results in sharper contrast )
     """
-    hduList = pyf.open(filefullname)
+    hduList = fits.open(filefullname)
     data = hduList[0].data
     Height, Width = data.shape
     minVal = np.amin(data) 

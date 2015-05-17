@@ -6,7 +6,9 @@ from PIL import Image , ImageDraw, ImageChops
 from astrotools import *
 from gi.repository import Gtk, Gdk, GdkPixbuf, GObject
 from math import log1p, exp
-import threading
+import threading, tempfile
+
+_,tmpfolder = tempfile.mkstemp()
 
 # =======   Functions Section  ========================================
 
@@ -16,6 +18,7 @@ def ZoomDefault(gui, pxbf):
     w1 = gui.viewport.get_property("width_request")
     h1 = gui.viewport.get_property("height_request")
     k = min(w1/w0, h1/h0)
+    print "ZD",k
     return pxbf.scale_simple(k*w0, k*h0,
                              GdkPixbuf.InterpType.BILINEAR)
 
@@ -54,13 +57,13 @@ def UpdateSigmoid(gui):
     h = Sigmoid(gui.arrHistogram,s0 = gui.adjmin.get_property("value")/500,
                                  s1 = gui.adjmax.get_property("value")/500)
     im = Image.fromarray(h)
-    im.save("../tmp/tmp.png")
-    pixbuf = GdkPixbuf.Pixbuf.new_from_file('../tmp/tmp.png')
+    im.save("./tmp.png")
+    pixbuf = GdkPixbuf.Pixbuf.new_from_file("./tmp.png")
     gui.histo.set_property("pixbuf", pixbuf)
 
 def ShowImage(gui, im):
-    im.save("../tmp/tmp.png")
-    pixbuf = GdkPixbuf.Pixbuf.new_from_file('../tmp/tmp.png')
+    im.save("./tmp.png")
+    pixbuf = GdkPixbuf.Pixbuf.new_from_file("./tmp.png")
     gui.imagen.set_property("pixbuf", ZoomDefault(gui,pixbuf))
     return True
 
@@ -101,13 +104,13 @@ def ShowEqualized(gui, file, s0=0 , s1=0, msg=None):
         im = ImageChops.offset(im,dx,dy)
 
 
-    im.save("../tmp/tmp.png")
+    im.save("./tmp.png")
     if file == gui.fitlist[0]: # si primera imagen,
         gui.im_0 = im           # guardar
     gui.im_actual = im
-    pxbf = GdkPixbuf.Pixbuf.new_from_file('../tmp/tmp.png')
+    pxbf = GdkPixbuf.Pixbuf.new_from_file("./tmp.png")
     gui.pxbf = ZoomDefault(gui,pxbf)
-    #~ # resize slider:
+    #~ # rescale slider:
     gui.adjselfit.set_property("upper", len(gui.fitlist))
     gui.selfit.set_property("visible", True)
     
@@ -182,8 +185,8 @@ def on_dlgEqualize_realize(self, obj):
     # show histogram with sigmoid:
     h = Sigmoid(self.arrHistogram,self.adjmin.get_property("value")/500,self.adjmax.get_property("value")/500)
     im = Image.fromarray(h)
-    im.save("../tmp/tmp.png")
-    pixbuf = GdkPixbuf.Pixbuf.new_from_file('../tmp/tmp.png')
+    im.save("./tmp.png")
+    pixbuf = GdkPixbuf.Pixbuf.new_from_file("./tmp.png")
     self.histo.set_property("pixbuf", pixbuf)
     #~ if self.msg == 0:
         #~ self.msg = 1
@@ -193,8 +196,21 @@ def on_dlgEqualize_realize(self, obj):
     
 def on_dlgEqualize_response(self, widget, btnID=None):
     if btnID == 1:   # Apply button pressed.
-        ShowEqualized(self,self.data, s0 = self.adjmin.get_property("value")/500,
-                            s1 = self.adjmax.get_property("value")/500)
+        #~ ShowEqualized(self,self.data, s0 = self.adjmin.get_property("value")/500,
+                            #~ s1 = self.adjmax.get_property("value")/500)
+        png = Fit2png(self.data,
+                      s0 = self.adjmin.get_property("value")/500,
+                      s1 = self.adjmax.get_property("value")/500, black=False)
+        im = Image.fromarray(png)
+        if self.fitlist_n in self.align.keys():
+            (dy,dx) = self.align[file]
+            im = ImageChops.offset(im,dx,dy)
+        self.im_actual = im
+        im.save("./tmp.png")
+        pxbf = GdkPixbuf.Pixbuf.new_from_file("./tmp.png")
+        self.pxbf = ZoomDefault(self,pxbf)
+        # show imge: 
+        self.imagen.set_property("pixbuf", self.pxbf)
     else:
         widget.hide()
         
@@ -211,13 +227,15 @@ def on_chkAuto_toggled(self, menuitem, data=None):
         self.adjmax.set_property("value", self.automax)
           
 def on_adjmin_value_changed(self, obj):
-    if self.msg == 0:  return
+    #~ if self.msg == 0:  return
+    if self.histo.get_property("pixbuf") == None:  return
     if self.adjmin.get_property("value") > self.adjmax.get_property("value"):
         self.adjmin.set_property("value", self.adjmax.get_property("value")-1)
     UpdateSigmoid(self)
     
 def on_adjmax_value_changed(self, obj):
-    if self.msg == 0:  return
+    #~ if self.msg == 0:  return
+    if self.histo.get_property("pixbuf") == None:  return
     if self.adjmax.get_property("value") < self.adjmin.get_property("value"):
         self.adjmax.set_property("value", self.adjmin.get_property("value")+1)
     UpdateSigmoid(self)

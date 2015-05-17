@@ -6,7 +6,7 @@ from gi.repository import Gtk
 class DataViewer(Gtk.Window):
   def __init__(self):
     # Create a new window
-    Gtk.Window.__init__(self, title="Metadatos",deletable=False)
+    Gtk.Window.__init__(self, title="Metadatos",deletable=False, type_hint=1)
     self.set_border_width(2)
     self.set_keep_above(True)
     self.connect("delete_event", self.hideme)
