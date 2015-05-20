@@ -33,10 +33,10 @@ class Gui:
     self.adjmax = self.builder.get_object("adjmax")
     self.adjselfit = self.builder.get_object("adjfitlist")
     self.chkauto = self.builder.get_object("chkAuto")
-    self.prev = self.builder.get_object("btnPrev")
-    self.first = self.builder.get_object("btnFirst")
-    self.next = self.builder.get_object("btnNext")
-    self.last = self.builder.get_object("btnLast")
+    self.btnaplicar = self.builder.get_object("btnAplicar")
+    self.alignauto = self.builder.get_object("chkAlignAuto")
+    #~ self.next = self.builder.get_object("btnNext")
+    #~ self.last = self.builder.get_object("btnLast")
     self.cmbFile = self.builder.get_object("cmbFile")
     self.fitfilter = self.builder.get_object("fitfilter")
     self.rfitfilter = self.builder.get_object("rfitfilter")
@@ -51,7 +51,7 @@ class Gui:
     self.dlgalinear = self.builder.get_object("dlgAlinear")
     self.adjdx = self.builder.get_object("adjDx")
     self.adjdy = self.builder.get_object("adjDy")
-    #~ self.af1 = self.builder.get_object("af1")
+    self.lblcount = self.builder.get_object("lblCount")
     #~ self.af2 = self.builder.get_object("af2")
     self.metaviewer = dv.DataViewer()
     #~ self.window.add(self.metaviewer)
@@ -80,6 +80,7 @@ class Gui:
     self.ViewZoom = 1
     self.folder = None
     self.align = {}             # Diccionario {filename : (dy,dx)}
+    self.dictEqual = {}         # Diccionario {n : (s0,s1)}
     self.pxbf_0 = None             # PIL.Image(self.fitlist[0])
     self.pxbf = None             # PIL.Image(self.fitlist_n)
     

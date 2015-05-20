@@ -216,6 +216,7 @@
                 <property name="can_focus">True</property>
                 <property name="receives_default">False</property>
                 <property name="xalign">0</property>
+                <property name="active">True</property>
                 <property name="draw_indicator">True</property>
                 <signal name="toggled" handler="on_chkAlignAuto_toggled" swapped="no"/>
               </object>
@@ -454,6 +455,7 @@
     </mime-types>
     <patterns>
       <pattern>*.fit</pattern>
+      <pattern>*.fits</pattern>
     </patterns>
   </object>
   <object class="GtkFileChooserWidget" id="filechooser">
@@ -1277,7 +1279,7 @@
     </columns>
     <data>
       <row>
-        <col id="0" translatable="yes">Todos los Fits  ( *.fit )</col>
+        <col id="0" translatable="yes">Todos los Fits  ( *.fit, *.fits )</col>
       </row>
       <row>
         <col id="0" translatable="yes">filtro Rojo     ( *r.fit )</col>
@@ -1304,6 +1306,7 @@
     <property name="select_multiple">True</property>
     <property name="use_preview_label">False</property>
     <signal name="response" handler="on_fitchooserdialog_response" swapped="no"/>
+    <signal name="selection-changed" handler="on_fitchooserdialog_selection_changed" swapped="no"/>
     <child internal-child="vbox">
       <object class="GtkBox" id="fitchooserdialog-vbox">
         <property name="can_focus">False</property>
@@ -1315,7 +1318,20 @@
             <property name="can_focus">False</property>
             <property name="layout_style">end</property>
             <child>
-              <placeholder/>
+              <object class="GtkLabel" id="lblCount">
+                <property name="visible">True</property>
+                <property name="sensitive">False</property>
+                <property name="can_focus">False</property>
+                <property name="double_buffered">False</property>
+                <property name="label" translatable="yes">---</property>
+                <property name="lines">1</property>
+              </object>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
+                <property name="position">0</property>
+                <property name="non_homogeneous">True</property>
+              </packing>
             </child>
             <child>
               <object class="GtkButton" id="btnFitChoose_cancel">

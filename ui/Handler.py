@@ -106,7 +106,7 @@ def ShowEqualized(gui, file, s0=0 , s1=0, msg=None):
 
     im.save("./tmp.png")
     if file == gui.fitlist[0]: # si primera imagen,
-        gui.im_0 = im           # guardar
+        gui.im_0 = im           # guardar (tamaño original, con shifts)
     gui.im_actual = im
     pxbf = GdkPixbuf.Pixbuf.new_from_file("./tmp.png")
     gui.pxbf = ZoomDefault(gui,pxbf)
@@ -218,6 +218,7 @@ def on_dlgAlinear_response(self, widget=None, btnID=None):
     if btnID == 1:   # Apply button pressed.
         ShowAlign(self, dx=int(self.adjdx.get_property("value")),
                         dy=int(self.adjdy.get_property("value")))
+        self.btnaplicar.set_property("sensible",False)
     else:
         self.dlgalinear.hide()
         
@@ -293,12 +294,14 @@ def on_mnuAlinear(self, menuitem, data=None):
     if self.fitlist_n == 0:
         Gtk.MessageDialog(text = "La primera imagen ya está alineada.").run()
         return True
-    dx, dy = 0, 0
     if self.fitlist[self.fitlist_n] in self.align.keys():
         dy, dx = self.align[self.fitlist[self.fitlist_n]]
         self.adjdx.set_property("value", dx)
         self.adjdy.set_property("value", dy)
+    else:
+        dx, dy = 0, 0
     #~ on_dlgAlinear_response(self,btnID=1)
+    
     im = Image.merge("RGB", (self.im_0,self.im_actual,self.im_0))
     ShowImage(self,im)
     self.dlgalinear.run()
@@ -345,7 +348,11 @@ def on_mnuAlinearTodas(self, menuitem, data=None):
     ShowImage(self,im)
     self.window.set_property("title","Neosfinder - ( Todas alineadas )")
 
-    
+def on_fitchooserdialog_selection_changed(self,obj,data=None):
+    l = len(obj.get_filenames())
+    self.lblcount.set_property("label", "%i seleccionado(s)."%l)
+    return
+
 def on_fitchooserdialog_response(self, obj, btnID=-1):
     print "filedialogID:", btnID
     if btnID <= 0:
@@ -461,10 +468,13 @@ def on_lstFilter_row_changed(self,widget):
     
 def on_adjfitlist_value_changed(self,widget,data=None):
     self.fitlist_n = int(widget.get_property("value")) - 1
-    print "adj"
-    ShowEqualized(self, self.fitlist[self.fitlist_n], 
-                    s0 = self.adjmin.get_property("value")/500,
-                    s1 = self.adjmax.get_property("value")/500,
+    if  in self.dictEqual.keys():
+        s0,s1 = self.dictEqual[self.fitlist_n]
+    else:
+        s0,s1 = self.Equalization
+
+    ShowEqualized(self, self.fitlist[self.fitlist_n], self.adjmax.get_property("value")/500,
+                    s0 = s0, s1 = s1,
                     msg = "FitNr")
 
 def on_winMain_configure_event(self,widget,data=None):

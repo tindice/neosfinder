@@ -29,11 +29,11 @@ def Pause(msg="Enter to cont, Ctrl-C to exit: "):
     raw_input(msg)
 
 def Checkfits(path, filelist, mean_criteria=(0.5,10), uprogress=True, log=False):
-    ''' Purges form filelist all files not *.fit and
+    ''' Purges form filelist all files not *.fit or *.fits and
             returns the exclude list following critera.
     '''
     print "\r Checking Fitfiles  ...",
-    fitlist = [f for f in filelist if f[-4:]==".fit"]
+    fitlist = [f for f in filelist if (f[-4:]==".fit") or (f[-5:]==".fits") ]
     means = {f:int(np.mean(Getdata(path+f)[1])) for f in fitlist}
     mean = means[fitlist[0]]
     exclude = [f for f in fitlist if means[f]<mean*mean_criteria[0] or means[f]>mean*mean_criteria[1]]
