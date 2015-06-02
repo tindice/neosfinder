@@ -18,18 +18,21 @@ def ZoomDefault(gui, pxbf):
     w1 = gui.viewport.get_property("width_request")
     h1 = gui.viewport.get_property("height_request")
     k = min(w1/w0, h1/h0)
+    gui.ViewZoom = k
     print "ZD",k
     return pxbf.scale_simple(k*w0, k*h0,
                              GdkPixbuf.InterpType.BILINEAR)
 
-def Zoom(gui, k):
-    gui.ViewZoom *= k
-    print "zoom:", gui.ViewZoom
-    if gui.ViewZoom == 1.0:
+def Zoom(gui, Zid):
+    zlist =[1, gui.ViewZoom, 1.5*gui.ViewZoom, 2*gui.ViewZoom, 2.5*gui.ViewZoom,
+        3*gui.ViewZoom, 3.5*gui.ViewZoom, 4*gui.ViewZoom,
+        4.5*gui.ViewZoom, 5*gui.ViewZoom]
+    z = zlist[Zid]
+    if z == 1:
         gui.imagen.set_property("pixbuf", gui.pxbf)
     else:
         size = (gui.pxbf.get_width(),gui.pxbf.get_height())
-        size = tuple(x * gui.ViewZoom for x in size)
+        size = tuple(x * z for x in size)
         pxb = gui.pxbf.scale_simple(size[0], size[1],
                              GdkPixbuf.InterpType.BILINEAR)
         gui.imagen.set_property("pixbuf", pxb)
@@ -71,7 +74,7 @@ def ShowEqualized(gui, file, s0=0 , s1=0, msg=None):
     ''' accepts "file" as string or as np.array
     '''
     print "ShwEq",msg
-    gui.spinner.start()
+    #~ gui.spinner.start()
     # toogle   GTK_SHADOW_ETCHED_OUT / GTK_SHADOW_ETCHED_IN
     gui.viewport.set_shadow_type(3+gui.viewport.get_shadow_type()%2)
     if s0 == 0:
@@ -144,9 +147,10 @@ def ShowEqualized(gui, file, s0=0 , s1=0, msg=None):
             gui.metaviewer.updatekeys(gui.metalist[gui.fitlist_n],
                                       gui.DifKlist)
         #~ 
-    gui.spinner.stop()
+    gui.metaviewer.set_focus(None)
+    #~ gui.spinner.stop()
 
-    return  True
+    return  False
 
 def ShowAlign(gui, dx=0, dy=0):
     print "ShowAlign", dx,dy
@@ -167,10 +171,6 @@ def on_notyet(self,menuitem):
     
 def on_msgdialog_response(self,widget, data=None):
     widget.destroy()
-    
-def on_dlgMeta_response(self,widget, data=None):
-    if data == 0:
-        widget.hide()
     
 def gtk_main_quit(self, menuitem, data=None):
     
@@ -380,6 +380,10 @@ def on_fitchooserdialog_response(self, obj, btnID=-1):
             self.ConKlist = list(k for k in self.metalist[0].keys())
 
             if len(self.fitlist) > 1:
+                self.spnimage.set_property("visible", True)
+                self.cmbzoom.set_property("visible", True)
+                self.lblimagen.set_property("visible", True)
+                self.lblzoom.set_property("visible", True)
                 for f in self.fitlist[1:]:
                     meta = GetMeta(f)
                     diflist = list(set(self.metalist[0].items()) ^ set(meta.items()))
@@ -388,7 +392,7 @@ def on_fitchooserdialog_response(self, obj, btnID=-1):
                 self.DifKlist=list(set(self.DifKlist))  # lista de claves variable unique
                 for key in self.DifKlist:
                     if key in self.ConKlist: self.ConKlist.remove(key)
-    
+
             def done():
                 self.window.get_window().set_cursor(None)
                 return False
@@ -399,63 +403,12 @@ def on_fitchooserdialog_response(self, obj, btnID=-1):
         thread = threading.Thread(target=otrohilo)
         thread.start()
         otrohilo()
-        ShowEqualized(self, self.fitlist[0],msg="de fitchooser")
-    return
-    #~ print "volvi con", self.fitlist_n, self.fitlist
+        #~ self.adjimage.set_property("value",1)
+        #~ self.adjimage.set_property("upper",len(self.fitlist))
         
-    #~ if len(self.fitlist) > 1:
-        #~ for btn in (self.first, self.next, self.prev, self.last):
-            #~ btn.set_property("visible",True)
-            #~ 
-        #~ self.first.set_sensitive(False)
-        #~ self.prev.set_sensitive(False)
-        #~ self.next.set_sensitive(True)
-        #~ self.last.set_sensitive(True)
-
-    
-
-#~ def on_btnFirst_clicked(self,button):
-    #~ self.fitlist_n = 0
-    #~ ShowEqualized(self, self.fitlist[self.fitlist_n], 
-                    #~ s0 = self.adjmin.get_property("value")/500,
-                    #~ s1 = self.adjmax.get_property("value")/500)
-    #~ for btn in (self.first,self.prev):
-        #~ btn.set_sensitive(False) 
-    #~ for btn in (self.next,self.last):
-        #~ btn.set_sensitive(True) 
-    #~ 
-    #~ 
-#~ def on_btnLast_clicked(self,button):
-    #~ self.fitlist_n = len(self.fitlist)-1
-    #~ ShowEqualized(self, self.fitlist[self.fitlist_n], 
-                    #~ s0 = self.adjmin.get_property("value")/500,
-                    #~ s1 = self.adjmax.get_property("value")/500)
-    #~ for btn in (self.first,self.prev):
-        #~ btn.set_sensitive(True) 
-    #~ for btn in (self.next,self.last):
-        #~ btn.set_sensitive(False) 
-#~ 
-#~ def on_btnPrev_clicked(self,button):
-    #~ if self.fitlist_n == 1:
-        #~ on_btnFirst_clicked(self,button)
-    #~ else:
-        #~ self.fitlist_n -= 1
-        #~ ShowEqualized(self, self.fitlist[self.fitlist_n], 
-                    #~ s0 = self.adjmin.get_property("value")/500,
-                    #~ s1 = self.adjmax.get_property("value")/500)
-        #~ for btn in (self.next,self.last):
-            #~ btn.set_sensitive(True) 
-#~ 
-#~ def on_btnNext_clicked(self, button):
-    #~ if self.fitlist_n == len(self.fitlist)-2:
-        #~ on_btnLast_clicked(self,button)
-    #~ else:
-        #~ self.fitlist_n += 1
-        #~ ShowEqualized(self, self.fitlist[self.fitlist_n], 
-                    #~ s0 = self.adjmin.get_property("value")/500,
-                    #~ s1 = self.adjmax.get_property("value")/500)
-        #~ for btn in (self.first,self.prev):
-            #~ btn.set_sensitive(True) 
+        ShowEqualized(self, self.fitlist[0],msg="de fitchooser")
+    return False
+    #~ print "volvi con", self.fitlist_n, self.fitlist
 
 def on_combobox1_changed(self,widget):
     #~ print "Combo changed", widget.get_active()
@@ -468,21 +421,17 @@ def on_lstFilter_row_changed(self,widget):
     
 def on_adjfitlist_value_changed(self,widget,data=None):
     self.fitlist_n = int(widget.get_property("value")) - 1
-    if  in self.dictEqual.keys():
+    if self.fitlist_n in self.dictEqual.keys():
         s0,s1 = self.dictEqual[self.fitlist_n]
     else:
-        s0,s1 = self.Equalization
+        s0,s1 = self.automin/500, self.automax/500
 
-    ShowEqualized(self, self.fitlist[self.fitlist_n], self.adjmax.get_property("value")/500,
-                    s0 = s0, s1 = s1,
-                    msg = "FitNr")
-
-def on_winMain_configure_event(self,widget,data=None):
-    #~ w = self.viewport.get_property("width_request")
-    #~ dx = self.window.get_size()[0]-self.winsize0[0]
-    #~ self.viewport.set_property("width_request", w+dx)
-    #~ return True
-    pass
+    ShowEqualized(self, self.fitlist[self.fitlist_n],
+                    s0 = s0, s1 = s1, msg = "FitNr")
+    return False
+    
+def on_cmbZoom_changed(self,widget):
+    Zoom(self,widget.get_active())
     
 def on_adjDx_value_changed(self,widget,data=None):
     pass

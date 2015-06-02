@@ -260,6 +260,7 @@
   </object>
   <object class="GtkAdjustment" id="adjfitlist">
     <property name="upper">100</property>
+    <property name="value">1</property>
     <property name="step_increment">1</property>
     <property name="page_increment">10</property>
     <signal name="value-changed" handler="on_adjfitlist_value_changed" swapped="no"/>
@@ -286,6 +287,67 @@
         <property name="can_focus">False</property>
         <property name="orientation">vertical</property>
         <property name="spacing">2</property>
+        <child>
+          <object class="GtkScale" id="scalemax">
+            <property name="visible">True</property>
+            <property name="app_paintable">True</property>
+            <property name="can_focus">True</property>
+            <property name="adjustment">adjmax</property>
+            <property name="restrict_to_fill_level">False</property>
+            <property name="fill_level">100</property>
+            <property name="round_digits">1</property>
+            <signal name="button-release-event" handler="on_scale_release" swapped="no"/>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkImage" id="imgHistogram">
+            <property name="width_request">256</property>
+            <property name="height_request">100</property>
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="stock">gtk-missing-image</property>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">1</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkScale" id="scalemin">
+            <property name="visible">True</property>
+            <property name="app_paintable">True</property>
+            <property name="can_focus">True</property>
+            <property name="adjustment">adjmin</property>
+            <property name="restrict_to_fill_level">False</property>
+            <property name="fill_level">100</property>
+            <property name="round_digits">1</property>
+            <property name="value_pos">bottom</property>
+            <signal name="button-release-event" handler="on_scale_release" swapped="no"/>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">2</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkBox" id="box3">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="vexpand">False</property>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">3</property>
+          </packing>
+        </child>
         <child internal-child="action_area">
           <object class="GtkButtonBox" id="dialog-action_area1">
             <property name="can_focus">False</property>
@@ -346,56 +408,7 @@
             <property name="expand">False</property>
             <property name="fill">True</property>
             <property name="pack_type">end</property>
-            <property name="position">0</property>
-          </packing>
-        </child>
-        <child>
-          <object class="GtkScale" id="scalemax">
-            <property name="visible">True</property>
-            <property name="app_paintable">True</property>
-            <property name="can_focus">True</property>
-            <property name="adjustment">adjmax</property>
-            <property name="restrict_to_fill_level">False</property>
-            <property name="fill_level">100</property>
-            <property name="round_digits">1</property>
-            <signal name="button-release-event" handler="on_scale_release" swapped="no"/>
-          </object>
-          <packing>
-            <property name="expand">False</property>
-            <property name="fill">True</property>
-            <property name="position">1</property>
-          </packing>
-        </child>
-        <child>
-          <object class="GtkImage" id="imgHistogram">
-            <property name="width_request">256</property>
-            <property name="height_request">100</property>
-            <property name="visible">True</property>
-            <property name="can_focus">False</property>
-            <property name="stock">gtk-missing-image</property>
-          </object>
-          <packing>
-            <property name="expand">False</property>
-            <property name="fill">True</property>
-            <property name="position">2</property>
-          </packing>
-        </child>
-        <child>
-          <object class="GtkScale" id="scalemin">
-            <property name="visible">True</property>
-            <property name="app_paintable">True</property>
-            <property name="can_focus">True</property>
-            <property name="adjustment">adjmin</property>
-            <property name="restrict_to_fill_level">False</property>
-            <property name="fill_level">100</property>
-            <property name="round_digits">1</property>
-            <property name="value_pos">bottom</property>
-            <signal name="button-release-event" handler="on_scale_release" swapped="no"/>
-          </object>
-          <packing>
-            <property name="expand">False</property>
-            <property name="fill">True</property>
-            <property name="position">3</property>
+            <property name="position">4</property>
           </packing>
         </child>
       </object>
@@ -511,6 +524,44 @@
     <property name="can_focus">False</property>
     <property name="stock">gtk-missing-image</property>
   </object>
+  <object class="GtkListStore" id="liststore1">
+    <columns>
+      <!-- column-name nombre -->
+      <column type="gchararray"/>
+    </columns>
+    <data>
+      <row>
+        <col id="0" translatable="yes">&lt;  1 : 1  &gt;</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">100 %</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">150 %</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">200 %</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">250 %</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">300 %</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">350 %</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">400 %</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">450 %</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">500 %</col>
+      </row>
+    </data>
+  </object>
   <object class="GtkWindow" id="winMain">
     <property name="width_request">-1</property>
     <property name="height_request">-1</property>
@@ -520,7 +571,6 @@
     <property name="default_width">600</property>
     <property name="default_height">400</property>
     <property name="icon">nf.png</property>
-    <signal name="configure-event" handler="on_winMain_configure_event" swapped="no"/>
     <signal name="destroy" handler="gtk_main_quit" swapped="no"/>
     <child>
       <object class="GtkBox" id="box1">
@@ -879,51 +929,19 @@
           </packing>
         </child>
         <child>
-          <object class="GtkLabel" id="infolbl">
+          <object class="GtkBox" id="box4">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
-            <property name="margin_left">6</property>
-            <property name="margin_right">6</property>
-            <property name="xalign">0.49000000953674316</property>
-            <attributes>
-              <attribute name="style" value="italic"/>
-              <attribute name="weight" value="light"/>
-            </attributes>
-          </object>
-          <packing>
-            <property name="expand">False</property>
-            <property name="fill">True</property>
-            <property name="position">5</property>
-          </packing>
-        </child>
-      </object>
-    </child>
-  </object>
-  <object class="GtkDialog" id="dlgMeta">
-    <property name="can_focus">False</property>
-    <property name="title" translatable="yes">Seleccione campos:</property>
-    <property name="type_hint">menu</property>
-    <property name="gravity">north</property>
-    <property name="attached_to">mnuMeta</property>
-    <property name="startup_id">0</property>
-    <signal name="response" handler="on_dlgMeta_response" swapped="no"/>
-    <child internal-child="vbox">
-      <object class="GtkBox" id="dialog-vbox2">
-        <property name="can_focus">False</property>
-        <property name="orientation">vertical</property>
-        <property name="spacing">2</property>
-        <child internal-child="action_area">
-          <object class="GtkButtonBox" id="dialog-action_area2">
-            <property name="can_focus">False</property>
-            <property name="layout_style">end</property>
             <child>
-              <object class="GtkButton" id="btnMetaCancel">
-                <property name="label">gtk-cancel</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">True</property>
-                <property name="use_stock">True</property>
-                <property name="yalign">0.50999999046325684</property>
+              <object class="GtkLabel" id="lblimagen">
+                <property name="sensitive">False</property>
+                <property name="can_focus">False</property>
+                <property name="xalign">0.49000000953674316</property>
+                <property name="xpad">4</property>
+                <property name="label" translatable="yes">img:</property>
+                <property name="ellipsize">start</property>
+                <property name="single_line_mode">True</property>
+                <property name="track_visited_links">False</property>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -932,55 +950,18 @@
               </packing>
             </child>
             <child>
-              <object class="GtkButton" id="btnMetaOk">
-                <property name="label">gtk-ok</property>
-                <property name="visible">True</property>
+              <object class="GtkSpinButton" id="spnImage">
                 <property name="can_focus">True</property>
-                <property name="receives_default">True</property>
-                <property name="use_stock">True</property>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">True</property>
-                <property name="position">1</property>
-              </packing>
-            </child>
-          </object>
-          <packing>
-            <property name="expand">False</property>
-            <property name="fill">True</property>
-            <property name="pack_type">end</property>
-            <property name="position">0</property>
-          </packing>
-        </child>
-        <child>
-          <object class="GtkBox" id="box2">
-            <property name="visible">True</property>
-            <property name="can_focus">False</property>
-            <property name="orientation">vertical</property>
-            <child>
-              <object class="GtkCheckButton" id="chkMeta0">
-                <property name="label" translatable="yes">chk0</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">False</property>
-                <property name="xalign">0</property>
-                <property name="draw_indicator">True</property>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">True</property>
-                <property name="position">0</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkCheckButton" id="chkMeta1">
-                <property name="label" translatable="yes">chk0</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">False</property>
-                <property name="xalign">0</property>
-                <property name="draw_indicator">True</property>
+                <property name="caps_lock_warning">False</property>
+                <property name="primary_icon_activatable">False</property>
+                <property name="secondary_icon_activatable">False</property>
+                <property name="primary_icon_sensitive">False</property>
+                <property name="secondary_icon_sensitive">False</property>
+                <property name="primary_icon_tooltip_text">Número de Imagen</property>
+                <property name="input_purpose">number</property>
+                <property name="adjustment">adjfitlist</property>
+                <property name="climb_rate">10</property>
+                <property name="numeric">True</property>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -989,13 +970,20 @@
               </packing>
             </child>
             <child>
-              <object class="GtkCheckButton" id="chkMeta2">
-                <property name="label" translatable="yes">chk0</property>
+              <object class="GtkLabel" id="infolbl">
                 <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">False</property>
-                <property name="xalign">0</property>
-                <property name="draw_indicator">True</property>
+                <property name="sensitive">False</property>
+                <property name="can_focus">False</property>
+                <property name="double_buffered">False</property>
+                <property name="margin_left">6</property>
+                <property name="margin_right">6</property>
+                <property name="hexpand">True</property>
+                <property name="xalign">0.49000000953674316</property>
+                <property name="track_visited_links">False</property>
+                <attributes>
+                  <attribute name="style" value="italic"/>
+                  <attribute name="weight" value="light"/>
+                </attributes>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -1004,13 +992,10 @@
               </packing>
             </child>
             <child>
-              <object class="GtkCheckButton" id="chkMeta3">
-                <property name="label" translatable="yes">chk0</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">False</property>
-                <property name="xalign">0</property>
-                <property name="draw_indicator">True</property>
+              <object class="GtkLabel" id="lblzoom">
+                <property name="sensitive">False</property>
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes">zoom:</property>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -1019,13 +1004,18 @@
               </packing>
             </child>
             <child>
-              <object class="GtkCheckButton" id="chkMeta4">
-                <property name="label" translatable="yes">chk0</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">False</property>
-                <property name="xalign">0</property>
-                <property name="draw_indicator">True</property>
+              <object class="GtkComboBox" id="cmbZoom">
+                <property name="can_focus">False</property>
+                <property name="margin_left">3</property>
+                <property name="model">liststore1</property>
+                <property name="has_entry">True</property>
+                <property name="entry_text_column">0</property>
+                <signal name="changed" handler="on_cmbZoom_changed" swapped="no"/>
+                <child internal-child="entry">
+                  <object class="GtkEntry" id="combobox-entry2">
+                    <property name="can_focus">False</property>
+                  </object>
+                </child>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -1033,244 +1023,15 @@
                 <property name="position">4</property>
               </packing>
             </child>
-            <child>
-              <object class="GtkCheckButton" id="chkMeta5">
-                <property name="label" translatable="yes">chk0</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">False</property>
-                <property name="xalign">0</property>
-                <property name="draw_indicator">True</property>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">True</property>
-                <property name="position">5</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkCheckButton" id="chkMeta6">
-                <property name="label" translatable="yes">chk0</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">False</property>
-                <property name="xalign">0</property>
-                <property name="draw_indicator">True</property>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">True</property>
-                <property name="position">6</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkCheckButton" id="chkMeta7">
-                <property name="label" translatable="yes">chk0</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">False</property>
-                <property name="xalign">0</property>
-                <property name="draw_indicator">True</property>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">True</property>
-                <property name="position">7</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkCheckButton" id="chkMeta8">
-                <property name="label" translatable="yes">chk0</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">False</property>
-                <property name="xalign">0</property>
-                <property name="draw_indicator">True</property>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">True</property>
-                <property name="position">8</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkCheckButton" id="chkMeta9">
-                <property name="label" translatable="yes">chk0</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">False</property>
-                <property name="xalign">0</property>
-                <property name="draw_indicator">True</property>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">True</property>
-                <property name="position">9</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkCheckButton" id="chkMeta10">
-                <property name="label" translatable="yes">chk0</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">False</property>
-                <property name="xalign">0</property>
-                <property name="draw_indicator">True</property>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">True</property>
-                <property name="position">10</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkCheckButton" id="chkMeta11">
-                <property name="label" translatable="yes">chk0</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">False</property>
-                <property name="xalign">0</property>
-                <property name="draw_indicator">True</property>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">True</property>
-                <property name="position">11</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkCheckButton" id="chkMeta12">
-                <property name="label" translatable="yes">chk0</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">False</property>
-                <property name="xalign">0</property>
-                <property name="draw_indicator">True</property>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">True</property>
-                <property name="position">12</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkCheckButton" id="chkMeta13">
-                <property name="label" translatable="yes">chk0</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">False</property>
-                <property name="xalign">0</property>
-                <property name="draw_indicator">True</property>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">True</property>
-                <property name="position">13</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkCheckButton" id="chkMeta14">
-                <property name="label" translatable="yes">chk0</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">False</property>
-                <property name="xalign">0</property>
-                <property name="draw_indicator">True</property>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">True</property>
-                <property name="position">14</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkCheckButton" id="chkMeta15">
-                <property name="label" translatable="yes">chk0</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">False</property>
-                <property name="xalign">0</property>
-                <property name="draw_indicator">True</property>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">True</property>
-                <property name="position">15</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkCheckButton" id="chkMeta16">
-                <property name="label" translatable="yes">chk0</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">False</property>
-                <property name="xalign">0</property>
-                <property name="draw_indicator">True</property>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">True</property>
-                <property name="position">16</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkCheckButton" id="chkMeta17">
-                <property name="label" translatable="yes">chk0</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">False</property>
-                <property name="xalign">0</property>
-                <property name="draw_indicator">True</property>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">True</property>
-                <property name="position">17</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkCheckButton" id="chkMeta19">
-                <property name="label" translatable="yes">chk0</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">False</property>
-                <property name="xalign">0</property>
-                <property name="draw_indicator">True</property>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">True</property>
-                <property name="position">18</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkCheckButton" id="chkMeta18">
-                <property name="label" translatable="yes">chk0</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">False</property>
-                <property name="xalign">0</property>
-                <property name="draw_indicator">True</property>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">True</property>
-                <property name="position">19</property>
-              </packing>
-            </child>
           </object>
           <packing>
             <property name="expand">False</property>
             <property name="fill">True</property>
-            <property name="position">1</property>
+            <property name="position">3</property>
           </packing>
         </child>
       </object>
     </child>
-    <action-widgets>
-      <action-widget response="0">btnMetaCancel</action-widget>
-      <action-widget response="1">btnMetaOk</action-widget>
-    </action-widgets>
   </object>
   <object class="GtkListStore" id="lstFilter">
     <columns>
@@ -1388,6 +1149,7 @@
             <property name="tearoff_title" translatable="yes">Archivos</property>
             <property name="has_entry">True</property>
             <property name="entry_text_column">0</property>
+            <property name="id_column">0</property>
             <signal name="changed" handler="on_combobox1_changed" swapped="no"/>
             <child internal-child="entry">
               <object class="GtkEntry" id="combobox-entry">
@@ -1479,82 +1241,6 @@
     </patterns>
   </object>
   <object class="GtkTextBuffer" id="textbuffer1"/>
-  <object class="GtkDialog" id="dlgMeta1">
-    <property name="can_focus">False</property>
-    <property name="title" translatable="yes">Seleccione campos:</property>
-    <property name="type_hint">menu</property>
-    <property name="gravity">north</property>
-    <property name="attached_to">mnuMeta</property>
-    <property name="startup_id">0</property>
-    <child internal-child="vbox">
-      <object class="GtkBox" id="dialog-vbox4">
-        <property name="can_focus">False</property>
-        <property name="orientation">vertical</property>
-        <property name="spacing">2</property>
-        <child internal-child="action_area">
-          <object class="GtkButtonBox" id="dialog-action_area4">
-            <property name="can_focus">False</property>
-            <property name="layout_style">end</property>
-            <child>
-              <object class="GtkButton" id="btnMetaCancel1">
-                <property name="label">gtk-cancel</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">True</property>
-                <property name="use_stock">True</property>
-                <property name="yalign">0.50999999046325684</property>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">True</property>
-                <property name="position">0</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkButton" id="btnMetaOk1">
-                <property name="label">gtk-ok</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">True</property>
-                <property name="use_stock">True</property>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">True</property>
-                <property name="position">1</property>
-              </packing>
-            </child>
-          </object>
-          <packing>
-            <property name="expand">False</property>
-            <property name="fill">True</property>
-            <property name="pack_type">end</property>
-            <property name="position">0</property>
-          </packing>
-        </child>
-        <child>
-          <object class="GtkTextView" id="textview1">
-            <property name="visible">True</property>
-            <property name="can_focus">True</property>
-            <property name="editable">False</property>
-            <property name="right_margin">1</property>
-            <property name="cursor_visible">False</property>
-            <property name="buffer">textbuffer1</property>
-            <property name="accepts_tab">False</property>
-          </object>
-          <packing>
-            <property name="expand">False</property>
-            <property name="fill">True</property>
-            <property name="position">1</property>
-          </packing>
-        </child>
-      </object>
-    </child>
-    <action-widgets>
-      <action-widget response="0">btnMetaCancel1</action-widget>
-      <action-widget response="1">btnMetaOk1</action-widget>
-    </action-widgets>
-  </object>
   <object class="GtkFileFilter" id="vfitfilter">
     <mime-types>
       <mime-type/>

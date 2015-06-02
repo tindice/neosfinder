@@ -35,15 +35,11 @@ class Gui:
     self.chkauto = self.builder.get_object("chkAuto")
     self.btnaplicar = self.builder.get_object("btnAplicar")
     self.alignauto = self.builder.get_object("chkAlignAuto")
-    #~ self.next = self.builder.get_object("btnNext")
-    #~ self.last = self.builder.get_object("btnLast")
     self.cmbFile = self.builder.get_object("cmbFile")
     self.fitfilter = self.builder.get_object("fitfilter")
     self.rfitfilter = self.builder.get_object("rfitfilter")
     self.vfitfilter = self.builder.get_object("vfitfilter")
     self.msgdialog = self.builder.get_object("msgdialog")
-    self.dlgmeta = self.builder.get_object("dlgMeta1")
-    self.chkmeta0 = self.builder.get_object("chkMeta0")
     self.textbuffer = self.builder.get_object("textbuffer1")
     self.spinner = self.builder.get_object("spinner3")
     self.viewport = self.builder.get_object("viewport")
@@ -51,23 +47,27 @@ class Gui:
     self.dlgalinear = self.builder.get_object("dlgAlinear")
     self.adjdx = self.builder.get_object("adjDx")
     self.adjdy = self.builder.get_object("adjDy")
+    self.adjimage = self.builder.get_object("adjimage")
     self.lblcount = self.builder.get_object("lblCount")
-    #~ self.af2 = self.builder.get_object("af2")
+    self.spnimage = self.builder.get_object("spnImage")
+    self.lblzoom = self.builder.get_object("lblzoom")
+    self.lblimagen = self.builder.get_object("lblimagen")
+    self.cmbzoom = self.builder.get_object("cmbZoom")
     self.metaviewer = dv.DataViewer()
     #~ self.window.add(self.metaviewer)
     
     # Accelerators
     #~ self.my_accelerators = Gtk.AccelGroup()
     #~ self.window.add_accel_group(self.my_accelerators)
-    #~ self.entry = self.builder.get_object("entry1")
-    #~ self.add_accelerator(self.entry, "<Control>+", signal="on_mnuZoom")
+    #~ self.add_accelerator(self.imagen, "<Control>+", signal="on_mnuZoomU")
+    
+    
     self.initialize()
     
   def initialize(self, obj=None):  
     # inicializa variables:
     self.DifKlist = []
     self.ConKlist = []
-    self.chkmeta0.set_border_width(4)
     self.fitlist = []
     self.metalist = []
     self.fitlist_n = 0
@@ -89,6 +89,7 @@ class Gui:
     self.adjmin.set_property("value", self.automin)
     self.cmbFile.set_active(0)
     self.adjmax.set_property("value", self.automax)
+    self.spnimage.set_property("visible", False)
     #~ self.selfit.set_property("width_request", int(screenWidth*0.85))
     self.viewport.set_property("width_request", int(screenWidth*0.85))
     self.viewport.set_property("height_request", int(screenHeight*0.8))
@@ -97,6 +98,18 @@ class Gui:
     #~ self.winsize0 = self.window.get_size()
     self.metaviewer.set_property("default_width", int(screenWidth/3))
     self.metaviewer.set_property("default_height", int(screenHeight/10))
+    #~ self.lstzoom = Gtk.ListStore(int,str)
+    #~ self.lstzoom.append([0,"100 %"])
+    #~ self.lstzoom.append([1,"150 %"])
+    #~ self.lstzoom.append([2,"200 %"])
+    #~ self.lstzoom.append([3,"250 %"])
+    #~ self.lstzoom.append([4,"300 %"])
+    #~ self.lstzoom.append([5,"400 %"])
+    #~ self.cmbzoom.set_model(self.lstzoom)
+    #~ self.cell = Gtk.CellRendererText()
+    #~ self.cmbzoom.pack_start(self.cell, True)
+    #~ self.cmbzoom.add_attribute(self.cell, 'text', 1)
+    #~ self.cmbzoom.set_active(0)
     self.window.show()
     
     #~ f = open("./settings", "r")
